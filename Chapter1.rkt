@@ -196,8 +196,8 @@ b
   (new-if (good-enough? guess x) guess
           (sqrt-iter-alt (improve guess x) x)))
 
-; sqrt-iter-alt will never return.
-; 
-; Because even when the predicate is true, the 
-; else-clause will be evaluated unnecessarily 
-  
+; sqrt-iter-alt will never return: even when the
+; predicate is true, the else-clause will be evaluated
+; unnecessarily.
+
+
