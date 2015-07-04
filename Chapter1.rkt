@@ -460,3 +460,41 @@ b
 
 (define (k n) (* 5 n n)) ;-> k(n)=5n^2
 
+; Excercise 1.11:
+;        | if n>=3; f(n - 1) + 2f(n - 2) + 3f(n - 3)
+; f(n) = | if n<3; n   
+; write an iterative and recursive process for this function.
+
+; recursive process, recursive function
+(define (fn-1.11-r n)
+  (cond ((>= n 3) (+ (fn-1.11-r (- n 1)) (* 2 (fn-1.11-r (- n 2))) (* 3 (fn-1.11-r (- n 3)))))
+        (else n)))
+
+(define (dec x) (- x 1))
+
+; iterative process, recursive function
+(define (fn-1.11-i n)
+  
+  (define (iter a b c count)
+    (cond ((= count 0) a)
+          (else (iter b c (+ c (* 2 b) (* 3 a)) (dec count)))
+    ))
+  
+  (iter 0 1 2 n)
+)
+; 
+; For f(n) we're going over the expanded terms of the computation right to left.
+; We could re-write this process as the term substitution process below:
+; 
+; a <- b
+; b <- c
+; c <- c + 2b + 3a
+; 
+; which we carry out n times, the result being in 'a'
+  
+
+
+; Excercise 1.9 (first edition):
+; design an a procedure that evolves an iterative process for solving the change 
+; counting problem. For simplicity you may wish to start by considering only two 
+; or three kinds of coins
