@@ -298,3 +298,165 @@ b
 (define (iterator improve test? prev-guess curr-guess x)
   (if (test? prev-guess curr-guess x) curr-guess
           (iterator improve test? curr-guess (improve curr-guess x) x)))
+
+
+
+; Excercise 1.9:
+
+; Look at the differences between 
+'( 
+ 
+ (define (+ a b)
+   (if (= a 0)
+       b
+       (inc (+ (dec a) b))))
+ 
+ (define (+ a b)
+   (if (= a 0)
+       b
+       (+ (dec a) (inc b))))
+
+)
+
+; FULL Expension
+; take the first definition and expend it for (+ 4 5)
+'(
+  (define (+ a b)
+   (if (= a 0)
+       b
+       (inc (+ (dec a) b))))
+  
+  (+ 4 5)
+  (if (= 4 0) 5 (inc (+ (dec 4) 5)))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (+ (dec 3) 5)))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 (inc (+ (dec 2) 5)))))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 (inc (if (= 1 0) 5 (inc (+ (dec 1) 5)))))))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 (inc (if (= 1 0) 5 (inc (if (= 0 0) 5 (inc (+ (dec 0) 5)))))))))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 (inc (if (= 1 0) 5 (inc 5))))))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 (inc (if (= 1 0) 5 6)))))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 (inc 6))))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc (if (= 2 0) 5 7)))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 (inc 7))))
+  (if (= 4 0) 5 (inc (if (= 3 0) 5 8)))
+  (if (= 4 0) 5 (inc 8))
+  (if (= 4 0) 5 9)
+  9     
+)
+
+; take the second definition and expend it for (+ 4 5)
+
+'(
+  (define (+ a b)
+   (if (= a 0)
+       b
+       (+ (dec a) (inc b))))
+  
+   (+ 4 5)
+   (if (= 4 0) 5 (+ (dec 4) (inc 5)))
+   (if (= 4 0) 5 (if (= 3 0) 6 (+ (dec 3) (inc 6))))
+   (if (= 4 0) 5 (if (= 3 0) 6 (if (= 2 0) 7 (+ (dec 2) (inc 7)))))
+   (if (= 4 0) 5 (if (= 3 0) 6 (if (= 2 0) 7 (if (= 1 0) 8 (+ (dec 1) (inc 8))))))
+   (if (= 4 0) 5 (if (= 3 0) 6 (if (= 2 0) 7 (if (= 1 0) 8 (if (= 0 0) 9 (+ (dec 0) (inc 9)))))))
+   (if (= 4 0) 5 (if (= 3 0) 6 (if (= 2 0) 7 (if (= 1 0) 8 9))))
+   (if (= 4 0) 5 (if (= 3 0) 6 (if (= 2 0) 7 9)))
+   (if (= 4 0) 5 (if (= 3 0) 6 9))
+   (if (= 4 0) 5 9)
+   9
+)
+
+; LOGICLESS Expansion
+; First def
+'(
+  (define (+ a b)
+   (if (= a 0)
+       b
+       (inc (+ (dec a) b))))
+  
+  (+ 4 5)
+  (inc (+ (dec 4) 5))
+  (inc (inc (+ (dec 3) 5)))
+  (inc (inc (inc (+ (dec 2) 5))))
+  (inc (inc (inc (inc (+ (dec 1) 5)))))
+  (inc (inc (inc (inc 5))))
+  (inc (inc (inc 6)))
+  (inc (inc 7))
+  (inc 8)
+  9
+  ; recursive function, recursive process.
+)
+
+; second def
+'(
+  (define (+ a b)
+   (if (= a 0)
+       b
+       (+ (dec a) (inc b))))
+  
+  (+ 4 5)
+  (+ (dec 4) (inc 5))
+  (+ (dec 3) (inc 6))
+  (+ (dec 2) (inc 7))
+  (+ (dec 1) (inc 8))
+  9
+  ; recursive function, iterative process. (tail recursive) 
+)
+
+; We noted that the 'if' primitive must not evaluate the negative case, 
+; as per excercises 1.5 and 1.6 for this to be the case and for the language to express 
+; processes while still being able to stop.
+
+; Excercise 1.10:
+
+; The Ackerman function
+(define (A x y)
+  (cond ((= y 0) 0)
+        ((= x 0) (* 2 y))
+        ((= y 1) 2)
+        (else (A (- x 1)
+                 (A x (- y 1))))))
+
+(A 1 10) ;-> 1024
+(A 2 4) ;-> 65536
+(A 3 3) ;-> 65536
+
+; Consider the following procedures, where A is the procedure defined above:
+
+(define (f n) (A 0 n)) ;-> f(n)=2n by substitution
+
+(define (g n) (A 1 n))
+; taking the definition for A:
+;          | if y=0; 0
+; A(x,y) = | if x=0; 2y
+;          | if y=1; 2
+;          | A(x-1, A(x,y-1)) otherwise.
+;
+; therefore, for positive numbers:
+; A(1,n) = A(0, A(1, n-1))
+;        = A(0, A(0, A(1, n-2))
+;        = A(0, A(0, A(0, A(1, n-3))
+;        = A(0, A(0, A(0, ... A(1, n-(n-1)))))
+;        = 2 x 2 x 2 ... x 2
+;        = 2^n
+;               | if n>0; 2^n
+; =>     g(n) = | if n=0; 0
+;               | undefined? Positive countable infinity of (2^inf)
+
+(define (h n) (A 2 n))
+; expanding A(2,n):
+;
+; A(2,n) = A(1, A(2, n-1))
+;        = A(1, A(1, A(2, n-2))
+;        = A(1, A(1, A(1, A(2, n-3))
+;        = 2 ^ 2 ^ 2 ... ^ A(2, n-(n-1))
+;        = 2 ^ 2 ^ 2 ... ^ 2
+;        = 2 ^^ n
+; therefore 
+;               | if n>0; 2^^n
+; =>     h(n) = | if n=0; 0
+;               | if n<0; positive countable infinity of 2^^inf
+; 
+
+; generally, A(x,y) = 2↑ˣy
+
+(define (k n) (* 5 n n)) ;-> k(n)=5n^2
+
