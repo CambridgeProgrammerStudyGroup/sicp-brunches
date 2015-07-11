@@ -298,3 +298,130 @@ b
 (define (iterator improve test? prev-guess curr-guess x)
   (if (test? prev-guess curr-guess x) curr-guess
           (iterator improve test? curr-guess (improve curr-guess x) x)))
+
+
+; Excercise 1.9
+(define (inc a)
+  (+ a 1))
+
+(define (dec a)
+  (- a 1))
+; Definition 1
+; (define (+ a b)
+;   (if (= a 0)
+;       b
+;       (inc (+ (dec a) b))))
+
+(+ 4 5)
+(inc (+ 3 5))
+(inc (inc (+ 2 5)))
+(inc (inc (inc (+ 1 5))))
+(inc (inc (inc (inc (+ 0 5)))))
+(inc (inc (inc (inc 5))))
+(inc (inc (inc 6)))
+(inc (inc 7))
+(inc 8)
+9
+
+; Definition 2
+;
+; (define (+ a b)
+;   (if (= a 0)
+;       b
+;       (+ (dec a) (inc b))))
+
+(+ 4 5)
+(+ 3 6)
+(+ 2 7)
+(+ 1 8)
+(+ 0 9)
+9
+
+; The first process is recursive, whilst the second is iterative. Both functions are recursive.
+; The reason for the difference is that the second process is tail-recursive: it recurses on itself
+; at the final call in the hierarchy; the first process is not, it recurses on itself at the last-but
+; -one call in the hierarchy.
+
+; Are all tail-recursive functions iterative? 
+; defining a tail-recursive version of the factorial function creates an iterative process.
+; This is generally true, as tail-recursive calls can be optimised to jumps and compile to the 
+; same machine code as while loops.
+
+(define (fac a)
+  (define (fac-iter a b)
+    (if (= a 1)
+        b
+        (fac-iter (dec a) (* a b))
+    ))
+  (fac-iter a 1))
+
+(= (fac 5) (* 5 4 3 2 1))
+
+; let's try and implement the 'for' looping construct using tail recursion.
+
+(define (for environment predicate step action)
+  (if (predicate environment)
+      (and
+       (action environment)
+       (for (step environment) predicate step action))
+      environment))
+
+(for 0 (lambda (a) (< a 10)) inc print)
+
+;;EXERCISE 1.10
+(define (A m n)
+  (cond ((= n 0) 0)
+        ((= m 0) (* 2 n))
+        ((= n 1) 2)
+        (else (A (- m 1)
+                 (A m (- n 1))))))
+
+;: (A 1 10) ;-> 1024
+
+;: (A 2 4) ;-> 65536
+
+;: (A 3 3) ;-> 65536
+
+(define (f n) (A 0 n)) ;-> f(n) = 2n
+
+(define (g n) (A 1 n)) ;-> g(n) = 2^n = 2↑n
+
+(define (h n) (A 2 n)) ;-> h(n) = 2^(h(n - 1)) = 2↑↑n
+
+(define (k n) (* 5 n n)) ;-> k(n) = 5n²
+
+; we can see from the above and from exploring the definiton 
+; that the general form of the ackerman function above then becomes
+
+; A(m,n) = 2↑ᵐn
+
+; EXCERCISE 1.11
+;        | if n<3; n
+; f(n) = | if n>=3; f(n-1)+2f(n-2)+3f(n-3)
+
+(define (f1.11r n)
+  (cond ((< n 3) n)
+        (else (+ (f1.11r (dec n)) (* 2 (f1.11r (- n 2))) (* 3 (f1.11r (- n 3)))))))
+
+; a <- b 
+; b <- c
+; c <- c + 2b + 3a
+
+(define (f-bare a b c)
+  (+ a (* 2 b) (* 3 c)))
+
+
+(define (f1.11i n)
+  
+  (define (f-iter a b c count)
+    (if (= count 0)
+        a
+        (f-iter b c (f-bare c b a) (dec count))))
+  
+  (f-iter 0 1 2 n))
+
+(define (test n) (print (list n (f1.11r n) (f1.11i n)) ))
+(for 0 (lambda (x) (< x 10)) inc test)
+
+; While this is the correct solution, it feels like it was arrived at by trial and error rather
+; than deliberately...
