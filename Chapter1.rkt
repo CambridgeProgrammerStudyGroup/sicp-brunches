@@ -425,3 +425,206 @@ b
 
 ; While this is the correct solution, it feels like it was arrived at by trial and error rather
 ; than deliberately...
+
+
+
+;----------------------------------------------
+; Exercises 1.12 -> 1.21 To be completed later
+;----------------------------------------------
+
+;; Naivie primality testing
+(define (smallest-divisor n)
+  (find-divisor n 2))
+
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (inc test-divisor)))))
+
+(define (divides? a b)
+  (= (remainder b a) 0))
+
+(define (prime? n)
+  (= n (smallest-divisor n)))
+
+; Fermat's little theorem
+
+; take integer a < n 
+; The following holds if n is prime:
+;     (a^n) % n = (a) % n
+
+; We can use Fermat's little theorem to create a probabilistic algorithm 
+; that tests for primality. While it does not guarantee primality, it has
+; very good likelyhood of being correct. Numbers 'n' that fool this primality 
+; test by meeting the criteria for Fermat's little theorem for all integers 
+; less than 'n' are called Carmichael numbers and are very rare in practice.
+; (in practice rarer than the likelyhood of radiation causing a miscomputation
+; when dealing with very large numbers.)
+
+;; We'll define the 'fast-prime?' probabilistic method as follow:
+
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (square (expmod base (/ exp 2) m)) ; a^n = a x a ^(n-1)
+                    m))
+        (else
+         (remainder (* base (expmod base (- exp 1) m)) ; a^n = (a^(n/2))^2
+                    m))))        
+
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
+; Excercise 1.21
+; Find smallest divisor of 199, 1999, 19999
+
+(smallest-divisor 199) ;-> 199 (prime)
+(smallest-divisor 1999) ;-> 1999 (prime)
+(smallest-divisor 19999) ;-> 7 (not prime)
+
+; Excercise 1.22
+
+; Timing code.
+(define runtime current-inexact-milliseconds)
+
+(define (timed-prime-test n)
+  (newline)
+  (display n)
+  (start-prime-test n (runtime)))
+
+(define (start-prime-test n start-time)
+  (cond ((prime? n) (report-prime (- (runtime) start-time)))))
+
+(define (report-prime elapsed-time)
+  (display " *** ")
+  (display elapsed-time))
+
+
+; Using the old 'prime?' method
+(define (search-for-primes primality-test start end nprimes)
+  (define (internal-search start end primes)
+    (cond ((>= start end)               primes)
+          ((>= (length primes) nprimes) primes)
+          ((even? start)                (internal-search (+ 1 start) end primes))
+          ((primality-test start)       (internal-search (+ 2 start) end (cons start primes)))
+          (else                         (internal-search (+ 2 start) end primes))))
+  (internal-search start end '())) 
+
+; Excercise 1.22 
+
+(define (timed-test prime-test)
+  (define (fn . args)
+    (let* ((start-time (runtime))
+           (is-prime? (apply prime-test args))
+           (end-time (runtime)))
+      (cond (is-prime? (display (format "~a ~a took ~a milliseconds to test\n" (if is-prime? "Prime" "Number") (first args) (- end-time start-time)))))
+      is-prime?))
+  fn)
+
+; Three smalles primes > 1000
+(search-for-primes (timed-test prime?) 1000 10000000 3) ;-> '(1019 1013 1009)
+; Average test time (prime?): 0.0027669270833333335 ms
+      
+; Three smallest primes > 10000 
+(search-for-primes (timed-test prime?) 10000 10000000 3) ;-> '(10037 10009 10007)
+; Average test time (prime?): 0.009033203125 ms
+
+; Three smalles primes > 100000
+(search-for-primes (timed-test prime?) 100000 10000000 3) ;-> '(100043 100019 100003)
+; Average test time (prime?): 0.028076171875 ms
+
+; Three smalles primes > 1000000
+(search-for-primes (timed-test prime?) 1000000 10000000 3) ;-> '(1000037 1000033 1000003)
+; Average test time (prime?): 0.089599609375 ms
+
+
+; We expect that primality testing with 'prime?' should be of order O(sqrt(n))
+; this means that we expect that testing for primes around 10000 should take 
+; sqrt(10) times the resources of testing around 1000, and that testing around 100000
+; will take sqrt(10) times the resources of testing around 10000.
+; in practice:
+
+; testing @ 1000:    0.00277 ms
+; testing @ 10000:   0.00903 ms (3.26 x @ 1000)
+; testing @ 100000:  0.02808 ms (3.11 x @ 10000)
+; testing @ 1000000: 0.08960 ms (3.19 x @ 100000)
+
+; This bears well with the complexity estimates we made of O(sqrt(n)) which indicate 
+; a growth of complexity of 3.16 x for every order of magnitude of n.
+
+; This is very compatible with the idea that programs on this machine (x86 64bit quad core) 
+; run in a time proportional to the number of stepd required for the computation.
+
+; Excercise 1.23
+(display "\nEXCERCISE 1.23\n")
+ 
+(define (next n)
+  (if (= 2 n) 
+      3
+      (+ n 2)))
+
+(define (smallest-divisor2 n)
+  (find-divisor n 2))
+
+(define (find-divisor2 n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (next test-divisor)))))
+
+(define (divides2? a b)
+  (= (remainder b a) 0))
+
+(define (prime2? n)
+  (= n (smallest-divisor n)))
+
+(search-for-primes (timed-test prime2?) 1000 10000000 3) ;-> '(1019 1013 1009)
+(search-for-primes (timed-test prime2?) 10000 10000000 3) ;-> '(10037 10009 10007)
+(search-for-primes (timed-test prime2?) 100000 10000000 3) ;-> '(100043 100019 100003)
+(search-for-primes (timed-test prime2?) 1000000 10000000 3) ;-> '(1000037 1000033 1000003)
+
+
+; for 'prime?'
+; testing @ 1000:    0.00277 ms
+; testing @ 10000:   0.00903 ms
+; testing @ 100000:  0.02808 ms
+; testing @ 1000000: 0.08960 ms
+
+; for 'prime2?'
+; testing @ 1000:    0.00260 ms
+; testing @ 10000:   0.00863 ms
+; testing @ 100000:  0.02637 ms
+; testing @ 1000000: 0.08268 ms
+
+; As can be seen by comparison to 'prime?' above, there is a slight systematic difference
+; with between the 'prime?' and 'prime2?' functions. However, the ratio is not 2 as expected, 
+; but closer to (/ (+ 1.065 1.046 1.065 1.84) 4) -> 1.3
+
+; XXXX -> Why is this?
+
+
+
+; Excercise 1.24
+
+;(search-for-primes (timed-test (lambda (x) (fast-prime? x 10))) 1000 1000000 3)
+; Average test time (fast-prime?): 0.0166015625 ms
+
+;(search-for-primes (timed-test (lambda (x) (fast-prime? x 10))) 10000 1000000 3)
+; Average test time (fast-prime?): 0.020345052083333332 ms
+
+;(search-for-primes (timed-test (lambda (x) (fast-prime? x 10))) 100000 1000000 3)
+; Average test time (fast-prime?): 0.023274739583333332 ms
+
+;(search-for-primes (timed-test (lambda (x) (fast-prime? x 10))) 1000000 10000000 3)
+; Average test time (fast-prime?): 0.025960286458333332 ms
+
+
+
+
+
