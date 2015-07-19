@@ -427,9 +427,29 @@ b
 ; than deliberately...
 
 
+; Excercise 1.12
+
+; Pascal's pyramid:
+; 1
+; 1  1
+; 1  2  1
+; 1  3  3  1
+; 1  4  6  4  1
+
+(define (pascal l n)
+  "l - 0-indexed layer
+   n - 0-indexed position in layer."
+  (cond ((> n l) (raise 'invalid-input))
+        ((= l n 0) 1)
+        ((= l 1) 1)
+        ((= n 0) 1)
+        ((= l n) 1)
+        (else (+ (pascal (dec l) n) (pascal (dec l) (dec n))))
+        ))
+
 
 ;----------------------------------------------
-; Exercises 1.12 -> 1.21 To be completed later
+; Exercises 1.13 -> 1.21 To be completed later
 ;----------------------------------------------
 
 ;; Naivie primality testing
