@@ -447,10 +447,73 @@ b
         (else (+ (pascal (dec l) n) (pascal (dec l) (dec n))))
         ))
 
+; Alternative solution uses recursion by row to get the nth row
 
-;----------------------------------------------
-; Exercises 1.13 -> 1.21 To be completed later
-;----------------------------------------------
+
+(define (new-from-previous previous)
+  (cond ((equal? previous '()) '(1))
+        (else (map (lambda (pair) (apply + pair))  
+             (map list 
+                  (reverse (cons 0 (reverse previous)))
+                  (cons 0 previous))))))
+
+(define (pascal-new row)
+  (define (pascal-rec row previous-row)
+    (cond ((= row 0) previous-row)
+          (else      (pascal-rec (- row 1) (new-from-previous previous-row)))))
+ (pascal-rec row '()))
+
+; Exercise 1.13
+
+; Prove Fib(n) is the closest integer to phi^n/sqrt(5) where phi=(1+sqrt(5))/2
+
+; SKIPPING FOR NOW :)
+
+
+
+; Exercise 1.14 
+
+; The counting change function as per sectio 1.2.2
+(define (count-change amount)
+  (cc amount 5))
+
+(define (cc amount kinds-of-coins)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc amount
+                     (- kinds-of-coins 1))
+                 (cc (- amount
+                        (first-denomination kinds-of-coins))
+                     kinds-of-coins)))))
+
+(define (first-denomination kinds-of-coins)
+  (cond ((= kinds-of-coins 1) 1)
+        ((= kinds-of-coins 2) 5)
+        ((= kinds-of-coins 3) 10)
+        ((= kinds-of-coins 4) 25)
+        ((= kinds-of-coins 5) 50)))
+
+; breakdown for 11c
+(count-change 11)
+(cc 11 5)
+(+ (cc 11 4) (cc (- 11 50) 5))
+(+ (cc 11 4) 0)
+(+ (+ (cc 11 3)    (cc (- 11 25) 4)) 0)
+(+ (+ (cc 11 3) 0) 0)
+(+ (+ (+ (cc 11 2)                                               (cc (- 11 10) 3)) 0) 0)
+(+ (+ (+ (+ (cc 11 1)               (cc (- 11 5) 2))             (+ (cc 1 2)                       (cc (- 1 5) 3))) 0) 0)
+(+ (+ (+ (+ (+ (cc 11 0) (cc 10 1)) (+ (cc 6 1) (cc (- 6 5) 2))) (+ (+ (cc 1 1) (cc (- 1 5) 2))    0)) 0) 0)
+
+
+; Special case: All coins larger thabn Let us imagine a list of coins with all denominations larger than the change we wish to give.
+; in this special case, we will attempt to change for every denomination and fail,
+; and this will lead to a complexity of O(n), where n is the number of the coins.
+
+; Can also be said: imagine k is the amount we are trying to change and N is a set of denominations. 
+; if k < min(N) then complexity is O(N)
+; This is also the case if we have only one kind of coins and len(N) = 1
+
+
 
 ;; Naivie primality testing
 (define (smallest-divisor n)
@@ -645,6 +708,143 @@ b
 ; Average test time (fast-prime?): 0.025960286458333332 ms
 
 
+;----------------------
+; Excercises Missing 1.24->1.31
+;-----------------------
 
+; Excercise 1.32
+
+; Implement 'accumulate' with the following signature:
+;
+; (accumulate combiner null-val term a next b)
+;
+; where 'term' -: (term n)-> value for index n
+; where 'next' -: (next n)-> next index
+; where 'a' -: the lowermost index
+; where 'b' -: the uppermost index
+; where 'combiner' -: (combiner x y) -> term to accumulate
+; where 'null-val' -: initial term
+
+; We have divided opinions on the explicit and implicit request 
+; of excercise 1.32. 
+;
+; A reading of the excercise would imply that the expected solution 
+; for 1.32.a is recursive, because of its wording regarding the use of 
+; the null-value at the end, despite the explicit mention of two 
+; different solutions in 1.32.b (ie: The authors had the recursive 
+; solution in mind while writing the excercise)
+;
+; However, another reading does not read any implementation expectations
+; in the excercise, in particular because of its explicit request in 
+; 1.32.b for the alternative solution (recursive/iterative).
+
+
+; According to the second reading, the exercise is requesting the 
+; following process:
+(define (accumulate-1 combiner null-val term a next b)
+
+  (define (acc-iter acc n)
+    (if (> n b)
+      (combiner acc null-val)
+      (acc-iter 
+        (combiner acc (term n))
+        (next n))))
+
+  (acc-iter (term a) (next a)))
+
+; We all agree that this seems counter-intuitive and does not reflect 
+; common semantics for widely used and understood functions such as
+; fold, reduce, collect, etc...
+
+
+; While the following process does not sem to reflect the requirements
+; of excercise 1.32.a, we believe this to be much closer to accepted 
+; semantics and use of reduce, collect, fold, and it is the function 
+; we would prefer to write. 
+;
+; The contentious wording in the excercise is 
+;
+; > ... `null-value` that specifies what base value to use
+; > when the terms run out.
+; 
+; Which implies that the null values is to be used at the end of the 
+; generate sequence defined by term a next b
+;
+(define (accumulate-2 combiner null-val term a next b)
+
+  (define (acc-iter acc n)
+    (if (> n b)
+      acc
+      (acc-iter 
+        (combiner acc (term n))
+        (next n))))
+
+  (acc-iter null-val a))
+
+; In order to make the algorithms more excplicit, we can use 'term',
+; 'a', 'next', and 'b' to generate a sequence and deal with the sequence
+; explicitly.
+
+(define (mksequence term a next b)
+  (define (mkseq seq n)
+    (if (> n b)
+      seq
+      (mkseq (append seq (list n)) (next n))))
+
+  (map term (mkseq `() a)))
+
+(mksequence identity 0 inc 5);-> `(0 1 2 3 4 5)
+
+; Left to right and right to left accumulating processes seem to have 
+; different natural implementations.
+;
+; A left to right accumulation seems to most naturally be impemented 
+; with an iterative process, while a right to left accumulation seems 
+; to be most naturally implemented using a recusive process.
+
+; Implementation note: Combiner expected signature:
+;
+; (combiner element accumulated-value)
+; 
+; The order matters when (combiner a b) =/= (combiner b a)
+; this is only relevant when 
+; 
+;      (combiner <T> <T>) -> <T>
+; 
+; As 
+;
+;      (combiner <A> <B>) -> <A>
+;
+; would lead to a type error if used incorrectly...
+
+(define (fold-left combiner acc seq)
+  (if (empty? seq)
+    acc
+    (fold-left 
+      combiner
+      (combiner (first seq) acc)
+      (rest seq))))
+
+(fold-left + 0 `(1 2 3 4 5)) ;-> 15 
+
+; This is an iterative left-to-right fold. Using the null-value
+; as the initial value of the accumulated term. (ie: 'acc')
+
+(define (fold-right combiner null-value seq)
+  (if (empty? seq)
+    null-value
+    (combiner 
+      (first seq)
+      (fold-right combiner null-value (rest seq)))))
+
+(fold-right + 0 `(1 2 3 4 5)) ;-> 15
+
+; These implementations agree with Scheme's foldr and foldl
+; Outstanding are iterative implementation of foldr and recursive
+; implementation of foldl.
+
+; TODO:
+; Should foldr and foldl have the same answer for (fold / 1 `(...))?
+; We should try with string building to prove differences.
 
 
