@@ -515,7 +515,8 @@ b
 
 
 
-;; Naivie primality testing
+
+;; Naive primality testing
 (define (smallest-divisor n)
   (find-divisor n 2))
 
@@ -713,6 +714,7 @@ b
 ;-----------------------
 
 ; Excercise 1.32
+(display "\nEXCERCISE 1.32\n")
 
 ; Implement 'accumulate' with the following signature:
 ;
