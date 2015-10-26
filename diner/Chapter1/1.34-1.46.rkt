@@ -223,3 +223,32 @@
 (fourth-root 6561 2)
 (nth-root 6561 2)
 (nth-root 81 2)
+
+"Exercise 1.46"
+
+(define (iterative-improve good-enough? improve)
+  (define (iter-imp guess)
+    (if (good-enough? guess)
+        guess
+        (iter-imp (improve guess))))
+  iter-imp)
+
+(define (sqrt2 x)
+  ((iterative-improve (lambda (guess)
+                        (< (abs (- (square guess) x))
+                           0.001))
+                      (lambda (guess)
+                        (average guess (/ x guess))))
+   1.0))
+
+(sqrt2 16)
+
+(define (fixed-point2 f first-guess)
+   ((iterative-improve (lambda (guess)
+                         (< (abs (- (f guess) guess))
+                            0.00001))
+                       (lambda (guess)
+                         (f guess)))
+    first-guess))
+
+(fixed-point2 (lambda (x) (+ 1 (/ 1 x))) 2.0)
