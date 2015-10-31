@@ -37,6 +37,15 @@
 ; with logarithmic time complexity:
 
 
+(define (dec x) (- x 1))
+
+(define (naive-fib x)
+	(cond 
+		((= x 1) 1)
+		((= x 2) 1)
+		(else (+ (naive-fib (dec x)) (naive-fib (dec (dec x)))))))
+
+
 (define (half x) (/ x 2))
 
 (define (fib n)
@@ -49,19 +58,21 @@
 	(+ (* 2 q p) (* q q)))
 
 (define (fibiter a b p q count)
-	(display (format "~a ~a ~a ~a ~a\n" a b q p count))
+	;(display (format "~a ~a ~a ~a ~a\n" a b q p count))
 	(cond 
 		((= count 0)     b)
 		((even? count)   (fibiter a b (p-prime q p) (q-prime q p)  (half count)))
 		(else 			 (fibiter 
 							(+ (* b q) (* a q) (* a p))
 							(+ (* b p) (* a q))
-							q
 							p
+							q
 							(- count 1)))))
 
-(fib 3)
-(fib 10)
+
+
+(= (fib 7) (naive-fib 7))
+(= (fib 10) (naive-fib 10))
 
 
 
