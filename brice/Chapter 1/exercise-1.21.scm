@@ -1,3 +1,7 @@
+#lang racket
+
+(require "../utils.scm")
+
 ;; Naive primality testing
 (define (smallest-divisor n)
   (find-divisor n 2))
