@@ -1,7 +1,7 @@
 ; Exercise 1.5
 (define (p) (p))
 
-(define (test-1.5 x y)
+(define (test x y)
   (if (= x 0)
       0
       y))
