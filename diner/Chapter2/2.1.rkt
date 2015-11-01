@@ -55,3 +55,71 @@
 
 (define minus-one-half (make-rat -1 2))
 (print-rat minus-one-half)
+
+(newline)
+"Exercise 2.2"
+
+(define (make-point x y) (cons x y))
+(define (x-point p) (car p))
+(define (y-point p) (cdr p))
+
+(define (make-segment p1 p2)
+  (cons p1 p2))
+(define (start-segment s) (car s))
+(define (end-segment s) (cdr s))
+
+(define (midpoint-segment segment)
+  (make-point (/ (+ (x-point (start-segment segment)) (x-point (end-segment segment))) 2)
+              (/ (+ (y-point (start-segment segment)) (y-point (end-segment segment))) 2)))
+
+(define (print-point p)
+  (newline)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")"))
+
+
+(define segment1 (make-segment (make-point 9 9) (make-point 3 3)))
+(print-point (midpoint-segment segment1))
+
+(newline)
+"Exercise 2.3"
+
+; Rectangle constructor that uses 2 opposite points. Other representations would take in inessential information
+(define (make-rectangle p1 p2) (cons p1 p2))
+(define (rect-width rect)
+  (abs (- (x-point (car rect)) (x-point (cdr rect)))))
+(define (rect-height rect)
+  (abs (- (y-point (car rect)) (y-point (cdr rect)))))
+
+(define (rect-perimeter rect)
+  (* 2 (+ (rect-width rect) (rect-height rect))))
+(define (rect-area rect)
+  (* (rect-width rect) (rect-height rect)))
+
+(define a (make-point 0 0))
+(define b (make-point 2 10))
+(define rect (make-rectangle a b))
+(newline)
+(display (rect-perimeter rect))
+(newline)
+(display (rect-area rect))
+
+(newline)
+"Exercise 2.4"
+
+(define (cons2 x y)
+  (lambda (m) (m x y)))
+
+(define (car2 z)
+  (z (lambda (p q) p)))
+(define (cdr2 z)
+  (z (lambda (p q) q)))
+
+(define (make-point2 x y) (cons2 x y))
+
+(define d (make-point2 2 10))
+(car2 d)
+(cdr2 d)
