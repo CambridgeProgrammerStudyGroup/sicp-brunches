@@ -1,5 +1,11 @@
 #lang racket
 
+(define ^ 
+  (lambda (x y) 
+    (if (= y 0)
+      1 
+      (* x (^ x (- y 1))))))
+
 (define (make-rat n d)
   (let ((g (gcd n d)))
     (if (or (and (< n 0) (> d 0)) (and (> n 0) (< d 0)))
@@ -118,8 +124,64 @@
 (define (cdr2 z)
   (z (lambda (p q) q)))
 
+
+
 (define (make-point2 x y) (cons2 x y))
 
 (define d (make-point2 2 10))
 (car2 d)
 (cdr2 d)
+
+"Exercise 2.5"
+(define (factor-count factor n)
+  (if (= (remainder n factor) 0)
+      (+ 1 (factor-count factor (/ n factor)))
+      0))
+
+
+(define (cons3 x y)
+  (* (^ 2 x) (^ 3 y)))
+
+(define (car3 z)
+  (factor-count 2 z))
+(define (cdr3 z)
+  (factor-count 3 z))
+
+(car3 (cons3 27 55))
+(cdr3 (cons3 27 55))
+
+"Exercise 2.6"
+(define zero (lambda (f) (lambda (x) x)))
+
+(define (add-1 n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+
+(define one
+  (lambda (f) (lambda (x) (f x))))
+
+(define two
+  (lambda (f) (lambda (x) (f (f x)))))
+
+(define (f str) (string-append str "="))
+
+(f "")
+((two f) "")
+
+(define (mult m n)
+  (lambda (f) (m (n f))))
+(define (exp m n)
+  (lambda (f) ((m n) f)))
+(define (add m n)
+  (lambda (f) (lambda (x) ((m f) ((n f) x)))))
+
+(((mult zero one) f) "")
+(((mult one one) f) "")
+(((mult two one) f) "")
+(((mult one two) f) "")
+(((mult (mult two two) (mult two two)) f) "")
+
+(((add zero one) f) "")
+(((add one one) f) "")
+(((add two one) f) "")
+(((add one two) f) "")
+(((add (add two two) (add two two)) f) "")
