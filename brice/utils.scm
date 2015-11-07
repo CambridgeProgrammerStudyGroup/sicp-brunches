@@ -5,6 +5,7 @@
 (provide assert)
 (provide asserteq)
 (provide square)
+(provide average)
 
 (define (inc x) (+ x 1))
 (define (dec x) (- x 1))
@@ -26,3 +27,6 @@
 
 (define (asserteq msg a b)
   (assert msg (> 0.0001 (abs ( - a b)))))
+
+(define (average a b)
+	(/ (+ a b) 2))
