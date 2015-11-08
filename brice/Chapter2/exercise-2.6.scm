@@ -17,7 +17,8 @@
 
 (define (add-1 n)
 	(lambda (f) 
-		(lambda (x) (f ((n f) x)))))
+		(lambda (x) 
+			(f ((n f) x)))))
 
 ; This representation is known as Church numerals, 
 ; after its inventor, Alonzo Church, the logician who 
@@ -118,7 +119,7 @@
 	(cn-to-int (mul-cn (int-to-cn 123) (int-to-cn 87))))
 
 
-
+; What about divide? Substract? Boolean logic?
 
 
 
