@@ -6,6 +6,7 @@
 (provide asserteq)
 (provide square)
 (provide average)
+(provide repeat)
 
 (define (inc x) (+ x 1))
 (define (dec x) (- x 1))
@@ -30,3 +31,13 @@
 
 (define (average a b)
 	(/ (+ a b) 2))
+
+(define (repeat x n)
+	
+	(define (intern i seq)
+		(if (> i 0)
+			(intern (dec i) (cons x seq))
+			seq))
+	
+	(intern n '()))
+
