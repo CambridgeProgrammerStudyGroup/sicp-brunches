@@ -1,14 +1,7 @@
 #lang racket
 (require "utils.scm")
 
-(provide average-damp)
-(provide fixed-point)
-(provide deriv)
-(provide newtons-method)
-(provide fixed-point-of-transform)
-(provide compose+)
-(provide repeated)
-
+(provide (all-defined-out))
 
 (define dx 0.00001)
 

@@ -1,12 +1,6 @@
 #lang racket
 
-(provide inc)
-(provide dec)
-(provide assert)
-(provide asserteq)
-(provide square)
-(provide average)
-(provide repeat)
+(provide (all-defined-out))
 
 (define (inc x) (+ x 1))
 (define (dec x) (- x 1))
@@ -27,7 +21,10 @@
   (if b (reportok msg) (reporterr msg)))
 
 (define (asserteq msg a b)
-  (assert msg (> 0.0001 (abs ( - a b)))))
+	(let ((pass (> 0.0001 (abs ( - a b)))))
+  		(assert msg pass)
+  		(cond ((not pass)
+  			(display (format "    Expected ~a got ~a\n" a b))))))
 
 (define (average a b)
 	(/ (+ a b) 2))
@@ -41,3 +38,10 @@
 	
 	(intern n '()))
 
+(define (gcd a b) 
+	(if (= b 0)
+		a
+      	(gcd b (remainder a b))))
+
+(define (sign n)
+	(/ n (abs n)))
