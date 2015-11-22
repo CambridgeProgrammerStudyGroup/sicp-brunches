@@ -185,3 +185,64 @@
 (((add two one) f) "")
 (((add one two) f) "")
 (((add (add two two) (add two two)) f) "")
+
+;-------------------------------------------------
+
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+
+(define (div-interval x y)
+  (cond ((= (- (upper-bound x) (lower-bound x)) 0) (display "Invalid input"))
+        ((= (- (upper-bound y) (lower-bound y)) 0) (display "Invalid input"))
+        (else (mul-interval x
+                (make-interval (/ 1.0 (upper-bound y))
+                               (/ 1.0 (lower-bound y)))))))
+
+
+"Exercise 2.7"
+
+(define (make-interval a b) (cons a b))
+(define (upper-bound x) (cdr x))
+(define (lower-bound x) (car x))
+
+"Exercise 2.8"
+
+(define (sub-interval x y)
+  (make-interval (+ (lower-bound x) (- (lower-bound y)))
+                 (+ (upper-bound x) (- (upper-bound y)))))
+
+(define interval1 (make-interval 5 11))
+(define interval2 (make-interval 7 11))
+(add-interval interval1 interval2)
+(sub-interval interval1 interval2)
+
+"Exercise 2.9"
+
+(define (width-of-interval x)
+  (/ (- (upper-bound x) (lower-bound x)) 2))
+
+(define width1 (width-of-interval interval1))
+(define width2 (width-of-interval interval2))
+; The following two are equal, therefore proving that the width of the sum of two intervals is a function only of the widths of the intervals being added
+(+ width1 width2)
+(/ (- (+ (upper-bound interval1) (upper-bound interval2))
+      (+ (lower-bound interval1) (lower-bound interval2))) 2)
+
+; And the following two are NOT equal, therefore proving that the above isn't true for multiplication
+(* width1 width2)
+(/ (- (* (upper-bound interval1) (upper-bound interval2))
+      (* (lower-bound interval1) (lower-bound interval2))) 2)
+
+"Exercise 2.10"
+
+(define interval-zero (make-interval 0 0))
+(div-interval interval1 interval-zero)
