@@ -5,6 +5,8 @@
 (require "exercise-2.8.scm")
 
 
+(provide (all-defined-out))
+
 (define (add-interval x y)
 	(make-interval 
 		(+ (lower-bound x) (lower-bound y))
@@ -32,3 +34,4 @@
 	(+ (width A) (width B)))
 
 (display (format "We expect that the width of the product of intervals to NOT be a \ndirect function of the width of the intervals\n\t(width A*B)=~a\n\t(width A)=~a\n\t(width B)=~a\n" (width (mul-interval A B)) (width A) (width B)))
+
