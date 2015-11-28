@@ -17,7 +17,8 @@
 
 (define (add-1 n)
 	(lambda (f) 
-		(lambda (x) (f ((n f) x)))))
+		(lambda (x) 
+			(f ((n f) x)))))
 
 ; This representation is known as Church numerals, 
 ; after its inventor, Alonzo Church, the logician who 
@@ -88,6 +89,7 @@
 
 
 (define (expt-cn a b)
+	"λa.λb.b a"
 	(b a))
 
 (asserteq "Exponentiation works for even exponents" 
@@ -100,9 +102,9 @@
 
 
 (define (mul-cn a b)
+	"λa.λb.λf.a (b f)"
 	(lambda (f)
-		(lambda (x) 
-			((a (b f)) x))))
+			(a (b f))))
 
 (asserteq "Multiplication works for 2 x 2"
 	4
@@ -117,7 +119,7 @@
 	(cn-to-int (mul-cn (int-to-cn 123) (int-to-cn 87))))
 
 
-
+; What about divide? Substract? Boolean logic?
 
 
 
