@@ -1,0 +1,17 @@
+lec2b 36:20: 
+
+... don't make up your mind until you're forced to do it ... never be
+bound by the consequences of your decisions ... use wishful thinking ...
+give a name to to the decsion of how we're going to do it.
+
+... Computer Science is lot like magic, there's a bad part that's a lot like
+religion.
+
+... people who really believe that you design everything before you
+implement, basically, are people who haven't designed very many things.
+The real power is that you can pretend you've made the decision.
+
+57:00
+
+... it's alway much harder ... to talk about what something means than to 
+go off and do it.
