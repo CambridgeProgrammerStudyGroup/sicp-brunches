@@ -196,3 +196,76 @@
       (str "span x neg:  " (mul-interval-ihateben span neg))
       (str "span x span:  " (mul-interval-ihateben span span))     
       ))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Excercise 2.12")
+
+(define (get%of % n)
+  (/ (* % n) 100))
+
+(define (make-center-percent c %)
+  (let ((tol (get%of % c)))
+    (make-interval (- c tol) (+ c tol))))
+
+(prn
+ "Creating interval with centre 100 and percentage 3"
+ (str "Got: " (make-center-percent 100 3)))
+ 
+
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.13")
+
+(prn
+
+ "Note: For convenience using numbers as percentage e.g. using 0.12 for 12%"
+ "so P percent of N is P x N instead of (P x N)/100"
+ ""
+ "Given intervals center, percent intervals: c1, p1  and c2, p2:"
+ ""
+ "Tolerence ti = ci * pi"
+ ""
+ "Expressing as min -> max intervals we have:"
+ "(c1 - t1) -> (c1 + t1)"
+ "(c2 - t2) -> (c2 + t2)"
+ ""
+ "Product of these intervals:"
+ "(c1 - t1)(c2 - t2) -> (c1 + t1)(c2 + t2)"
+ ""
+ "Precentage (tolerence) of Product:"
+ ""
+ "1/2 *    (max - min)"
+ "	  -----------------"
+ "	  1/2 * (max + min)"
+ ""
+ "=>"
+ ""
+ "(c1 + t1)(c2 + t2) - (c1 - t1)(c2 - t2)"
+ "---------------------------------------"
+ "(c1 + t1)(c2 + t2) + (c1 - t1)(c2 - t2)"
+ ""
+ "=>"
+ ""
+ "2(c1.t2 + c2.t1)"
+ "----------------"
+ "2(c1.c2 + t1.t2)"
+ ""
+ "If p1 and p2 are small then t1.t2 is small so can approximate as:"
+ ""
+ "(c1.t2 + c2.t1)"
+ "---------------"
+ "     c1.c2"
+ ""
+ "=>"
+ ""
+ "t2   t1"
+ "-- + --"
+ "c2   c2"
+ ""
+ "=>"
+ ""
+ "p1 + p2")
