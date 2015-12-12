@@ -245,4 +245,112 @@
 "Exercise 2.10"
 
 (define interval-zero (make-interval 0 0))
-(div-interval interval1 interval-zero)
+;(div-interval interval1 interval-zero)
+
+(newline)
+"Exercise 2.11"
+
+(define (mul-interval2 x y)
+  (let ((xlo (lower-bound x))
+        (xhi (upper-bound x))
+        (ylo (lower-bound y))
+        (yhi (upper-bound y)))
+  (cond ((and (>= xlo 0)
+              (>= xhi 0)
+              (>= ylo 0)
+              (>= yhi 0))
+        (make-interval (* xlo ylo) (* xhi yhi)))
+        ((and (>= xlo 0)
+              (>= xhi 0)
+              (<= ylo 0)
+              (>= yhi 0))
+        (make-interval (* xhi ylo) (* xhi yhi)))
+        ((and (>= xlo 0)
+              (>= xhi 0)
+              (<= ylo 0)
+              (<= yhi 0))
+        (make-interval (* xhi ylo) (* xlo yhi)))
+        ((and (<= xlo 0)
+              (>= xhi 0)
+              (>= ylo 0)
+              (>= yhi 0))
+        (make-interval (* xlo yhi) (* xhi yhi)))
+        ((and (<= xlo 0)
+              (>= xhi 0)
+              (<= ylo 0)
+              (>= yhi 0))
+        (make-interval (min (* xhi ylo) (* xlo yhi))
+                       (max (* xlo ylo) (* xhi yhi))))
+        ((and (<= xlo 0)
+              (>= xhi 0)
+              (<= ylo 0)
+              (<= yhi 0))
+        (make-interval (* xhi ylo) (* xlo ylo)))
+        ((and (<= xlo 0)
+              (<= xhi 0)
+              (>= ylo 0)
+              (>= yhi 0))
+        (make-interval (* xlo yhi) (* xhi ylo)))
+        ((and (<= xlo 0)
+              (<= xhi 0)
+              (<= ylo 0)
+              (>= yhi 0))
+        (make-interval (* xlo yhi) (* xlo ylo)))
+        ((and (<= xlo 0)
+              (<= xhi 0)
+              (<= ylo 0)
+              (<= yhi 0))
+        (make-interval (* xhi yhi) (* xlo ylo))))))
+
+  
+(define interval-to-mul-1 (make-interval 2 3))
+(define interval-to-mul-2 (make-interval 3 4))
+(mul-interval2 interval-to-mul-1 interval-to-mul-2)
+
+
+
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+
+(newline)
+"Exercise 2.12"
+
+(define (make-center-percent c wp)
+  (make-interval (- c (* (/ wp 100) c)) (+ c (* (/ wp 100) c))))
+
+(define interval-with-percentage (make-center-percent 5.0 10.0))
+(lower-bound interval-with-percentage)
+(upper-bound interval-with-percentage)
+
+(define (percent i)
+  (/ (- (center i) (lower-bound i)) (center i)))
+
+(percent interval-with-percentage)
+
+(newline)
+"Exercise 2.13"
+
+(define (par1 r1 r2)
+  (div-interval (mul-interval r1 r2)
+                (add-interval r1 r2)))
+
+(define (par2 r1 r2)
+  (let ((one (make-interval 1 1)))
+    (div-interval one
+                  (add-interval (div-interval (div-interval one r1)
+                                              (div-interval one r2))))))
+
+(define par-res1 (par1 interval1 interval2))
+(lower-bound par-res1)
+(upper-bound par-res1)
+
+(define par-res2 (par2 interval1 interval2))
+(lower-bound par-res2)
+(upper-bound par-res2)
+
