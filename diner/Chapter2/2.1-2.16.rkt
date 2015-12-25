@@ -200,12 +200,23 @@
     (make-interval (min p1 p2 p3 p4)
                    (max p1 p2 p3 p4))))
 
+;(define (div-interval x y)
+;  (cond ((= (- (upper-bound x) (lower-bound x)) 0) (display "Invalid input"))
+;        ((= (- (upper-bound y) (lower-bound y)) 0) (display "Invalid input"))
+;        (else (mul-interval x
+;                (make-interval (/ 1.0 (upper-bound y))
+;                               (/ 1.0 (lower-bound y)))))))
+(define (spans-zero? y)
+  (and (<= (lower-bound y) 0)
+       (>= (upper-bound y) 0)))
+
 (define (div-interval x y)
-  (cond ((= (- (upper-bound x) (lower-bound x)) 0) (display "Invalid input"))
-        ((= (- (upper-bound y) (lower-bound y)) 0) (display "Invalid input"))
-        (else (mul-interval x
-                (make-interval (/ 1.0 (upper-bound y))
-                               (/ 1.0 (lower-bound y)))))))
+  (if (spans-zero? y)
+      (display "Invalid input")
+      (mul-interval x
+                    (make-interval (/ 1.0 (upper-bound y))
+                                   (/ 1.0 (lower-bound y))))))
+
 
 
 "Exercise 2.7"
@@ -336,21 +347,52 @@
 (newline)
 "Exercise 2.13"
 
+(define interval3 (make-center-percent 5.0 1.0))
+(define interval4 (make-center-percent 7.0 1.0))
+(percent interval3)
+(percent interval4)
+(define multiplied-intervals-result (mul-interval interval3 interval4))
+(percent multiplied-intervals-result)
+
+;The approximate percentage tolerance of the product of two intervals is the sum of the tolerances of the two factor
+
 (define (par1 r1 r2)
   (div-interval (mul-interval r1 r2)
                 (add-interval r1 r2)))
 
 (define (par2 r1 r2)
-  (let ((one (make-interval 1 1)))
-    (div-interval one
-                  (add-interval (div-interval (div-interval one r1)
-                                              (div-interval one r2))))))
+   (let ((one (make-interval 1 1)))
+      (div-interval one
+                    (add-interval (div-interval one r1)
+                                  (div-interval one r2)))))
 
-(define par-res1 (par1 interval1 interval2))
+
+(newline)
+"Exercise 2.14"
+
+(define interval5 (make-center-percent 10000 1.0))
+(define interval6 (make-center-percent 10000 1.0))
+
+(define par-res1 (par1 interval5 interval6))
 (lower-bound par-res1)
 (upper-bound par-res1)
 
-(define par-res2 (par2 interval1 interval2))
+(define par-res2 (par2 interval5 interval6))
 (lower-bound par-res2)
 (upper-bound par-res2)
+
+(percent par-res1)
+(percent par-res2)
+
+(newline)
+"Exercise 2.15"
+
+;Dividing an interval by itself does not equal 1, so the first equation will introduce error.
+;That's why the observation that we can get tighter error bounds if we avoid repeating variables that represent uncertain numbers is correct.
+
+"Exercise 2.16"
+
+;The best we can do is try to devise formulas that don't have repeating variables that represent intervals. That's not always possible.
+;http://www.wikiwand.com/en/Interval_arithmetic#/Dependency_problem
+
 
