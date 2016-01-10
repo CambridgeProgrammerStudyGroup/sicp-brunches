@@ -176,7 +176,7 @@ Applicative order gets into infinite recursion evaluating (p)"
 
 (ti "Section 1.2.2")
 
-(define (count-change amount) (cc amount 5))
+(define (count-change amount) (cc amount 8))
 (define (cc amount kinds-of-coins)
   (cond ((= amount 0) 1)
         ((or (< amount 0) (= kinds-of-coins 0)) 0)
@@ -193,7 +193,7 @@ Applicative order gets into infinite recursion evaluating (p)"
         ((= kinds-of-coins 4) 10)
         ((= kinds-of-coins 5) 20)
         ((= kinds-of-coins 6) 50)
-        ((= kinds-of-coins 6) 100)
+        ((= kinds-of-coins 7) 100)
         ((= kinds-of-coins 8) 200)))
 
 "Number of permutations of £2.10 change using coins."

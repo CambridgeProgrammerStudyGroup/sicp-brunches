@@ -1,29 +1,8 @@
 #lang racket
+
 ; Flotsam and Jetsam from working through Chapter 2.
-  
+(require "exercises02.util.rkt")
 
-; A helper function for priting out the exercise title
-; and some other bits for displaying comments.
-;(define nl "\n")
-;(define (get-string item)
-;  (cond ((string? item) item)
-;        ((number? item) (number->string item))
-;        (else item)))
-(define get-string ~a)
-(define (str . parts)
-  (define strParts (map get-string parts))
-  (apply string-append  strParts ))
-(define (prn . lines)
-  (for-each
-   (lambda (line) (display (str line "\n")))
-   lines))
-(define (ti title)
-  (define long (make-string 60 #\_))
-  (prn "" "" long    title    long ""))
-
-
-;#########################################################################
-;#########################################################################
 (ti "Exercise 2.7")
 
 (define (make-interval a b) (cons a b))
@@ -202,17 +181,29 @@
 
 (ti "Excercise 2.12")
 
-(define (get%of % n)
-  (/ (* % n) 100))
-
 (define (make-center-percent c %)
-  (let ((tol (get%of % c)))
+  (let ((tol (/ (* % c) 100)))
     (make-interval (- c tol) (+ c tol))))
 
-(prn
- "Creating interval with centre 100 and percentage 3"
- (str "Got: " (make-center-percent 100 3)))
- 
+(define (center interval)
+  (/ (+ (lower-bound interval)
+        (upper-bound interval))
+     2))
+        
+
+(define (percentage interval)
+  (/ (* 50 ; 100% / 2 because tolerance is half of interval)
+        (- (upper-bound interval) (lower-bound interval)))
+     (center interval)))
+
+     
+        
+(let ((interval (make-center-percent 100 3)))
+  (prn
+   "Creating interval with centre 100 and percentage 3"
+   (str "Got: " interval)
+  (str "Center: " (center interval))
+  (str "Percentage: " (percentage interval))))
 
 
 ;#########################################################################
@@ -269,3 +260,61 @@
  "=>"
  ""
  "p1 + p2")
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.14")
+(define (par1 r1 r2)
+  (div-interval (mul-interval r1 r2)
+               (add-interval r1 r2)))
+
+(define (par2 r1 r2)
+  (let ((one (make-interval 1 1)))
+    (div-interval one
+                  (add-interval (div-interval one r1)
+                                (div-interval one r2)))))
+
+(let* ((make make-interval)
+       (r1 (make 99 101))
+       (r2 (make 199 201)))
+  (prn
+   (str "par1: " (par1 r1 r2))
+   (str "par2: " (par2 r1 r2))))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.15")
+
+(prn
+ "Eva Lu Ator is right."
+ ""
+ "There are certainly cases where including the same uncertain number"
+ "twice does result in a wider than necessary answer."
+ ""
+ "I don't *think* it's a problem with addition and multiplication"
+ "if x in the range l to u then x + x and x.x are in range 2l to 2u "
+ "and l.l to u.u respectively."
+ ""
+ "but in the case of x - x the 'correct' width is always zero whereas the"
+ "general substitution gives us a range of -2w to 2w (where w is width)."
+ "Similarly with division the x / x is always 1 but general substitution"
+ "will give a range (x-w)/(x+w) to (x+w)/(x-w)")
+
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.16")
+
+(prn
+ "This can be done given:"
+ "  S: s-expression -> symbolic-reprsentation"
+ "  N: symbolic-representation -> normalized symbolic-representation"
+ "  L: symbolic-representation -> s-expression"
+ ""
+ "Given these and two algebraicly equivelant expressaion e1 and e2"
+ "L.N.S(e1) = e3 (say) = L.N.S(e2)"
+ ""
+ "Of course N is impossible")
