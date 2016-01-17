@@ -24,13 +24,15 @@
 
 (define list-2.18 (list 1 4 9 16 25))
 
-(define (reverse-rec lst)
+; using append is a bit of a cheat :(
+; or at least might get a bit slow.
+(define (reverse-rec-append lst)
   (if (null? lst) lst
-      (append (reverse-rec (cdr lst)) (list (car lst)))))
+      (append (reverse-rec-append (cdr lst)) (list (car lst)))))
 
 (prn
- (str "reverse-rec of " list-2.18 ": " 
-      (reverse-rec list-2.18)))
+ (str "reverse-rec-append of " list-2.18 ": " 
+      (reverse-rec-append list-2.18)))
 
 (define (reverse-itr lst)
   (define (iter lst reversed)
@@ -43,6 +45,56 @@
       (reverse-itr list-2.18)))
 
 
+(prn
+ (str)
+ (str)
+ (str "Now a recursive(?) function with linear perfomrance?")
+ (str)
+ (str "First a function which builds a function for")
+ (str "each member of the list.  For each item we get")
+ (str "a function which: ")
+ (str "  - takes: a function that returns")
+ (str "    the reverse of the preceding items")
+ (str "  - returns: a list which is the reverse")
+ (str "    of everything")
+ (str "When called on a list, the above functions is for ")
+ (str "the head of the list. As the head has no predecessors, ")
+ (str "the function which returns its predecessors need only ")
+ (str "return an empty list.")
+ (str))
+
+; function builder
+(define (reverse-rec-fb list)
+  (lambda (get-reverse-of-predecessors)
+    (if (null? list)
+        (get-reverse-of-predecessors)
+        ((reverse-rec-fb (cdr list))
+                  (lambda ()
+                    (prn (str "About to call cons with: " (car list)))
+                    (cons (car list) (get-reverse-of-predecessors)))))))
+
+(define (reverse-rec list)
+  ((reverse-rec-fb list) (lambda () '())))
+
+(prn (str)
+ (str "reverse-rec of " list-2.18 ": " 
+      (reverse-rec list-2.18))
+
+;Output:
+;
+; About to call cons with: 25
+; About to call cons with: 16
+; About to call cons with: 9
+; About to call cons with: 4
+; About to call cons with: 1
+;
+; reverse-rec of (1 4 9 16 25): (25 16 9 4 1)
+ 
+ (str)
+ (str "Despite the output, cons is first called with 1")
+ (str "not with 25, because of applicative order, ")
+ (str "(arguments are evaluated before the call to cons).")
+ (str))
 
 ;#########################################################################
 ;#########################################################################
@@ -121,5 +173,6 @@
     (cons first (filter
                  (lambda (r) (= first-mod (modulo r 2)))
                  rest))))
-
-(same-parity 1 2 3 4 5 6 7)
+(prn 
+ (str "same parity of 1, ..., 7: " (same-parity 1 2 3 4 5 6 7))
+ (str "same parity of 2, ..., 7: " (same-parity 2 3 4 5 6 7)))
