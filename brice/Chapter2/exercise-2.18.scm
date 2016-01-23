@@ -28,7 +28,21 @@
 ; However, note that this is is definitely *not* linear time – O(n^2). Can we find a recursive
 ; process that reverses a list in linear time?
 
+; REVERSE := Y (λgal. NULL l a (g (PAIR (CAR l) a) (CDR l))) NIL
+; Y := λg. (λx. g (x x)) (λx. g (x x)) 
 
+
+(define (recursive-reverse-helper xs)
+	(lambda (reverse-prev)
+			(if (empty? xs)
+				(reverse-prev)
+				(
+					(recursive-reverse-helper (cdr xs))
+					(lambda ()
+						(cons (car xs) (reverse-prev)))))))
+
+(define (reverse-rec-lt xs)
+	((recursive-reverse-helper xs) (lambda () '())))
 
 (let* (
 		(A (list 1 2 3 4 5))
@@ -37,5 +51,7 @@
 	(assert "Reversing a list works." (equal? A (reverse B)))
 	(assert "Recursive reverse empty list ok" (equal? '() (reverse-rec '())))
 	(assert "Recursive reverse full list ok" (equal? A (reverse-rec B)))
+	(assert "Linear time recursvive works with empty list" (equal? '() (reverse-rec-lt '())))
+	(assert "Linear time recursvive works with full list" (equal? A (reverse-rec-lt B)))
 )
 
