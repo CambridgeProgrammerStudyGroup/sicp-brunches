@@ -2,6 +2,8 @@
 
 (provide (all-defined-out))
 
+(define nil '())
+
 (define (inc x) (+ x 1))
 (define (dec x) (- x 1))
 (define (square x) (* x x))
