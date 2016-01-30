@@ -31,3 +31,6 @@ TAGS
 
 # coredumps
 *.core
+
+######## added:
+scratch*

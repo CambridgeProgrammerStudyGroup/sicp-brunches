@@ -5,6 +5,7 @@
 (require "exercise-2.8.scm")
 (require "exercise-2.9.scm")
 
+(provide (all-defined-out))
 
 (define (below-zero? A) (> 0 (upper-bound A) (lower-bound A)))
 (define (spans-zero? A) (> (upper-bound A) 0 (lower-bound A)))

@@ -1,5 +1,8 @@
 lec2b 36:20: 
 
+... One of the most important principles in prgramming ... If you have
+the name of spirt you have control over it.
+
 ... don't make up your mind until you're forced to do it ... never be
 bound by the consequences of your decisions ... use wishful thinking ...
 give a name to to the decsion of how we're going to do it.
