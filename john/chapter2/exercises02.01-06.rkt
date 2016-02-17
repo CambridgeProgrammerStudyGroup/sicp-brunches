@@ -357,15 +357,16 @@
 
 (define three (add-1 two))
 
+(define x "")
 (define (f x) (string-append x "I"))
 
 (prn
- (str "zero:      '" ((zero f) "") "'") 
- (str "one:       '" ((one f) "") "'")
- (str "two:       '" ((two f) "") "'")
- (str "one add-1: '" (((add-1 one) f) "") "'")
- (str "two add-1: '" (((add-1 two) f) "") "'")
- (str "three:     '" ((three f) "")"'"))
+ (str "zero:      '" ((zero f) x) "'") 
+ (str "one:       '" ((one f) x) "'")
+ (str "two:       '" ((two f) x) "'")
+ (str "one add-1: '" (((add-1 one) f) x) "'")
+ (str "two add-1: '" (((add-1 two) f) x) "'")
+ (str "three:     '" ((three f) x)"'"))
 
 (define (add n m)
   (lambda (f) (lambda (x) ((m f)((n f) x)))))
@@ -378,15 +379,15 @@
 
 (prn
  (str)
- (str "one + two:   '" (((add one two) f) "") "'")
- (str "two + three: '" (((add two three) f) "") "'")
+ (str "one + two:   '" (((add one two) f) x) "'")
+ (str "two + three: '" (((add two three) f) x) "'")
  (str)
- (str "two * two:     '" (((mult two two) f) "") "'")
- (str "two * three:   '" (((mult two three) f) "") "'")
- (str "three * three: '" (((mult three three) f) "") "'")
+ (str "two * two:     '" (((mult two two) f) x) "'")
+ (str "two * three:   '" (((mult two three) f) x) "'")
+ (str "three * three: '" (((mult three three) f) x) "'")
  (str)
- (str "two ^ zero:    '" (((Expt two zero) f) "") "'")
- (str "two ^ one:     '" (((Expt two one) f) "") "'")
- (str "two ^ two:     '" (((Expt two two) f) "") "'")
- (str "two ^ three:   '" (((Expt two three) f) "") "'")
- (str "three ^ three: '" (((Expt three three) f) "") "'"))
+ (str "two ^ zero:    '" (((Expt two zero) f) x) "'")
+ (str "two ^ one:     '" (((Expt two one) f) x) "'")
+ (str "two ^ two:     '" (((Expt two two) f) x) "'")
+ (str "two ^ three:   '" (((Expt two three) f) x) "'")
+ (str "three ^ three: '" (((Expt three three) f) x) "'"))
