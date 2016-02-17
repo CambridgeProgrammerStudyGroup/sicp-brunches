@@ -29,7 +29,7 @@
   (define long (make-string 74 #\_))
   (prn "" "" long    title    long ""))
 
-;(define (ex number) (ti (str "Exercise " number)))
+(define (ex number) (ti (str "Exercise " number)))
 
 ;#########################################################################
 ;#########################################################################
