@@ -17,15 +17,28 @@
         (y (cdr a)))
     (if (< x y) x y)))
 
-(define bound-test (make-interval 3 2))
-"I'd like a simbple string concating display function"
-(lower-bound bound-test)
-(upper-bound bound-test)
-
-
+(let((bound-test1 (make-interval 4 6))
+     (bound-test2 (make-interval 4 -6))
+     (bound-test3 (make-interval -14 -6))
+     (test-bounds (lambda (interval)
+      (prn
+       (str "interval: " interval)
+       (str "    Upper bound: " (upper-bound interval))
+       (str "    Lower bound: " (lower-bound interval))
+       (str)))))
+  (test-bounds bound-test1)
+  (test-bounds bound-test2)
+  (test-bounds bound-test3))
+  
+  
 ;#########################################################################
 ;#########################################################################
 (ti "Exercise 2.8")
+
+(prn
+ "We can include Alyssa's approach in subtraction by useig the"
+ "substitution a - b  -> a + (- b)"
+ "so define a negate function and use in Alyssa addition")
 
 (define (add-interval x y)
   (make-interval (+ (lower-bound x) (lower-bound y))
@@ -38,9 +51,15 @@
 (define (sub-interval x y)
   (add-interval x (negate-interval y)))
 
+
 (let ((fortyish (make-interval 39 41))
       (tenish (make-interval 9 11)))
-  (sub-interval fortyish tenish))
+  (prn
+   (str)
+   (str "  fourty-ish: " fortyish)
+   (str "  Tenish: " tenish)
+   (str "  fourtyish - tenish: " 
+        (sub-interval fortyish tenish))))
 
 
 ;#########################################################################

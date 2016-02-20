@@ -21,7 +21,7 @@
 
 ;(append squares squares)
 
-;Exercise 2.17
+"Exercise 2.17"
 
 (define (last-element lst)
   (if (= (length lst) 1)
@@ -30,7 +30,7 @@
 
 (last-element squares)
 
-;Exercise 2.18
+"Exercise 2.18"
 
 (define (reverse lst acc)
   (if (null? lst)
@@ -49,7 +49,7 @@
 
 (reverse2 squares)
 
-;Exercise 2.19
+"Exercise 2.19"
 
 (define us-coins (list 50 25 10 5 1))
 (define uk-coins (list 100 50 20 10 5 2 1 0.5))
@@ -77,7 +77,7 @@
 (cc 100 us-coins)
 ; The order of the list coin-values doesn't affect the output of cc, because the procedure just recursively goes through each value of coin-values
 
-;Exercise 2.20
+"Exercise 2.20"
 
 (define (same-parity a . lst)
   (define (iter items answer)
