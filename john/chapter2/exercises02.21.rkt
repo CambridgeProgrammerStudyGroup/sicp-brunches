@@ -112,3 +112,59 @@
 ; The value returned by the call to for-each (not illustrated above) can
 ; be something arbitrary, such as true. Give an implementation of for-
 ; each.
+
+(define (for-each proc items)
+  (if (empty? items)
+      #t
+      (let ()
+        (proc (car items))
+        (for-each proc (cdr items)))))
+                   
+(for-each (lambda (x) (newline) (display x))
+          (list 57 321 88))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.24")
+
+; Exercise 2.24.  Suppose we evaluate the expression (list 1 (list 2 (list
+; 3 4))). Give the result printed by the interpreter, the corresponding
+; box-and-pointer structure, and the interpretation of this as a tree (as
+; in figure 2.6).
+
+(prn
+ (str "[.|.] - [.|/]                 ")
+ (str " |       |                    ")
+ (str " 1      [.|.] - [.|/]         ")
+ (str "         |       |            ")
+ (str "         2      [.|.] - [.|/] ")
+ (str "                 |       |    ")
+ (str "                 3       4    "))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.25")
+
+; Exercise 2.25.  Give combinations of cars and cdrs that will pick 7 from
+; each of the following lists:
+; 
+; (1 3 (5 7) 9)
+; 
+; ((7))
+; 
+; (1 (2 (3 (4 (5 (6 7))))))
+
+(let ((a (list 1 3 (list 5 7) 9))
+      (b (list (list 7)))
+      (c (list 1 (list 2 (list 3 (list 4 (list 5 (list 6 7))))))))
+  (prn
+   (str a ":")
+   (str "    cdr->cdr->car->cdr->car: " (car (cdr (car (cdr (cdr a))))))
+   (str b ":")
+   (str "    car->car: " (car (car b)))
+   (str c ":")
+   (str "    cdr->car->cdr->car->cdr->car->cdr->car->cdr->car->cdr->car: "
+        (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr (car (cdr c)))))))))))))
+   ))
