@@ -32,22 +32,22 @@
 
 "Exercise 2.18"
 
-(define (reverse lst acc)
+(define (reverse2 lst acc)
   (if (null? lst)
       acc
-      (reverse (remove-last lst) (append acc (last-element lst)))))
+      (reverse2 (remove-last lst) (append acc (last-element lst)))))
 
-(define (reverse2 lst)
+(define (reverse lst)
   (if (null? lst)
       lst
-      (append (reverse2 (cdr lst)) (list (car lst)))))
+      (append (reverse (cdr lst)) (list (car lst)))))
       
 (define (remove-last lst)
   (if (null? (cdr lst))
       '()
       (cons (car lst) (remove-last (cdr lst)))))
 
-(reverse2 squares)
+(reverse squares)
 
 "Exercise 2.19"
 
