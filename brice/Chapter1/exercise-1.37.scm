@@ -55,7 +55,7 @@
 			(/ (n i) (+ (d i) (intern (inc i))))
 			(/ (n i) (d i))))
 
-	(intern 0))
+	(intern 1))
 
 ; let's work out how big k need to be...
 
@@ -80,11 +80,11 @@
 			n
 			(intern (inc n))))
 
-	(intern 1))
+	(intern 1)); from 1 to k
 
-(calc-k rphi) ;-> 9
 
-;-> k needed to get to 0.0001 of reference is 9 
+(calc-k rphi) ;-> 10
+;-> k needed to get to 0.0001 of reference is 10
 
 ; b) If your cont-frac procedure generates a recursive process, 
 ; write one that generates an iterative process. If it generates 
@@ -103,4 +103,9 @@
 	(cont-frac-iter (lambda (i) 1.0) (lambda (i) 1.0) k))
 
 (calc-k rphi-iter) ;-> 10
+
+(asserteq "k should be the same for recursive and iterative" (calc-k rphi-iter) (calc-k rphi))
+
+(rphi 10)
+(rphi-iter 10)
 
