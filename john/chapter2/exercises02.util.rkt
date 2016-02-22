@@ -25,11 +25,15 @@
     (display-line line)
     (display-line (make-string len #\=))))
 
-(define (ti title)
-  (define long (make-string 74 #\_))
-  (prn "" "" long    title    long ""))
+(define (ti title)  
+  (define long-line (make-string 74 #\_))
+  (prn "" "" long-line title    long-line ""))
 
 (define (ex number) (ti (str "Exercise " number)))
+
+(define (sub text)
+  (define long-line (make-string 18 #\_))
+  (prn "" "" long-line text long-line ""))
 
 ;#########################################################################
 ;#########################################################################

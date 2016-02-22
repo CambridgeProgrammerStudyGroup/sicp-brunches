@@ -378,24 +378,25 @@
 (define (branch-structure branch)
   (car (cdr branch)))
 
+;#########################################################################
+; b.
+
 (define (total-weight mobile)
-  (let* ((lb (left-branch mobile))
-         (rb (right-branch mobile))
-         (ll (branch-length lb))
-         (ls (branch-structure lb))
-         (rl (branch-length rb))
-         (rs (branch-structure rb)))
+  (let((ls (branch-structure (left-branch mobile)))
+       (rs (branch-structure (right-branch mobile))))
     (+ (if (pair? ls) (total-weight ls) ls)
        (if (pair? rs) (total-weight rs) rs))))
 
 (prn
  ""
- "Weights:"
+ "weights:"
  (str "  one:   " (total-weight one))
  (str "  two:   " (total-weight two))
  (str "  three: " (total-weight three))
  (str "  oops:  " (total-weight oops)))
 
+;#########################################################################
+(sub "c.")
 
 (define (branch-torque branch)
   (* (branch-length branch)
@@ -414,13 +415,81 @@
 
 (prn
  (str "")
- (str "Balanced: ")
+ (str "balanced?: ")
  (str "  one:   " (balanced? one))
  (str "  two:   " (balanced? two))
  (str "  three: " (balanced? three))
  (str "  oops:  " (balanced? oops)))
  
 ;#########################################################################
-;#########################################################################
+(sub "d.")
 
-    
+(prn
+ (str "Guess:  We just need to change the get branch, length and strructure")
+ (str "functions.  Although that does depend on the 'coincidence' that in")
+ (str "both implementations we can use 'pair?' to distinguish between a weight")
+ (str "and a structure."))
+
+; Ok, a crude way to test it ...
+
+(define (Make-Mobile left right)
+  (cons left right))
+
+(define (Make-Branch length structure)
+  (cons length structure))
+
+(define One (Make-Mobile (Make-Branch 1 1) (Make-Branch 1 1)))
+(define Two (Make-Mobile (Make-Branch 1 2) (Make-Branch 2 1)))
+(define Three (Make-Mobile (Make-Branch 3 One) (Make-Branch 2 Two)))
+(define Oops (Make-Mobile (Make-Branch 3 One)
+                          (Make-Branch
+                           2
+                           (Make-Mobile (Make-Branch 2 2) (Make-Branch 2 1)))))
+
+(define (Left-Branch mobile)
+  (car mobile))
+
+(define (Right-Branch mobile)
+  (cdr mobile))
+
+(define (Branch-Length branch)
+  (car branch))
+
+(define (Branch-Structure branch)
+  (cdr branch))
+
+(define (Total-Weight mobile)
+  (let((ls (Branch-Structure (Left-Branch mobile)))
+       (rs (Branch-Structure (Right-Branch mobile))))
+    (+ (if (pair? ls) (total-weight ls) ls)
+       (if (pair? rs) (total-weight rs) rs))))
+
+(define (Branch-Torque branch)
+  (* (branch-length branch)
+     (let ((structure (Branch-Structure branch)))
+       (if (pair? structure)
+           (Total-Weight structure)
+           structure))))
+
+(define (Balanced? structure)
+  (if (not (pair? structure))
+      true
+      (and (equal? (Branch-Torque (Left-Branch structure))
+                  (Branch-Torque (Right-Branch structure)))
+           (and (Balanced? (Branch-Structure (Left-Branch structure)))
+                (Balanced? (Branch-Structure (Right-Branch structure)))))))
+
+(prn
+ (str "")
+ (str "Balanced?: ")
+ (str "  One:   " (Balanced? One))
+ (str "  Two:   " (Balanced? Two))
+ (str "  Three: " (Balanced? Three))
+ (str "  Oops:  " (Balanced? Oops)))
+
+(prn
+ (str)
+ (str "Phew... Yep, just had to use cdr instead of car-cdr to get the")
+ (str "second element of mobile / branch."))
+
+; end-of-file
