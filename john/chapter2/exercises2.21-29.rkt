@@ -5,7 +5,7 @@
 ; 2.2.1  Representing Sequences
 ; https://mitpress.mit.edu/sicp/full-text/book/book-Z-H-15.html#%_sec_2.2.1
 
-(require "exercises02.util.rkt")
+(require "exercises2.util.rkt")
 
 ;#########################################################################
 ;#########################################################################
