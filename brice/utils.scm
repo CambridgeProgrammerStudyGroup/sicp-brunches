@@ -43,6 +43,14 @@
   		(cond ((not pass)
   			(display (format "    Expected ~a got ~a\n" a b))))))
 
+(define (assertequal? msg a b)
+	(if (equal? a b)
+		(reportok msg)
+		(begin
+			(reporterr msg)
+			(display (format "    Expected: ~a\n" a))
+			(display (format "    Got:      ~a\n" b)))))
+
 (define-syntax assert-raises-error
 	(syntax-rules ()
 		[(assertraises msg body) 
@@ -70,3 +78,24 @@
 
 (define (sign n)
 	(/ n (abs n)))
+
+(define accumulate foldr)
+
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      nil
+      (cons (foldr op init (map first seqs))
+            (accumulate-n op init (map rest seqs)))))
+
+(define (flatten xs)
+	(foldr append (map first xs) '()))
+
+(define (any? pred xs)
+	(not (empty? (filter identity (map pred xs)))))
+
+(define (zip . xs)
+	(if (any? empty? xs)
+		'()
+		(cons 
+			(map first xs)
+			(apply zip (map rest xs)))))
