@@ -72,4 +72,41 @@
 ; 
 ; For example, to compute 1 + 3x + 5x3 + x5 at x = 2 you would evaluate
 ; 
-; (horner-eval 2 (list 1 3 0 5 0 1)); 
+; (horner-eval 2 (list 1 3 0 5 0 1))
+
+
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms)
+                (+ this-coeff (* x higher-terms)))
+              0
+              coefficient-sequence))
+
+(prn
+ (str "1 + 3.2 + 5.2^3 + 2^5: "
+      (horner-eval 2 (list 1 3 0 5 0 1))))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Excercise 2.35")
+
+; Exercise 2.35.  Redefine count-leaves from section 2.2.2 as an
+; accumulation:
+
+; (define (count-leaves t)
+;   (accumulate <??> <??> (map <??> <??>)))
+
+(define (count-leaves t)
+  (accumulate
+   +
+   0
+   (map
+    (lambda (item)
+      (if (pair? item) (count-leaves item) 1))
+    t)))
+
+(let
+    ((tree (list (list 1 2) (list 1 2 3) 1)))
+  (prn
+   (str "tree: " tree)
+   (str "leaf count: " (count-leaves tree))))
