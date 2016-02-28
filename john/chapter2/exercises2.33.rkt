@@ -198,17 +198,88 @@
                   (cons heads acc))
                 null
                 lists)))
-      
+
+; Example: http://mathinsight.org/dot_product_examples
 (define (dot-product v w)
   (accumulate + 0 (map-n * v w)))
 
-;(map-n * '(1 2 3) '(4 5 6))
-
-(let ((v '(3 4 10))
-      (w '(5 4 10)))
+(let ((v '(1 2 3))
+      (w '(4 -5 6)))
   (prn
+   (str)
+   (str "Dot Product:")
+   (str "============")
    (str "v: " v)
    (str "w: " w)
-   (str "dot-product v w: " (dot-product v w))))
+   (str "dot-product v w")
+   (str "  expected: " 12)
+   (str "  actual:   " (dot-product v w))))
 
-       
+; Example: http://mathinsight.org/matrix_vector_multiplication_examples
+(define (matrix-*-vector m v)
+  (map-n (lambda (heads) (dot-product heads v))
+         m))
+
+(let (
+      (x '(-2 1 0))
+      (A (list
+          '(1 2 3)
+          '(4 5 6)
+          '(7 8 9)
+          '(10 11 12))))
+  (prn
+   (str)
+   (str "Matrix * Vector:")
+   (str "================")
+   (str "A: " A)
+   (str "x: " x)
+   (str "matrix-*vector A x")
+   (str "  expected: (0 -3 -6 -9)")
+   (str "  actual:   " (matrix-*-vector A x))))
+
+; Example: http://mathinsight.org/matrix_transpose
+(define (transpose mat)
+  (accumulate-n cons null mat))
+
+(let (
+      (A (list
+          '(1 2 3)
+          '(4 5 6))))
+  (prn
+   (str)
+   (str "Transpose")
+   (str "=========")
+   (str "A: " A)
+   (str "transpose A")
+   (str "  expected: " (list '(1 4) '(2 5) '(3 6)))
+   (str "  actual:   " (transpose A))))
+
+; http://mathinsight.org/matrix_vector_multiplication_examples (Example 3)
+(define (matrix-*-matrix m n)
+  (let (
+        (cols (transpose n)))
+    (map
+     (lambda (col)
+       (map
+        (lambda (row)
+          (dot-product row col))
+        cols))
+     m)))
+
+(let (
+      (B (list
+          '(1 2 3)
+          '(4 5 6)))
+      (C (list
+          '(1 2)
+          '(3 4)
+          '(5 6))))
+  (prn
+   (str)
+   (str "Matrix * Matrix")
+   (str "===============")
+   (str "B: " B)
+   (str "C: " C)
+   (str "matrix-*-matrix A x")
+   (str "  expected: " (list '(22 28) '(49 64)))
+   (str "  actual:   " (matrix-*-matrix B C))))     
