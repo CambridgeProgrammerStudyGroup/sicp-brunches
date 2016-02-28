@@ -198,10 +198,12 @@
                   (cons heads acc))
                 null
                 lists)))
-
-; Example: http://mathinsight.org/dot_product_examples
+; Dot Product
+; ===========
 (define (dot-product v w)
   (accumulate + 0 (map-n * v w)))
+
+; Example: http://mathinsight.org/dot_product_examples
 
 (let ((v '(1 2 3))
       (w '(4 -5 6)))
@@ -211,14 +213,18 @@
    (str "============")
    (str "v: " v)
    (str "w: " w)
-   (str "dot-product v w")
+   (str "dot-product v w:")
    (str "  expected: " 12)
    (str "  actual:   " (dot-product v w))))
 
-; Example: http://mathinsight.org/matrix_vector_multiplication_examples
+; Matrix * Vector
+; ===============
 (define (matrix-*-vector m v)
-  (map-n (lambda (heads) (dot-product heads v))
+  (map-n (lambda (col)
+           (dot-product col v))
          m))
+
+; Example: http://mathinsight.org/matrix_vector_multiplication_examples
 
 (let (
       (x '(-2 1 0))
@@ -233,13 +239,17 @@
    (str "================")
    (str "A: " A)
    (str "x: " x)
-   (str "matrix-*vector A x")
+   (str "matrix-*-vector A x")
    (str "  expected: (0 -3 -6 -9)")
    (str "  actual:   " (matrix-*-vector A x))))
 
-; Example: http://mathinsight.org/matrix_transpose
+; Transpose
+; =========
+
 (define (transpose mat)
-  (accumulate-n cons null mat))
+  (accumulate-n cons '() mat))
+
+; Example: http://mathinsight.org/matrix_transpose
 
 (let (
       (A (list
@@ -250,21 +260,22 @@
    (str "Transpose")
    (str "=========")
    (str "A: " A)
-   (str "transpose A")
+   (str "transpose A:")
    (str "  expected: " (list '(1 4) '(2 5) '(3 6)))
    (str "  actual:   " (transpose A))))
 
-; http://mathinsight.org/matrix_vector_multiplication_examples (Example 3)
+; Matrix * Matrix
+; ===============
+
 (define (matrix-*-matrix m n)
-  (let (
-        (cols (transpose n)))
-    (map
-     (lambda (col)
-       (map
-        (lambda (row)
+  (let ((cols (transpose n)))
+    (map (lambda (col)
+       (map (lambda (row)
           (dot-product row col))
         cols))
      m)))
+
+; Example http://mathinsight.org/matrix_vector_multiplication_examples (Example 3)
 
 (let (
       (B (list
@@ -280,6 +291,6 @@
    (str "===============")
    (str "B: " B)
    (str "C: " C)
-   (str "matrix-*-matrix A x")
+   (str "matrix-*-matrix B C:")
    (str "  expected: " (list '(22 28) '(49 64)))
    (str "  actual:   " (matrix-*-matrix B C))))     
