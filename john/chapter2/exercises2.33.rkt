@@ -1,4 +1,4 @@
-#lang scheme
+#lang racket
 
 ; 2.2.3  Sequences as Conventional Interfaces
 ; ===========================================
@@ -353,3 +353,43 @@
  (str)
  (str "Yea!  I got 4 out of 0 right!  Maybe I should think instaead of guessing.")
  (str "Or learn my left from right."))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.39")
+
+; Exercise 2.39.   Complete the following definitions of reverse (exercise
+; 2.18) in terms of fold-right and fold-left from exercise 2.38:
+; 
+; (define (reverse sequence)
+;   (fold-right (lambda (x y) <??>) nil sequence))
+; (define (reverse sequence)
+;   (fold-left (lambda (x y) <??>) nil sequence))
+
+(define (reverse-l sequence)
+  (fold-right (lambda (x y)
+                (append y (list x)))
+              '() sequence))
+
+(define (reverse-r sequence)
+  (fold-left (lambda (x y)
+               (cons y x))
+             '() sequence))
+
+(let ((items '(1 4 9 16 25)))
+  (prn
+   (str "items:              " items)
+   (str "reverse left fold:  " (reverse-l items))
+   (str "reverse right fold: " (reverse-r items))))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.40")
+
+; Exercise 2.40.  Define a procedure unique-pairs that, given an integer
+; n, generates the sequence of pairs (i,j) with 1< j< i< n. Use unique-
+; pairs to simplify the definition of prime-sum-pairs given above.
+
+
