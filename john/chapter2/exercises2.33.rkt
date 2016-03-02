@@ -352,7 +352,8 @@
 (prn
  (str)
  (str "Yea!  I got 4 out of 0 right!  Maybe I should think instaead of guessing.")
- (str "Or learn my left from right."))
+ (str "Or learn my left from right. (I can never rember if fold-left starts on")
+ (str "the left and travels right or travels left having started on the right.)"))
 
 ;#########################################################################
 ;#########################################################################
@@ -389,7 +390,70 @@
 (ti "Exercise 2.40")
 
 ; Exercise 2.40.  Define a procedure unique-pairs that, given an integer
-; n, generates the sequence of pairs (i,j) with 1< j< i< n. Use unique-
-; pairs to simplify the definition of prime-sum-pairs given above.
+; n, generates the sequence of pairs (i,j) with 1 <= j< i <= n. Use 
+; unique-pairs to simplify the definition of prime-sum-pairs given above.
 
+(define (prime? n)
+  (define (divides? a b)
+    (= 0 (remainder b a)))
+  (define (next d)
+    (if (= d 2)
+        3
+        (+ d 2)))
+  (define (find-factor f)
+    (cond 
+      ((> (* f f) n) n)
+      ((divides? f n) f)
+      (else (find-factor (next f)))))
+  (= n (find-factor 2)))
+
+(define (enumerate-range start end-ex)
+  (if (< start end-ex)
+      (cons start (enumerate-range (+ start 1) end-ex))
+      '()))
+
+(define (flatmap proc seq)
+  (accumulate append '() (map proc seq)))
+
+(define (unique-pairs start end)
+  (flatmap
+   (lambda (second)
+     (map (lambda (first)
+            (list first second))
+          (enumerate-range start second)))
+   (enumerate-range start (+ end 1))))
+
+(define (prime-sum-pairs end)
+  (filter
+   (lambda (pair)
+     (prime? (+ (car pair) (car (cdr pair)))))
+   (unique-pairs 1 end)))
+        
+
+(let* ((start 1)
+       (end 10)
+       (pairs (unique-pairs start end))
+       (prime-pairs (prime-sum-pairs end)))  
+  (prn
+   (str "Start: " start)
+   (str "End:   " end)
+   (str)
+   (str "Unique Pairs:    ")
+   (str pairs)
+   (str)
+   (str "Prime Sum Pairs: ")
+   (str (apply str 
+        (map (lambda (pair)
+               (let ((first (car pair)) (second (car (cdr pair))))
+                 (str first "+" second "=" (+ first second) ", ")))
+             prime-pairs)))))
+
+;#########################################################################
+;#########################################################################
+
+(ti "Exercise 2.41")
+
+; Write a procedure to find all ordered triples of distinct positive
+; integers i, j, and k less than or equal to a given integer n that sum to
+; a given integer s.
 
