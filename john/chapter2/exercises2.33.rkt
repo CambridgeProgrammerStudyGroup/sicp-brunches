@@ -457,3 +457,22 @@
 ; integers i, j, and k less than or equal to a given integer n that sum to
 ; a given integer s.
 
+(define (unique-triples start end)
+  (flatmap
+   (lambda (right-pair)
+     (map (lambda (first)
+            (cons first right-pair))
+          (enumerate-range start (car right-pair))))
+   (unique-pairs start end)))
+
+(let
+    ((start 1)
+     (end 5))
+  (prn
+   (str "start: " start)
+   (str "end:   " end)
+   (str "unique-triples: ")
+   (str (unique-triples start end))))
+
+
+            
