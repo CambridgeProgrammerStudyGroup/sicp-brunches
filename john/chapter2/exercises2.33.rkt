@@ -533,10 +533,31 @@
 (define empty-board '())
 
 (define (safe? k positions)
-  (= 0 (random 6)))
+  (define (col p) (car p))
+  (define (row p) (car (cdr p)))
+  (define (in-check? existing)
+    ;(display (str "[" (row new) "," (row existing) "] "))
+    (or
+     (= (row new) (row existing))
+     (= (row new) (+ (row existing) (- k (col existing))))
+     (= (row new) (- (row existing) (- k (col existing))))     
+    ))
+     
+  (define new (car positions))
+  (accumulate
+   (lambda (existing still-safe)
+     (and
+      still-safe
+      (not (in-check? existing))
+      ))
+   #true
+   (cdr positions))
+      
+  ;(= 0 (random 6))
+  )
 
 (define (adjoin-position new-row col rest-of-queens)
-  (append rest-of-queens (list (list col new-row))))
+  (cons (list col new-row) rest-of-queens))
 
 (define (enumerate-interval start end)
   (enumerate-range start (+ end 1)))
@@ -556,3 +577,5 @@
   (queen-cols board-size))
 
 (queens 8)
+
+
