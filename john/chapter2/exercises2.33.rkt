@@ -589,11 +589,11 @@
        (list `(1 6) `(2 2) `(3 7) `(4 1) `(5 4) `(6 8) `(7 5) `(8 3)))
       (solutions (queens board-size))
       (index-of (lambda (item list)
-                (define (iter item list index)
-                  (if (equal? item (car list))
-                      index
-                      (iter item (cdr list) (+ index 1))))
-                (iter item list 0))))
+                  (define (iter item list index)
+                    (if (equal? item (car list))
+                        index
+                        (iter item (cdr list) (+ index 1))))
+                  (iter item list 0))))
   (prn
    (str "board size: " board-size)
    (str "expected solution count: " expected-solution-count)
@@ -601,5 +601,52 @@
    (str "example solution: " book-example-solution)
    (str "index of example: " (index-of book-example-solution solutions))))
 
+;#########################################################################
+;#########################################################################
 
+(ti "Exercise 2.43")
 
+; Exercise 2.43.  Louis Reasoner is having a terrible time doing exercise
+; 2.42. His queens procedure seems to work, but it runs extremely slowly.
+; (Louis never does manage to wait long enough for it to solve even the 6×
+; 6 case.) When Louis asks Eva Lu Ator for help, she points out that he
+; has interchanged the order of the nested mappings in the flatmap,
+; writing it as
+; 
+; (flatmap
+;  (lambda (new-row)
+;    (map (lambda (rest-of-queens)
+;           (adjoin-position new-row k rest-of-queens))
+;         (queen-cols (- k 1))))
+;  (enumerate-interval 1 board-size))
+; 
+; Explain why this interchange makes the program run slowly. Estimate how
+; long it will take Louis's program to solve the eight-queens puzzle,
+; assuming that the program in exercise 2.42 solves the puzzle in time T.
+
+(prn
+ (str "This time Brother Louis's problem is that 'enumerate-interval' is inside")
+ (str "the filter expression. This means no filtering takes place until every ")
+ (str "permutation good and bad has been enumerated.  I.e. 8^8 (" (expt 8 8) ")")
+ (str "permutations.  Filtering is probably much less efficient too because it")
+ (str "to check each queen against all the preceeding queens (not just the 'new'")
+ (str "queen) and if it fails at the last check it has to start from scratch for")
+ (str "the next permutation.")
+ (str)
+ (str "I can only guestimate that for 8x8 board the Louis's solution will take")
+ (str "around 100,000 times longer. Our solution only has to check 92 full")
+ (str "permutations vs 16M permutations.  We do have to check incomplete")
+ (str "boards, but then Louis had a less efficient filter routine.")
+ (str "")
+ (str "(Looks like opions vary, a quick google sees guestimates of T^8 (!?),")
+ (str " T.8^8 and T.8^7)")
+ (str)
+ (str "Perusing board sizes up to 13, I'd estimate the number of solutions")
+ (str "increases by about 2.4 each time. This would suggest Louis is testing")
+ (str "(n - 2.4) times more permutations then necessary. So perhaps n^(n - 2.4)")
+ (str "is a rough general estimate, but this is (guess ^ lunch-time)."))
+
+;#########################################################################
+;#########################################################################
+
+(ti ""); end
