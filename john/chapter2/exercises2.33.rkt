@@ -368,12 +368,12 @@
 ; (define (reverse sequence)
 ;   (fold-left (lambda (x y) <??>) nil sequence))
 
-(define (reverse-l sequence)
+(define (reverse-r sequence)
   (fold-right (lambda (x y)
                 (append y (list x)))
               '() sequence))
 
-(define (reverse-r sequence)
+(define (reverse-l sequence)
   (fold-left (lambda (x y)
                (cons y x))
              '() sequence))
@@ -480,23 +480,33 @@
 (ti "Exercise 2.42")
 
 ; Exercise 2.42.  
-; 
-; Figure 2.8:  A solution to the eight-queens puzzle. The ``eight-queens
-; puzzle'' asks how to place eight queens on a chessboard so that no queen
-; is in check from any other (i.e., no two queens are in the same row,
-; column, or diagonal). One possible solution is shown in figure 2.8. One
-; way to solve the puzzle is to work across the board, placing a queen in
-; each column. Once we have placed k - 1 queens, we must place the kth
-; queen in a position where it does not check any of the queens already on
-; the board. We can formulate this approach recursively: Assume that we
-; have already generated the sequence of all possible ways to place k - 1
-; queens in the first k - 1 columns of the board. For each of these ways,
-; generate an extended set of positions by placing a queen in each row of
-; the kth column. Now filter these, keeping only the positions for which
-; the queen in the kth column is safe with respect to the other queens.
-; This produces the sequence of all ways to place k queens in the first k
-; columns. By continuing this process, we will produce not only one
-; solution, but all solutions to the puzzle.
+;
+; | | | | | |Q| | | 
+; | | |Q| | | | | | 
+; |Q| | | | | | | | 
+; | | | | | | |Q| | 
+; | | | | |Q| | | | 
+; | | | | | | | |Q| 
+; | |Q| | | | | | | 
+; | | | |Q| | | | |
+;
+; Figure 2.8:  A solution to the eight-queens puzzle.
+;
+; The ``eight-queens puzzle'' asks how to place eight queens on a
+; chessboard so that no queen is in check from any other (i.e., no two
+; queens are in the same row, column, or diagonal). One possible solution
+; is shown in figure 2.8. One way to solve the puzzle is to work across
+; the board, placing a queen in each column. Once we have placed k - 1
+; queens, we must place the kth queen in a position where it does not
+; check any of the queens already on the board. We can formulate this
+; approach recursively: Assume that we have already generated the sequence
+; of all possible ways to place k - 1 queens in the first k - 1 columns of
+; the board. For each of these ways, generate an extended set of positions
+; by placing a queen in each row of the kth column. Now filter these,
+; keeping only the positions for which the queen in the kth column is safe
+; with respect to the other queens. This produces the sequence of all ways
+; to place k queens in the first k columns. By continuing this process, we
+; will produce not only one solution, but all solutions to the puzzle.
 ; 
 ; We implement this solution as a procedure queens, which returns a
 ; sequence of all solutions to the problem of placing n queens on an n× n
@@ -532,35 +542,32 @@
 
 (define empty-board '())
 
-(define (safe? k positions)
-  (define (col p) (car p))
-  (define (row p) (car (cdr p)))
-  (define (in-check? existing)
-    ;(display (str "[" (row new) "," (row existing) "] "))
-    (or
-     (= (row new) (row existing))
-     (= (row new) (+ (row existing) (- k (col existing))))
-     (= (row new) (- (row existing) (- k (col existing))))     
-    ))
-     
-  (define new (car positions))
-  (accumulate
-   (lambda (existing still-safe)
-     (and
-      still-safe
-      (not (in-check? existing))
-      ))
-   #true
-   (cdr positions))
-      
-  ;(= 0 (random 6))
-  )
-
 (define (adjoin-position new-row col rest-of-queens)
   (cons (list col new-row) rest-of-queens))
 
 (define (enumerate-interval start end)
   (enumerate-range start (+ end 1)))
+
+(define (safe? k positions)
+
+  (define (col p) (car p))
+  (define (row p) (car (cdr p)))
+  
+  (define (in-check? existing)
+    (or
+     (= (row new) (row existing))
+     (= (row new) (+ (row existing) (- k (col existing))))
+     (= (row new) (- (row existing) (- k (col existing))))))
+     
+  (define new (car positions))
+  
+  (accumulate
+   (lambda (existing still-safe)
+     (and
+      still-safe
+      (not (in-check? existing))))
+   #true
+   (cdr positions)))
 
 (define (queens board-size)
   (define (queen-cols k)  
@@ -574,8 +581,25 @@
                    (adjoin-position new-row k rest-of-queens))
                  (enumerate-interval 1 board-size)))
           (queen-cols (- k 1))))))
-  (queen-cols board-size))
+  (map reverse-l (queen-cols board-size)))
 
-(queens 8)
+(let* ((board-size 8)
+      (expected-solution-count 92) ; https://en.wikipedia.org/wiki/Eight_queens_puzzle
+      (book-example-solution
+       (list `(1 6) `(2 2) `(3 7) `(4 1) `(5 4) `(6 8) `(7 5) `(8 3)))
+      (solutions (queens board-size))
+      (index-of (lambda (item list)
+                (define (iter item list index)
+                  (if (equal? item (car list))
+                      index
+                      (iter item (cdr list) (+ index 1))))
+                (iter item list 0))))
+  (prn
+   (str "board size: " board-size)
+   (str "expected solution count: " expected-solution-count)
+   (str "actual solution count:   " (length solutions))
+   (str "example solution: " book-example-solution)
+   (str "index of example: " (index-of book-example-solution solutions))))
+
 
 
