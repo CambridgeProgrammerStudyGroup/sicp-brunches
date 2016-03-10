@@ -66,4 +66,61 @@
 (fringe some-tree)
 (fringe (list some-tree some-tree))
 
+"Exercise 2.29"
+
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+;a
+
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (car (cdr mobile)))
+
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (car (cdr branch)))
+
+;b
+
+(define branch1 (make-branch 4 4))
+(define branch2 (make-branch 7 8))
+(define testmobile (make-mobile branch1 branch2))
+
+(define (branch-weight branch)
+  (cond ((pair? (branch-structure branch)) (total-weight (branch-structure branch)))
+        (else (branch-structure branch))))
+
+(define (total-weight mobile)
+  (+ (branch-weight (left-branch mobile))
+     (branch-weight (right-branch mobile))))
+
+(total-weight testmobile)
+
+;c
+
+(define (torque branch)
+  (* (branch-length branch) (branch-weight branch)))
+
+(define (branch-balanced? branch)
+  (or (pair? (branch-structure branch))
+      (balanced? (branch-structure branch))))
+
+(define (balanced? mobile)
+  (and (= (torque (left-branch mobile))
+          (torque (right-branch mobile)))
+       (branch-balanced? (left-branch mobile))
+       (branch-balanced? (right-branch mobile))))
+
+;(balanced? testmobile)
+
+;d
+
 
