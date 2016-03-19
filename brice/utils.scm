@@ -9,7 +9,7 @@
 (define (square x) (* x x))
 
 (define (str . parts)
-  (define strParts (map ~a parts))
+  (define strParts (map (lambda (p) (format "~a " p)) parts))
   (apply string-append  strParts ))
 
 (define (prn . lines)
@@ -119,4 +119,19 @@
   (if (empty? (cdr xs))
       (car xs)
       (func (car xs) (reduce func (cdr xs)))))
+
+(define (inspect fn)
+	(lambda args
+		(let 
+			((output (apply fn args)))
+			(prn 
+				(str "function:" fn)
+				(str "    inputs:" (apply str args))
+				(str "    output:" output))
+			output)))
+
+
+
+
+
 
