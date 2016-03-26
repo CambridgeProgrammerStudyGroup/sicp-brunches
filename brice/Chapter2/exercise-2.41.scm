@@ -8,13 +8,6 @@
 ; of distinct positive integers i, j, and k less than or equal 
 ; to a given integer n that sum to a given integer s.
 
-(define (flatmap proc seq)
-  (accumulate append nil (map proc seq)))
-
-(define (enumerate-interval low high)
-  (if (> low high)
-      nil
-      (cons low (enumerate-interval (+ low 1) high))))
 
 (define (sum-to-n n)
 	(lambda (xs) (= n (reduce + xs))))

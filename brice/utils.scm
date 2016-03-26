@@ -14,7 +14,7 @@
 
 (define (prn . lines)
   (for-each
-   (lambda (line) (display (str line "\n")))
+   (lambda (line) (and (display (str line))  (display "\n")))
    lines))
 
 (define (title ti)
@@ -131,7 +131,10 @@
 			output)))
 
 
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
 
-
-
-
+(define (enumerate-interval low high)
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (+ low 1) high))))
