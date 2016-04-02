@@ -57,6 +57,7 @@
 			(with-handlers 
 				([exn:fail? (lambda (ex) (reportok msg))]) 
 				(begin body (reporterr msg)))]))
+; (require macro-debugger/expand)
 
 
 (define (average a b)
