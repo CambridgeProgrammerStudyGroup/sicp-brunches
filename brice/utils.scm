@@ -9,12 +9,12 @@
 (define (square x) (* x x))
 
 (define (str . parts)
-  (define strParts (map ~a parts))
+  (define strParts (map (lambda (p) (format "~a " p)) parts))
   (apply string-append  strParts ))
 
 (define (prn . lines)
   (for-each
-   (lambda (line) (display (str line "\n")))
+   (lambda (line) (and (display (str line))  (display "\n")))
    lines))
 
 (define (title ti)
@@ -57,6 +57,7 @@
 			(with-handlers 
 				([exn:fail? (lambda (ex) (reportok msg))]) 
 				(begin body (reporterr msg)))]))
+; (require macro-debugger/expand)
 
 
 (define (average a b)
@@ -99,3 +100,42 @@
 		(cons 
 			(map first xs)
 			(apply zip (map rest xs)))))
+
+;; Naive primality testing
+(define (smallest-divisor n)
+  (find-divisor n 2))
+
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (inc test-divisor)))))
+
+(define (divides? a b)
+  (= (remainder b a) 0))
+
+(define (prime? n)
+  (= n (smallest-divisor n)))
+
+(define (reduce func xs)
+  (if (empty? (cdr xs))
+      (car xs)
+      (func (car xs) (reduce func (cdr xs)))))
+
+(define (inspect fn)
+	(lambda args
+		(let 
+			((output (apply fn args)))
+			(prn 
+				(str "function:" fn)
+				(str "    inputs:" (apply str args))
+				(str "    output:" output))
+			output)))
+
+
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      nil
+      (cons low (enumerate-interval (+ low 1) high))))
