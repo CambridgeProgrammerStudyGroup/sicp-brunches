@@ -1,12 +1,15 @@
 #lang racket
 
-(define line-length 76)
+(define line-length 72)
+
+(define nl "\n")
 
 (define (str . parts)
   (apply string-append  (map ~a parts)))
 
+
 (define (display-line line)
-  (display (str ";>  " line "\n")))
+  (display (str "" line nl)))
 
 (define (display-lines lines)
   (for-each display-line lines))
@@ -22,34 +25,36 @@
 
 (define dsh-line (make-string line-length #\-))
 
-(define (out title)
-  (list
-   dsh-line
-   (str "Output: Exercise " title)
-   dsh-line
-   ""))
+(define (dsh-un text)
+  (list text (make-string (string-length text) #\-) ""))
 
-(define (output ex-number)
+(define (out title)
+   (list
+    dsh-line
+    (str "Output: Exercise " title)
+    dsh-line
+    ""))
+    
+
+(define (-start- ex-number)
   (display-lines (out ex-number)))
 
-(define (end)
-  (display-line dsh-line)
-  (display "\n\n")
-  )
+(define (--end-- _)
+  (display "\n\n"))
+
 
 (define (present-one function inputs expected)
   (list
+   (str)
    (str "    With: " inputs)
    (str "    Expected: " expected)
-   (str "    Actual:   " (apply function inputs))
-   (str)))
+   (str "    Actual:   " (apply function inputs))))
 
 (define (present function . input-expected-pairs)
   (define (present-pair pair)
     (apply present-one (cons function pair)))
   (prn
-   (str "Calling: " (object-name function))
-   (str))
+   (str "Calling: " (object-name function)))
   (for-each prnl
             (map present-pair input-expected-pairs)))
 
