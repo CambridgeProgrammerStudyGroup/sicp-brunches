@@ -1,0 +1,85 @@
+Welcome to DrRacket, version 6.4 [3m].
+Language: racket; memory limit: 64 MB.
+------------------------------------------------------------------------
+Output: Exercise 1.1
+------------------------------------------------------------------------
+
+Predicted:
+10
+8
+12
+3
+6
+-
+-
+19
+#false
+4
+16
+6
+16
+
+Actual:
+10
+12
+8
+3
+6
+19
+#f
+4
+16
+6
+16
+
+
+------------------------------------------------------------------------
+Output: Exercise 1.2
+------------------------------------------------------------------------
+
+Predicted: -37/150
+
+Actual: -37/150
+
+
+------------------------------------------------------------------------
+Output: Exercise 1.3
+------------------------------------------------------------------------
+
+Calling: sum-of-square-of-two-largest
+
+    With: (3 4 5)
+    Expected: 41
+    Actual:   41
+
+    With: (13 12 5)
+    Expected: 313
+    Actual:   313
+
+    With: (7 4 17)
+    Expected: 338
+    Actual:   338
+
+
+------------------------------------------------------------------------
+Output: Exercise 1.4
+------------------------------------------------------------------------
+
+Instead of finding the absolute value of b it uses the fact
+    a + |b| ≡ a + b if b > 0 else a - b
+
+
+------------------------------------------------------------------------
+Output: Exercise 1.5
+------------------------------------------------------------------------
+
+Predict:
+    Normal order returns 0
+    Applicative order gets into infinite recursion evaluating (p) ...
+
+Actual:
+    It hangs when we try, which is what we
+    expect as we do have applicative order.
+
+
+> 

@@ -46,7 +46,7 @@
 (define (present-one function inputs expected)
   (list
    (str)
-   (str "    With: " inputs)
+   (str "    With:     " inputs)
    (str "    Expected: " expected)
    (str "    Actual:   " (apply function inputs))))
 
@@ -56,7 +56,8 @@
   (prn
    (str "Calling: " (object-name function)))
   (for-each prnl
-            (map present-pair input-expected-pairs)))
+            (map present-pair input-expected-pairs))
+  (prn ""))
 
 (provide (all-defined-out))
 
