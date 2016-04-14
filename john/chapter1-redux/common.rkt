@@ -42,24 +42,42 @@
 (define (--end-- _)
   (display "\n\n"))
 
+(define (present-one function inputs)
+  (list
+   (str)
+   (str "    With: " inputs)
+   (str "    Got:  " (apply function inputs))))
 
-(define (present-one function inputs expected)
+(define (present function . inputs-list)
+  (define (present-input inputs)
+    (apply present-one (list function inputs)))
+  (prn
+   (str "Calling: " (object-name function)))
+  (for-each prnl
+            (map present-input inputs-list))
+  (prn ""))
+
+
+
+(define (presentx-one function inputs expected)
   (list
    (str)
    (str "    With:     " inputs)
    (str "    Expected: " expected)
    (str "    Actual:   " (apply function inputs))))
 
-(define (present function . input-expected-pairs)
-  (define (present-pair pair)
-    (apply present-one (cons function pair)))
+(define (presentx function . input-expected-pairs)
+  (define (presentx-pair pair)
+    (apply presentx-one (cons function pair)))
   (prn
    (str "Calling: " (object-name function)))
   (for-each prnl
-            (map present-pair input-expected-pairs))
+            (map presentx-pair input-expected-pairs))
   (prn ""))
 
 (provide (all-defined-out))
+
+
 
 
 ;#########################################################################

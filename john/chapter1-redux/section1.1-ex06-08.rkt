@@ -97,7 +97,7 @@ evaluate its operands, ...")
 (prn "Lets get the square root of 10, 0.0001 and 10000000000.01:
 ")
 
-(present sqrt-iter
+(presentx sqrt-iter
          '( (1. 100) 10)
          '( (1. 0.0001) 0.01)
          '( (1. 10000000000.01) 100000))
@@ -125,7 +125,7 @@ potentially waste more increasingly more computing resource.
       (sqrt-iter-new (improve guess x)
                  x)))
 
-(present sqrt-iter-new
+(presentx sqrt-iter-new
          '( (1. 100) 10)
          '( (1. 0.0001) 0.01)
          '( (1. 10000000000.01) 100000))
@@ -181,7 +181,7 @@ time/resources on calculating unneeded levels of accuracy.")
       (cube-root-iter (improve-cube guess x)
                  x)))
 
-(present cube-root-iter
+(presentx cube-root-iter
          '((1. 27) 3)
          '((1. 3250) 14.812480342))
 
