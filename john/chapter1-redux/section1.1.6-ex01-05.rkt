@@ -139,7 +139,7 @@
           (sum-square a c)
           (sum-square a b))))
 
-(presentx sum-of-square-of-two-largest
+(present-compare sum-of-square-of-two-largest
           '( (3  4  5) 41)
           '( (13 12 5) 313)
           '( (7  4 17) 338))

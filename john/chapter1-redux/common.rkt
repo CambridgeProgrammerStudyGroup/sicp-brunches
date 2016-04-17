@@ -42,6 +42,8 @@
 (define (--end-- _)
   (display "\n\n"))
 
+
+
 (define (present-one function inputs)
   (list
    (str)
@@ -59,26 +61,25 @@
 
 
 
-(define (presentx-one function inputs expected)
+(define (present-compare-one function inputs expected)
   (list
    (str)
    (str "    With:     " inputs)
    (str "    Expected: " expected)
    (str "    Actual:   " (apply function inputs))))
 
-(define (presentx function . input-expected-pairs)
-  (define (presentx-pair pair)
-    (apply presentx-one (cons function pair)))
+(define (present-compare function . input-expected-pairs)
+  (define (present-compare-pair pair)
+    (apply present-compare-one (cons function pair)))
   (prn
    (str "Calling: " (object-name function)))
   (for-each prnl
-            (map presentx-pair input-expected-pairs))
+            (map present-compare-pair input-expected-pairs))
   (prn ""))
 
+
+
+
 (provide (all-defined-out))
-
-
-
-
 ;#########################################################################
 ;#########################################################################
