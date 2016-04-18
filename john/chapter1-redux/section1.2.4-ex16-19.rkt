@@ -25,7 +25,22 @@
 
 (-start- "1.16")
 
+(define (exp-iter b n) 
+  (define (even? n) (= 0 (remainder n 2)))
+  (define (square n) (* n n))
+  (define (iter b n a)
+    (cond ((= n 0) a)
+          ((even? n)  (iter (square b) (/ n 2)  a))
+          (else (iter b (- n 1) (* a b)))))
+  (iter b n 1))
 
+(present-compare exp-iter
+         '((2 0) 1)
+         '((2 1) 2)
+         '((2 2) 4)
+         '((2 16) 65536)
+         '((2 32) 4294967296)
+         '((17 7) 410338673))
 
 (--end-- "1.16")
 
