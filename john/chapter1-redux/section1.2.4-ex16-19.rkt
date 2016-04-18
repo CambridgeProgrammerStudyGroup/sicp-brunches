@@ -24,9 +24,9 @@
 ;   ------------------------------------------------------------------------
 
 (-start- "1.16")
+(define (even? n) (= 0 (remainder n 2)))
 
 (define (exp-iter b n) 
-  (define (even? n) (= 0 (remainder n 2)))
   (define (square n) (* n n))
   (define (iter b n a)
     (cond ((= n 0) a)
@@ -73,7 +73,20 @@
 
 (-start- "1.17")
 
+(define (*-iter a b)
+  (define (halve n) (/ n 2))
+  (define (double n) (* n 2))
+  (define (iter a b s)
+    (cond ((= a 0) s)
+          ((even? a) (iter (halve a) (double b) s))
+          (else (iter (- a 1) b (+ s b)))))
+  (iter a b 0))
 
+(present-compare *-iter
+                 '((0 1) 0)
+                 '((1 0) 0)
+                 '((2 2) 4)
+                 '((5 11) 55))
 
 (--end-- "1.17")
 
