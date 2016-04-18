@@ -73,16 +73,18 @@
 
 (-start- "1.17")
 
-(define (*-iter a b)
-  (define (halve n) (/ n 2))
-  (define (double n) (* n 2))
-  (define (iter a b s)
-    (cond ((= a 0) s)
-          ((even? a) (iter (halve a) (double b) s))
-          (else (iter (- a 1) b (+ s b)))))
-  (iter a b 0))
+(define (halve n) (/ n 2))
+(define (double n) (* n 2))
 
-(present-compare *-iter
+(define (*-rec a b)
+  (display a) 
+  (cond
+    ((= a 0) 0)
+    ((= a 1) b)
+    ((even? a) (*-rec (halve a) (double b)))
+    (else (+ b (*-rec (- a 1) b)))))
+             
+ (present-compare *-rec
                  '((0 1) 0)
                  '((1 0) 0)
                  '((2 2) 4)
@@ -110,7 +112,18 @@
 
 (-start- "1.18")
 
+(define (*-iter a b)
+  (define (iter a b s)
+    (cond ((= a 0) s)
+          ((even? a) (iter (halve a) (double b) s))
+          (else (iter (- a 1) b (+ s b)))))
+  (iter a b 0))
 
+(present-compare *-iter
+                 '((0 1) 0)
+                 '((1 0) 0)
+                 '((2 2) 4)
+                 '((5 11) 55))
 
 (--end-- "1.18")
 
