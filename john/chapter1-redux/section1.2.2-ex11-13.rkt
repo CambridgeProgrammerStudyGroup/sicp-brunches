@@ -170,57 +170,55 @@ If I(n-1) = Fib(n-1) and I(n-2) = Fib(n-2) then I(n) = Fib(n)
 	       = -4/4
 	       = -1
 
-   --QED--
+    --QED--
 
-   using defintion of Fib:
-	Fib(n) = Fib(n-1) + Fib(n-2)
-
-	using we our assumption:
-	       = I(n-1) + I(n-2) =
-
-	substituting the definition of I:
-	       = ɸⁿ⁻¹ - ψⁿ⁻¹ + ɸⁿ⁻² - ψⁿ⁻²
-	         ——————————   ———————————
-	             √5           √5
+    using defintion of Fib:
+	 Fib(n) = Fib(n-1) + Fib(n-2)
     
-   multiplying both sides by √5:
-	=> Fib(n)·√5 = (ɸⁿ⁻¹ - ψⁿ⁻¹) + (ɸⁿ⁻² - ψⁿ⁻²)
-	             = (ɸⁿ⁻¹ + ɸⁿ⁻²) - (ψⁿ⁻¹ + ψⁿ⁻²)
-	             = ɸⁿ⁻²(ɸ + 1) - ψⁿ⁻²(ψ + 1)
+           using we our assumption:
+           = I(n-1) + I(n-2) =
 
-   multiplying both sides by ɸ²ψ²:
-	=> Fib(n)·√5·ɸ²ψ²  = ɸⁿψ²(ɸ + 1) - ψⁿɸ²(ψ + 1)
+           substituting the definition of I:
+             ɸⁿ⁻¹ - ψⁿ⁻¹ + ɸⁿ⁻² - ψⁿ⁻²
+           = ——————————   ——————————
+                 √5            √5
+    
+    multiplying both sides by √5:
+    => Fib(n)·√5 = (ɸⁿ⁻¹ - ψⁿ⁻¹) + (ɸⁿ⁻² - ψⁿ⁻²)
+                 = (ɸⁿ⁻¹ + ɸⁿ⁻²) - (ψⁿ⁻¹ + ψⁿ⁻²)
+                 =  ɸⁿ⁻²(ɸ + 1)  -  ψⁿ⁻²(ψ + 1)
 
-	using lemma1: ɸψ = -1
-	=> Fib(n)·√5·(-1)² = ɸⁿψ(-1 + ψ) - ψⁿɸ(-1 + ɸ)
+    multiplying both sides by ɸ²ψ²:
+    => Fib(n)·√5·ɸ²ψ²  = ɸⁿψ²(ɸ + 1) - ψⁿɸ²(ψ + 1)
 
-	=> Fib(n)·√5       = ɸⁿψ(ψ - 1) - ψⁿɸ(ɸ - 1)
+    using lemma1: ɸψ = -1
+    => Fib(n)·√5·(-1)² = ɸⁿψ(-1 + ψ) - ψⁿɸ(-1 + ɸ)
 
-	selectively substituting the definitions of ɸ and ψ:
-	=> Fib(n)·√5
-		= ɸⁿ((1 - √5)/2)((1 - √5)/2 - 1) -
-             ψⁿ((1 + √5)/2)((1 + √5)/2 - 1)
+    => Fib(n)·√5       = ɸⁿψ(ψ - 1) - ψⁿɸ(ɸ - 1)
 
-           = ɸⁿ((1 - √5)/2)((-1 - √5)/2) -
-             ψⁿ((1 + √5)/2)((-1 + √5)/2)
+    selectively substituting the definitions of ɸ and ψ:
+    => Fib(n)·√5 = ɸⁿ((1 - √5)/2)((1 - √5)/2 - 1) -
+                   ψⁿ((1 + √5)/2)((1 + √5)/2 - 1)
 
-           = ɸⁿ(1 - √5)(-1 - √5)/4 -
-             ψⁿ(1 + √5)(-1 + √5)/4
+                 = ɸⁿ((1 - √5)/2)((-1 - √5)/2) -
+                   ψⁿ((1 + √5)/2)((-1 + √5)/2)
 
-		= ɸⁿ(-1 - √5 + √5 + 5)/4 -
-             ψⁿ(-1 + √5 - √5 + 5)/4
+                 = ɸⁿ(1 - √5)(-1 - √5)/4 -
+                   ψⁿ(1 + √5)(-1 + √5)/4
 
-		= ɸⁿ(4)/4 - ψⁿ(4)/4
-		= ɸⁿ - ψⁿ
+                 = ɸⁿ(-1 - √5 + √5 + 5)/4 -
+                   ψⁿ(-1 + √5 - √5 + 5)/4
 
-	=> Fib(n).√5 = ɸⁿ - ψⁿ
+                 = ɸⁿ(4)/4 - ψⁿ(4)/4
 
-                ɸⁿ - ψⁿ
-	=> Fib(n) = ———————
-	              √5
+                 = ɸⁿ - ψⁿ
 
-   substituting the defintion of I:
-   => Fib(n) = I(n)
+                   ɸⁿ - ψⁿ
+    => Fib(n)    = ———————
+                     √5
+
+    Substituting the defintion of I:
+    Fib(n) = I(n)
 
 --QED--
 
@@ -241,13 +239,27 @@ PART 2
 Let E(n), estimate = ɸⁿ/√5
 Let D(n), delta    = ψⁿ/√5
 
-Lemma2: |D(n)| < 1/2 for all n >= 0
+Lemma2: |ψ| < 1
+---------------
+4 < 5 < 9 => √4 < √5 < √9
+          =>  2 < √5 < 3
+          =>  1 - 2 > 1 - √5 > 1 - 3
+          =>  -1 > 1 - √5 > -2
+          => -1/2 > (1 - √5)/2 > - 1
+          => |(1 - √5)/2| < 1
+          => |ψ| < 1
+
+
+Lemma3: |D(n)| < 1/2 for all n >= 0
 -----------------------------------
-	D(0) = 1/√5 < 1/√4 = 1/2
-	|D(n+1)| 
-	    = |ψ|.|D(n)|
-	    < |D(n)| 
-	    < 1/2
+proof by induction:
+	D(0)     = 1/√5 < 1/√4 = 1/2
+
+   if D(n) < 1/2 then D(n+1) < 1/2
+	|D(n+1)| = |ψ|.|D(n)|
+            using lemma2 above
+            < |D(n)| 
+            < 1/2
 
 --QED--
 
@@ -264,10 +276,9 @@ using Part1:
 
 	=> Fib(n) - E(n) = -D(n)
 
-	=> |Fib(n) - E(n)| 
-		= |D(n)| 
-    	using Lemma2 above:
-		< 1/2
+	=> |Fib(n) - E(n)| = |D(n)| 
+                      using Lemma3 above:
+                      < 1/2
 
 	substituting definition of E:
 	=> |Fib(n) - ɸⁿ/√5| < 1/2 
