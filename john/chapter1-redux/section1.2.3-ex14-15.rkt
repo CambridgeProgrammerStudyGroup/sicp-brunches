@@ -83,7 +83,18 @@
 (cc 2 0)  (cc 1 1)
          /   |
         /    |
-(cc 1 0)  (cc 0 1)")
+(cc 1 0)  (cc 0 1)
+
+
+The growth of space is proportional to the total amount, as each
+additional cent adds one step to longest branch, that is the branch
+making the change only from pennies.
+
+The growth in the total number of steps is exponential.  Each time the
+total is increased by 50 there are at least 5 new branches that conatain
+at least the existing number of steps (there is a new branch for each
+denomination).
+")
 
 (--end-- "1.14")
 
@@ -126,7 +137,12 @@
 
 (-start- "1.15")
 
+(prn "a: p is called 5 times.  The problem is equivalent to dividing 121.5
+by 3 until we have a value less than 1.  3^4 = 81 < 121.  3^5 = 243 > 122.
 
+b: It is logarithmic wrt a.  The growth in space and steps is linear with
+respect to the number of calls to 'p', but the number of calls to p is
+logarithmic wrt a.")
 
 (--end-- "1.15")
 
