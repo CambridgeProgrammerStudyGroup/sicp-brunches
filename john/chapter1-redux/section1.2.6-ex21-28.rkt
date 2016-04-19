@@ -17,7 +17,22 @@
 
 (-start- "1.21")
 
+(define (smallest-divisor n)
+  (define (find-divisor n test-divisor)
+    (define (square n) (* n n))
+    (define (divides? a b)
+      (= (remainder b a) 0))
+    ;(define (add-one n)
+      ;(if (= n 2) 3 (+ n 1))) ; ex 1.23
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (+ 1 test-divisor)))))
+  (find-divisor n 2))
 
+(present smallest-divisor
+         '(199)
+         '(1999)
+         '(19999))           
 
 (--end-- "1.21")
 
@@ -63,7 +78,38 @@
 
 (-start- "1.22")
 
+(define (sd-all-prime? n)
+  (= n (smallest-divisor n)))
 
+(define (report-prime prime? n)
+  (display "    ") 
+  (display n)
+  (display " *** ")
+  (ignore (time (prime? n))))
+
+(define (search-for-primes even-start count)
+  (prn (str "First three primes above " even-start ":") )
+  (define prime? sd-all-prime?)
+  (define (iter candidate count)
+    (cond ((= count 0) (ignore))
+          (else
+           (cond ((prime? candidate)
+                  (report-prime prime? candidate)
+                  (iter (+ candidate 2) (- count 1)))
+                 (else
+                  (iter (+ candidate 2) count))))))
+  (iter (+ even-start 1) count)
+  (prn "" ""))
+
+(search-for-primes 1000000000 3)
+(search-for-primes 10000000000 3)
+(search-for-primes 100000000000 3)
+(search-for-primes 1000000000000 3)
+
+(prn "Yes, the numbers support the model. The primes above 1bn (1000000000)
+take around 4ms where as above 100bn is 36ms, approx 10x increase in
+time with 100x increase in number.  Similarly 10bn takes aprox 11ms
+while 1000bn takes around 120ms.")
 
 (--end-- "1.22")
 
@@ -96,8 +142,141 @@
 
 (-start- "1.23")
 
+(define (smallest-divisor-next n)
+  (define (next n)
+    (if (= n 2) 3 (+ n 2)))
+  (define (find-divisor n test-divisor)
+    (define (square n) (* n n))
+    (define (divides? a b)
+      (= (remainder b a) 0))
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (next test-divisor)))))
+  (find-divisor n 2))
 
+(define (sd-next-prime? n)
+  (= n (smallest-divisor-next n)))
 
+(prn "" "Using orignal smallest-divisor:")
+(report-prime sd-all-prime? 1000000007)
+(report-prime sd-all-prime? 1000000009)
+(report-prime sd-all-prime? 1000000021)
+(report-prime sd-all-prime? 10000000019)
+(report-prime sd-all-prime? 10000000033)
+(report-prime sd-all-prime? 10000000061)
+(report-prime sd-all-prime? 100000000003)
+(report-prime sd-all-prime? 100000000019)
+(report-prime sd-all-prime? 100000000057)
+(report-prime sd-all-prime? 1000000000039)
+(report-prime sd-all-prime? 1000000000061)
+(report-prime sd-all-prime? 1000000000063)
+
+(prn "" "Using smallest-divisor with next:")
+(report-prime sd-next-prime? 1000000007)
+(report-prime sd-next-prime? 1000000009)
+(report-prime sd-next-prime? 1000000021)
+(report-prime sd-next-prime? 10000000019)
+(report-prime sd-next-prime? 10000000033)
+(report-prime sd-next-prime? 10000000061)
+(report-prime sd-next-prime? 100000000003)
+(report-prime sd-next-prime? 100000000019)
+(report-prime sd-next-prime? 100000000057)
+(report-prime sd-next-prime? 1000000000039)
+(report-prime sd-next-prime? 1000000000061)
+(report-prime sd-next-prime? 1000000000063)
+
+(prn "
+It is faster with the next function, but not twice as fast.
+
+I originally (and incorrectly) wondered if algorithm should halve the
+execution time.  If you look at it in terms of the how many numbers are
+tested then yes, it should be halved.
+
+The ususal explanation is that although we're testing half as many
+numbers the coast of testing each number is higher because of the call
+to 'next' and because there's and if.
+
+To get evidence for this, (and ultimately prove my concecture wrong),
+here are two modified procedures.  'all-branch' checks every number but
+also has the overhead of a separate 'add-one' function that includes a
+branch.
+
+'next-inline' only checks alternate numbers but with an attempt to
+improve performance by inlining the 'next' function rather than calling
+a separate function.
+")
+
+;; original with added call/branch overhead.
+(define (sd-all-branch-prime? n)
+  (= n (smallest-divisor-branch n)))
+(define (smallest-divisor-branch n)
+  (define (find-divisor n test-divisor)
+    (define (square n) (* n n))
+    (define (divides? a b)
+      (= (remainder b a) 0))
+    ;; an inefficient add-one to emulate the overhead of 'next'.
+    (define (add-one n)
+      (if (= n 2) 3 (+ n 1)))
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (add-one test-divisor)))))
+  (find-divisor n 2))
+
+(prn "" "Orignal smallest-divisor with added call/branch overhead:")
+(report-prime sd-all-branch-prime? 1000000007)
+(report-prime sd-all-branch-prime? 1000000009)
+(report-prime sd-all-branch-prime? 1000000021)
+(report-prime sd-all-branch-prime? 10000000019)
+(report-prime sd-all-branch-prime? 10000000033)
+(report-prime sd-all-branch-prime? 10000000061)
+(report-prime sd-all-branch-prime? 100000000003)
+(report-prime sd-all-branch-prime? 100000000019)
+(report-prime sd-all-branch-prime? 100000000057)
+(report-prime sd-all-branch-prime? 1000000000039)
+(report-prime sd-all-branch-prime? 1000000000061)
+(report-prime sd-all-branch-prime? 1000000000063)
+
+;; next inlined to avoid call.
+(define (smallest-divisor-next-inline n)
+  (define (find-divisor n test-divisor)
+    (define (square n) (* n n))
+    (define (divides? a b)
+      (= (remainder b a) 0))
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          ;; next function is inlined:
+          (else (find-divisor n (if (= test-divisor 2)
+                                    3 
+                                    (+ test-divisor 2))))))
+  (find-divisor n 2))
+
+(define (sd-next-inline-prime? n)
+  (= n (smallest-divisor-next-inline n)))
+
+(prn "" "Using next - with next inlined:")
+(report-prime sd-next-inline-prime? 1000000007)
+(report-prime sd-next-inline-prime? 1000000009)
+(report-prime sd-next-inline-prime? 1000000021)
+(report-prime sd-next-inline-prime? 10000000019)
+(report-prime sd-next-inline-prime? 10000000033)
+(report-prime sd-next-inline-prime? 10000000061)
+(report-prime sd-next-inline-prime? 100000000003)
+(report-prime sd-next-inline-prime? 100000000019)
+(report-prime sd-next-inline-prime? 100000000057)
+(report-prime sd-next-inline-prime? 1000000000039)
+(report-prime sd-next-inline-prime? 1000000000061)
+(report-prime sd-next-inline-prime? 1000000000063)
+
+(prn "
+So the improvement between the first to procedures is less than might
+be expected because of the overhead of calling 'next'.  However we can
+get close to doubling the performance by inlining the next call or
+artifically adding a similar head to the 'all' procedure.
+
+(If inlining the next functionality really does improve performance as
+it appears to then I'll speculate that's because it doesn't have to
+resolve the binding of 'next' on each call.)
+")
 (--end-- "1.23")
 
 ;   ========================================================================
