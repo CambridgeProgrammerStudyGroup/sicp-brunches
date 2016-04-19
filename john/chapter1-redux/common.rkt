@@ -78,6 +78,8 @@
   (prn ""))
 
 
+(define (ignore . whatever)
+  (display ""))
 
 
 (provide (all-defined-out))
