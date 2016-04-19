@@ -24,6 +24,7 @@
 ;   ------------------------------------------------------------------------
 
 (-start- "1.16")
+
 (define (even? n) (= 0 (remainder n 2)))
 
 (define (exp-iter b n) 
@@ -77,7 +78,6 @@
 (define (double n) (* n 2))
 
 (define (*-rec a b)
-  (display a) 
   (cond
     ((= a 0) 0)
     ((= a 1) b)
@@ -175,7 +175,61 @@
 
 (-start- "1.19")
 
+(prn "The transformation can be thought of in terms of matrix multiplication.
+(A big thanks to Timothy for pointing that out.)
 
+Then we can think of T_(pq) as:
+
+│p+q  q │
+│ q   p │
+
+e.g.:
+
+│p+q  q │/a\\  = /ap+aq+bq\\ = /bq + aq + ap\\
+│ q   p │\\b/    \\ aq+bp  /   \\   bp + aq  /
+
+in this way we can represent T_(pq)² as:
+
+     │p+q  q ││p+q  q │      =
+     │ q   p ││ q   p │
+
+ │p²+2pq+q²+q²   pq+q²+pq│   =  
+ │  pq+q²+pq       q²+p² │     
+
+│(p²+q²)+(2pq+q²)   2pq+q²│  =
+│     2pq+q²        q²+p² │
+
+│p'+q'  q'│ where p' = q² + p²
+│  q'   p'│   and q' = 2pq + q²
+
+i.e.:
+
+   T_(pq)² = T_(p'q') where p' = q² + p² and q' = 2pq + q²
+
+")
+
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count)
+         (fib-iter a
+                   b
+                   (+ (* q q) (* p p))    ; compute p'
+                   (+ (* 2 p q) (* q q))  ; compute q'
+                   (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
+
+(present-compare fib
+                 '((0) 0)
+                 '((1) 1)
+                 '((2) 1)
+                 '((8) 21)
+                 '((40) 102334155))
 
 (--end-- "1.19")
 
