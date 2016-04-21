@@ -54,7 +54,7 @@
 ;   (define (start-prime-test n start-time)
 ;     (if (prime? n)
 ;         (report-prime (- (runtime) start-time))))
-;   (define (report-prime elapsed-time)
+;   (define (report-prime elapsed-time)G
 ;     (display " *** ")
 ;     (display elapsed-time))
 ;   
@@ -80,7 +80,7 @@
 (define (sd-all-prime? n)
   (= n (smallest-divisor n)))
 
-(define (report-prime prime? n)
+(define (report-prime-repeat prime? n repeat)
   (define (prime-repeat repeat-count)
     (cond ((= 0 repeat-count)
            (prime? n))
@@ -90,7 +90,16 @@
   (display "    ") 
   (display n)
   (display " *** ")
-  (ignore (time (prime-repeat 3000))))
+  (ignore (time (prime-repeat repeat))))
+
+(define repeat-count 3000)
+
+(define (report-prime prime? n)
+  (report-prime-repeat prime? n repeat-count))
+
+(define (report-prime-single prime? n)
+  (report-prime-repeat prime? n 1))
+
 
 (define (search-for-primes even-start count)
   (prn (str "First three primes above " even-start ":") )
@@ -107,9 +116,9 @@
   (display "\n"))
 
 (prn "
-   ###    All timings come from running the    ###
-   ###      relevant 'prime?' 1000 times.      ###
-   ###                                         ###
+   ###    All timings come from running the    ###"
+   (str "   ###      relevant 'prime?' " 3000  " times.      ###")
+"   ###                                         ###
    ###    prime? 2 is tested to estimate       ###
    ###         any fixed overhead.             ###
 ")
@@ -392,7 +401,59 @@ The results are consistent with this if we assume that the time to test
 
 (-start- "1.25")
 
+(prn "Predict: using fast-expt will work, but will be slower. 'fast-expt'
+is dealing with much larger numbers.  This would be significant when the
+then number is larger than that which is stored in a single word. ...")
 
+(define (fast-expt b n)
+  (cond ((= n 0) 1)
+        ((even? n) (square (fast-expt b (/ n 2))))
+        (else (* b (fast-expt b (- n 1))))))
+
+(define (expmod-fe base exp m)
+  (remainder (fast-expt base exp) m))
+
+(define (fermat-test-fe n)
+  (define (try-it a)
+    (= (expmod-fe a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (fast-prime-fe? n times)
+  (cond ((= times 0) true)
+        ((fermat-test-fe n) (fast-prime-fe? n (- times 1)))
+        (else false)))
+
+(define (fast-prime-fe-8? n)
+  (fast-prime-fe? n 8))
+
+(prn "" "Using fast-prime with fast-expt:")
+(report-prime fast-prime-fe-8? 2)
+(report-prime fast-prime-fe-8? 2)
+(report-prime fast-prime-fe-8? 2)
+(report-prime fast-prime-fe-8? 1009)
+(report-prime fast-prime-fe-8? 1013)
+(report-prime fast-prime-fe-8? 1019)
+
+(prn (str "
+  ### The times above repeat the prime-test " repeat-count " times.     ###")
+     "-----------------------------------------------------------------
+  ### The times below are for a single call to prime-test.  ###
+")
+(report-prime-single fast-prime-fe-8? 10007)
+(report-prime-single fast-prime-fe-8? 10009)
+(report-prime-single fast-prime-fe-8? 10037)
+(report-prime-single fast-prime-fe-8? 100003)
+(report-prime-single fast-prime-fe-8? 100019) 
+(report-prime-single fast-prime-fe-8? 100043)
+(prn "    ... this could take a while (≈19 sec on my machine)...")
+(report-prime-single fast-prime-fe-8? 1000003) 
+(report-prime-single fast-prime-fe-8? 1000033)
+(report-prime-single fast-prime-fe-8? 1000037)
+
+(prn " 
+... the impact on performance is huge, primes > 1,000 took x10 longer,
+and then runtime grows ≈ 30x when n grows 10x. I.e. it appears to grow
+θ(n).")
 
 (--end-- "1.25")
 
