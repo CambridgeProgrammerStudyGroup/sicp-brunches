@@ -43,23 +43,45 @@
   (display "\n\n"))
 
 
-(define (present-one function inputs expected)
+
+(define (present-one function inputs)
   (list
    (str)
    (str "    With: " inputs)
-   (str "    Expected: " expected)
-   (str "    Actual:   " (apply function inputs))))
+   (str "    Got:  " (apply function inputs))))
 
-(define (present function . input-expected-pairs)
-  (define (present-pair pair)
-    (apply present-one (cons function pair)))
+(define (present function . inputs-list)
+  (define (present-input inputs)
+    (apply present-one (list function inputs)))
   (prn
    (str "Calling: " (object-name function)))
   (for-each prnl
-            (map present-pair input-expected-pairs)))
+            (map present-input inputs-list))
+  (prn ""))
+
+
+
+(define (present-compare-one function inputs expected)
+  (list
+   (str)
+   (str "    With:     " inputs)
+   (str "    Expected: " expected)
+   (str "    Actual:   " (apply function inputs))))
+
+(define (present-compare function . input-expected-pairs)
+  (define (present-compare-pair pair)
+    (apply present-compare-one (cons function pair)))
+  (prn
+   (str "Calling: " (object-name function)))
+  (for-each prnl
+            (map present-compare-pair input-expected-pairs))
+  (prn ""))
+
+
+(define (ignore . whatever)
+  (display ""))
+
 
 (provide (all-defined-out))
-
-
 ;#########################################################################
 ;#########################################################################
