@@ -490,7 +490,21 @@ and then runtime grows ≈ 30x when n grows 10x. I.e. it appears to grow
 
 (-start- "1.26")
 
+(prn "We are comparing:
+    (* (expmod base (/ exp 2) m)
+       (expmod base (/ exp 2) m))
+with
+    (square (expmod base (/ exp 2) m))
 
+In the former we evaluate the argument '(expmod base (/ exp 2) m)'
+twice.
+
+In the latter we only evaluate '(expmod base (/ exp 2) m)' once because
+we have applicative order evaluation of arguments.
+
+A call to 'expmod' potentially halves the number steps compared to a
+naive θ(n) implementation, so this is precisely cancelled out (in the θ
+sense) by doubling the number of the steps when calling 'expmod' twice.")
 
 (--end-- "1.26")
 
