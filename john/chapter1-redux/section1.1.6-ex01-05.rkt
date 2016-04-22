@@ -139,7 +139,7 @@
           (sum-square a c)
           (sum-square a b))))
 
-(present sum-of-square-of-two-largest
+(present-compare sum-of-square-of-two-largest
           '( (3  4  5) 41)
           '( (13 12 5) 313)
           '( (7  4 17) 338))
@@ -165,7 +165,9 @@
 
 (-start- "1.4")
 
-
+(prn
+ "Instead of finding the absolute value of b it uses the fact
+    a + |b| ≡ a + b if b > 0 else a - b")
 
 (--end-- "1.4")
 
@@ -204,7 +206,24 @@
 
 (-start- "1.5")
 
+(prn "Predict:
+    Normal order returns 0
+    Applicative order gets into infinite recursion evaluating (p) ..." )
 
+(define (p) (p))
+
+(define (test x y)
+  (if (= x 0)
+      0
+      y))
+
+; execution hangs if this line runs:
+;(test 0 (p))
+
+(prn "
+Actual:
+    It hangs when we try, which is what we
+    expect as we do have applicative order.")
 
 (--end-- "1.5")
 
