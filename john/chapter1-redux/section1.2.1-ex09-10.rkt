@@ -32,7 +32,32 @@
 
 (-start- "1.9")
 
+(prn
+ "First...
 
+    (+ 4 5)
+    (inc (+ (dec 4) 5))
+    (inc (inc (+ (dec 3) 5)))
+    (inc (inc (inc (+ (dec 2) 5))))
+    (inc (inc (inc (inc (+ (dec 1) 5)))))
+    (inc (inc (inc (inc 5))))
+    (inc (inc (inc 6)))
+    (inc (inc 7))
+    (inc 8)
+    9
+
+... which is Recursive.
+
+Second...
+
+    (+ 4 5)
+    (+ (dec 4) (inc 5))
+    (+ (dec 3) (inc 6))
+    (+ (dec 2) (inc 7))
+    (+ (dec 1) (inc 8))
+    9
+
+... which is Iterative")
 
 (--end-- "1.9")
 
@@ -81,7 +106,35 @@
 
 (-start- "1.10")
 
+(define (A x y)
+  (cond ((= y 0) 0)
+        ((= x 0) (* 2 y))
+        ((= y 1) 2)
+        (else (A (- x 1)
+                 (A x (- y 1))))))
 
+(define (f n) (A 0 n))
+
+(define (g n) (A 1 n))
+
+(define (h n) (A 2 n))
+
+(define (k n) (* 5 n n))
+
+(define (eval-with-1-to-5 fun)
+  (map fun '(1 2 3 4 5))) 
+
+(present eval-with-1-to-5
+         (list f)
+         (list g)
+         (list h)
+         (list k))
+
+(prn
+ "Mathematical definitions:
+   f = 2n
+   g = 2^n
+   h = (2^(2^(2^ ... 2))) with n-1 repeats")
 
 (--end-- "1.10")
 

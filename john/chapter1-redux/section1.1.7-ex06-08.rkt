@@ -43,6 +43,12 @@
 (-start- "1.6")
 
 
+(prn "'new-if' will recurse infinitely trying to eval sqr-iter.
+
+The first time 'new-if' is called it will attempt to evaluate all the
+operands.  The third operand is a recursive call to sqr-iter, as this is
+evaluated a second call is made to 'new-if' which in turn attempts to
+evaluate its operands, ...")
 
 (--end-- "1.6")
 
@@ -69,7 +75,65 @@
 
 (-start- "1.7")
 
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
 
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (square x) (* x x ))
+
+(define (dist a b) (abs (- a b)))
+
+(define (good-enough? guess x)
+  (< (dist (square guess) x) 0.001))
+
+(prn "Lets get the square root of 10, 0.0001 and 10000000000.01:
+")
+
+(present-compare sqrt-iter
+         '( (1. 100) 10)
+         '( (1. 0.0001) 0.01)
+         '( (1. 10000000000.01) 100000))
+         
+(prn
+ "For 100 there's no big problem
+
+For 0.0001 we get an answer that has an error > %300.  This is because
+the good-enough threshold is relatively large compared to the sqrt. As
+the number gets smaller our answer will only reflect the size of the
+threshold not the correct sqrt.
+
+For 10000000000 the answer is correct, but it may be unnecessarily
+precise. As the number grows the precision (relative to the sqrt)
+increases proportionately. As the number gets bigger this will
+potentially waste more increasingly more computing resource.
+")
+
+(define (good-enough-new? guess x)
+  (< (dist 1. (/ (square guess) x)) 0.001))
+
+(define (sqrt-iter-new guess x)
+  (if (good-enough-new? guess x)
+      guess
+      (sqrt-iter-new (improve guess x)
+                 x)))
+
+(present-compare sqrt-iter-new
+         '( (1. 100) 10)
+         '( (1. 0.0001) 0.01)
+         '( (1. 10000000000.01) 100000))
+
+(prn
+ "With sqrt-iter-new we see a consistent level of accuracy so with small
+numbers we get a 'correct' answer and with large numbers we are not spending
+time/resources on calculating unneeded levels of accuracy.")
 
 (--end-- "1.7")
 
@@ -99,7 +163,27 @@
 
 (-start- "1.8")
 
+(define (cube n) (* n n n))
 
+(define (improve-cube guess x)
+  (/
+   (+
+    (/ x (square guess))
+    (* 2 guess))
+   3))
+
+(define (good-enough-cube? guess x)
+  (< (dist 1 (/ (cube guess) x)) 0.001))
+
+(define (cube-root-iter guess x)
+  (if (good-enough-cube? guess x)
+      guess
+      (cube-root-iter (improve-cube guess x)
+                 x)))
+
+(present-compare cube-root-iter
+         '((1. 27) 3)
+         '((1. 3250) 14.812480342))
 
 (--end-- "1.8")
 

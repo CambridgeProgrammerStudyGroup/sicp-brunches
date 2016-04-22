@@ -1,3 +1,5 @@
+chars.txt
+
 # The "build" and "bundle" directories are used when creating installers
 # via the `server', `client', and/or `farm' maefile targets.
 /build/
