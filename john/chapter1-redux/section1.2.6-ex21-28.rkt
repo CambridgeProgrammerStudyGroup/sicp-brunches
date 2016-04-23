@@ -81,16 +81,17 @@
   (= n (smallest-divisor n)))
 
 (define (report-prime-repeat prime? n repeat)
-  (define (prime-repeat repeat-count)
-    (cond ((= 0 repeat-count)
-           (prime? n))
-          (else
-           (prime? n)           
-           (prime-repeat (- repeat-count 1)))))
-  (display "    ") 
-  (display n)
-  (display " *** ")
-  (ignore (time (prime-repeat repeat))))
+  0)
+;  (define (prime-repeat repeat-count)
+;    (cond ((= 0 repeat-count)
+;           (prime? n))
+;          (else
+;           (prime? n)           
+;           (prime-repeat (- repeat-count 1)))))
+;  (display "    ") 
+;  (display n)
+;  (display " *** ")
+;  (ignore (time (prime-repeat repeat))))
 
 (define repeat-count 3000)
 
@@ -445,10 +446,10 @@ then number is larger than that which is stored in a single word. ...")
 (report-prime-single fast-prime-fe-8? 100003)
 (report-prime-single fast-prime-fe-8? 100019) 
 (report-prime-single fast-prime-fe-8? 100043)
-(prn "    ... this could take a while (≈19 sec on my machine)...")
-(report-prime-single fast-prime-fe-8? 1000003) 
-(report-prime-single fast-prime-fe-8? 1000033)
-(report-prime-single fast-prime-fe-8? 1000037)
+;(prn "    ... this could take a while (≈19 sec on my machine)...")
+;(report-prime-single fast-prime-fe-8? 1000003) 
+;(report-prime-single fast-prime-fe-8? 1000033)
+;(report-prime-single fast-prime-fe-8? 1000037)
 
 (prn " 
 ... the impact on performance is huge, primes > 1,000 took x10 longer,
@@ -526,7 +527,43 @@ sense) by doubling the number of the steps when calling 'expmod' twice.")
 
 (-start- "1.27")
 
+(prn "The first six Carmichael numbers are: 561, 1105, 1729, 2465, 2821, and
+6601.
 
+The Carmichael numbers fool the Fermat test because the Fermat test
+*always* says they're prime even though they are not prime. Because we
+randomly choose a limited number of canidates (here 8) a single false
+prime report could just mean we were unlucky with our choice of
+candidates.  We are asked to prove that even if we had tested every
+candidate all would be congruent, i.e., the Fermat test will always
+conclude they're prime.
+
+Just for the record:
+      561 = 3 x 11 x 17
+    1,105 = 5 x 13 x 17
+    1,729 = 7 x 13 x 19
+    2,465 = 5 x 17 x 29
+    2,821 = 7 x 13 x 31
+    6,601 = 7 x 23 x 41
+
+So we are testing if there are any non-primes, n, where aⁿ modulo n is 0
+for every a<n.
+
+
+")
+
+(define (all-congruent? n)
+  (define (iter? n a)
+    (cond
+      ((>= a n) #true)
+      ((not (= (expmod a n n) a)) #false)
+      (else (iter? n (+ a 1)))))
+  (iter? n 2))
+  
+(define (carmichael? n)
+  (if (not (sd-next-prime? n))
+      (all-congruent? n)
+      #false))
 
 (--end-- "1.27")
 
