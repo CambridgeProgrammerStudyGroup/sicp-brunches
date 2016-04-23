@@ -548,24 +548,6 @@ Just for the record:
 
 So we are testing if there are any non-primes, n, where aⁿ modulo n is 0
 for every a<n.
-<<<<<<< Updated upstream
-
-
-")
-
-(define (all-congruent? n)
-  (define (iter? n a)
-    (cond
-      ((>= a n) #true)
-      ((not (= (expmod a n n) a)) #false)
-      (else (iter? n (+ a 1)))))
-  (iter? n 2))
-  
-(define (carmichael? n)
-  (if (not (sd-next-prime? n))
-      (all-congruent? n)
-      #false))
-=======
 ")
 
 (define (all-congruent? n)
@@ -594,7 +576,6 @@ for every a<n.
   (iter 2))
 
 (find-carmichaels 10000)
->>>>>>> Stashed changes
 
 (--end-- "1.27")
 
@@ -634,4 +615,3 @@ for every a<n.
 
 
 (--end-- "1.28")
-
