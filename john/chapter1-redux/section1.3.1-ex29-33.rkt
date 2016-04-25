@@ -13,7 +13,7 @@
 ;   
 ;   h
 ;   ─ [y₀ + 4y₁ + 2y₂ + 4y₃ + 2y₄ + ... + 2y    + 4y    + y ]
-;   3                                       ⁿ⁻²     ⁿ⁻¹    ⁿ
+;   3                                      ⁿ⁻²     ⁿ⁻¹    ⁿ
 ;   
 ;   where h = (b - a)/n, for some even integer n, and y_(k) = f(a + kh).
 ;   (Increasing n increases the accuracy of the approximation.) Define a
@@ -29,7 +29,55 @@
 
 (-start- "1.29")
 
+(define (cube n)
+  (* n n n))
 
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a) (sum term (next a) next b))))
+
+(define (inc n)
+  (+ n 1))
+
+(define (simpson f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum term 0 inc n)))
+
+(present simpson
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(define (integral f a b dx)
+  (define (add-dx x) (+ x dx))
+  (* (sum f (+ a (/ dx 2.0)) add-dx b)
+     dx))
+
+(present integral
+         (list cube 0 1. 0.5)
+         (list cube 0 1. 0.01)
+         (list cube 0 1. 0.001)
+         (list cube 0 1. 0.00001))
+
+(prn "As promised Simpson Rule is much more accurate for a given number of
+iterations.  It looks like it would take 100,000,000 iterations for
+Integral to be as accurate as Simpson is after 100 iterations.
+
+Integral appears to be approaching the solution from below whereas we
+see Simpson producse positive errors as well as negative errors.
+
+This particular integration does seem to suite Simpsons well as it gives
+an exactly correct answer after just 2 iterations.")
 
 (--end-- "1.29")
 
