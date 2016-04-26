@@ -271,7 +271,8 @@ Recursive product of terms:
 (define (pi-acc-iter n)
   (* 4.0 (prod-acc-iter pi-term 0 inc n)))
 
-(prn (str "Estimate of π with 100 steps (prod-acc-iter):" (pi-acc-iter 100)))
+(prn (str "Estimate of π with 100 steps (prod-acc-iter): "
+          (pi-acc-iter 100)))
 
 (define (acc-rec combiner null-value term a next b)
   (if (> a b)
@@ -309,7 +310,8 @@ Recursive product of terms:
 (define (pi-acc-rec n)
   (* 4.0 (prod-acc-rec pi-term 0 inc n)))
 
-(prn (str "Estimate of π with 100 steps (prod-acc-rec):" (pi-acc-rec 100)))
+(prn (str "Estimate of π with 100 steps (prod-acc-rec): "
+          (pi-acc-rec 100)))
 
 (--end-- "1.32")
 
@@ -342,7 +344,52 @@ Recursive product of terms:
 
 (-start- "1.33")
 
+(define (prime? n)
+  (define (smallest-divisor-next-inline n)
+    (define (find-divisor n test-divisor)
+      (define (square n) (* n n))
+      (define (divides? a b)
+        (= (remainder b a) 0))
+      (cond ((> (square test-divisor) n) n)
+            ((divides? test-divisor n) test-divisor)
+            (else (find-divisor n (if (= test-divisor 2)
+                                      3 
+                                      (+ test-divisor 2))))))
+    (find-divisor n 2))
+  (if (< n 2)
+      #f
+      (= n (smallest-divisor-next-inline n))))
 
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+(define
+  (filtered-accumulate include-a? combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b) result
+        (if (include-a? a)
+            (iter (next a) (combiner result (term a)))
+            (iter (next a) result))))
+  (iter a null-value))
+
+(define (sum-square-primes a b)
+  (define (square n) (* n n))
+  (filtered-accumulate prime? + 0 square a inc b))
+
+(present-compare sum-square-primes
+                 '((1 5) 38)
+                 '((1000 1020) 3082611))
+
+(define (product-of-coprimes n)
+  (define (coprime? a)
+    (= 1 (gcd a n)))
+  (filtered-accumulate coprime? * 1 identity 2 inc n))
+
+(present-compare product-of-coprimes
+                 '((12) 385)
+                 '((11) 3628800))
 
 (--end-- "1.33")
 
