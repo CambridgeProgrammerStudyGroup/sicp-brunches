@@ -19,7 +19,53 @@
 
 (-start- "1.35")
 
+(prn "By definition the golden ratio is the ratio of a to b when:
 
+    a + b   a
+    ————— = —
+      a     b
+
+Lets fix b = 1 then:
+
+    a + 1   a
+    ————— = —
+      a     1
+
+Now a/1 is the golden ratio so 'a' represents its numeric value. We can
+rewrite as:
+
+    ψ + 1   ψ
+    ————— = —
+      ψ     1
+
+    ψ   1   ψ
+    — + — = —
+    ψ   ψ   1
+
+        1
+    1 + — = ψ
+        ψ
+
+
+I.e. the golden ratio is a fixed point of x -> 1 + 1/x
+")
+
+
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(define (golden-f x) (+ 1 (/ 1 x)))
+
+(present-compare fixed-point
+                 (list (list golden-f 1.0) "1.6180"))
 
 (--end-- "1.35")
 
