@@ -163,8 +163,31 @@ the vagaries of floating point.")
 
 (-start- "1.31")
 
+(define (prod-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* result (term a)))))
+  (iter a 1))
 
+(prn (str "Iterative product of terms:
 
+    The product of numbers from 1 to 6: "
+          (prod-iter identity 1 inc 6)))
+
+(define (pi-iter n)
+  (define (term i)
+    (/
+     (* 2 (quotient (+ i 3) 2))
+     (+ 1 (* 2 (quotient (+ i 2) 2)))))
+  (* 4.0 (prod-iter term 0 inc n)))
+
+(prn (str "
+    Estimate of π with 100 steps "
+          (pi-iter 100)))
+
+(define (prod-rec
+         
 (--end-- "1.31")
 
 ;   ========================================================================
