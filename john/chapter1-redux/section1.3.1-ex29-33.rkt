@@ -172,21 +172,35 @@ the vagaries of floating point.")
 
 (prn (str "Iterative product of terms:
 
-    The product of numbers from 1 to 6: "
-          (prod-iter identity 1 inc 6)))
+    The product of numbers from 1 to 6: " (prod-iter identity 1 inc 6)))
+
+(define (pi-term i)
+  (/
+   (* 2 (quotient (+ i 3) 2))
+   (+ 1 (* 2 (quotient (+ i 2) 2)))))
 
 (define (pi-iter n)
-  (define (term i)
-    (/
-     (* 2 (quotient (+ i 3) 2))
-     (+ 1 (* 2 (quotient (+ i 2) 2)))))
-  (* 4.0 (prod-iter term 0 inc n)))
+  (* 4.0 (prod-iter pi-term 0 inc n)))
 
 (prn (str "
-    Estimate of π with 100 steps "
-          (pi-iter 100)))
+    Estimate of π with 100 steps " (pi-iter 100)))
 
-(define (prod-rec
+(define (prod-rec term a next b)
+  (if (= a b)
+      (term a)
+      (* (term a) (prod-rec term (next a) next b))))
+
+(define (pi-rec n)
+  (* 4.0 (prod-rec pi-term 0 inc n)))
+
+(prn
+ (str "
+
+Recursive product of terms:
+
+    The product of numbers from 1 to 6: " (prod-rec identity 1 inc 6))
+ (str "
+    Estimate of π with 100 steps " (pi-rec 100)))
          
 (--end-- "1.31")
 
@@ -220,7 +234,82 @@ the vagaries of floating point.")
 
 (-start- "1.32")
 
+(define (acc-iter combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (combiner result (term a)))))
+  (iter a null-value))
 
+(define (sum-acc-iter term a next b)
+  (acc-iter + 0 term a next b))
+
+(define (prod-acc-iter term a next b)
+  (acc-iter * 1 term a next b))
+
+(define (simpson-acc-iter f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum-acc-iter term 0 inc n)))
+
+(prn "Implementing product and sum in terms of general accumulators:
+")
+
+(present simpson-acc-iter
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(define (pi-acc-iter n)
+  (* 4.0 (prod-acc-iter pi-term 0 inc n)))
+
+(prn (str "Estimate of π with 100 steps (prod-acc-iter):" (pi-acc-iter 100)))
+
+(define (acc-rec combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (acc-rec combiner null-value term (next a) next b))))
+
+(define (sum-acc-rec term a next b)
+  (acc-rec + 0 term a next b))
+
+(define (prod-acc-rec term a next b)
+  (acc-rec * 1 term a next b))
+
+(define (simpson-acc-rec f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum-acc-rec term 0 inc n)))
+
+(prn "Implementing product and sum in terms of general accumulators:
+")
+
+(present simpson-acc-rec
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(define (pi-acc-rec n)
+  (* 4.0 (prod-acc-rec pi-term 0 inc n)))
+
+(prn (str "Estimate of π with 100 steps (prod-acc-rec):" (pi-acc-rec 100)))
 
 (--end-- "1.32")
 
