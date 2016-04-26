@@ -104,7 +104,33 @@ an exactly correct answer after just 2 iterations.")
 
 (-start- "1.30")
 
+(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
 
+(define (simpson-iter f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum-iter term 0 inc n)))
+
+(present simpson-iter
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(prn "Results appear equally accurate, but they are different; possibly just
+the vagaries of floating point.")
 
 (--end-- "1.30")
 
