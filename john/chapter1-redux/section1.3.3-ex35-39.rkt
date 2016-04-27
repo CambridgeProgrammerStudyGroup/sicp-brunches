@@ -181,7 +181,53 @@ I.e. the golden ratio is a fixed point of x -> 1 + 1/x
 
 (-start- "1.37")
 
+(define (cont-frac-rec n d k)
+  (define (recur i)
+    (if (= i k)
+        (/ (n i) (d i))
+        (/ (n i) (+ (d i) (recur (+ i 1))))))
+  (recur 1))
 
+(define (cont-frac-itr n d k)
+  (define (iter i nextTerm)
+    (let ((currentTerm (/ (n i) (+ (d i) nextTerm))))
+      (if (= i 1)
+          currentTerm
+          (iter (- i 1) currentTerm))))
+  (iter k 0))
+
+(define (golden-cf-rec k)
+  (cont-frac-rec
+        (lambda (i) 1.0)
+        (lambda (i) 1.0)
+        k))
+
+(define (golden-cf-itr k)
+  (cont-frac-itr
+        (lambda (i) 1.0)
+        (lambda (i) 1.0)
+        k))
+
+(present-compare golden-cf-rec
+                 '((09) 0.618033)
+                 '((10) 0.618033)
+                 '((11) 0.618033)
+                 '((12) 0.618033)
+                 '((13) 0.618033)
+                 '((14) 0.618033))
+
+(present-compare golden-cf-itr
+                 '((09) 0.618033)
+                 '((10) 0.618033)
+                 '((11) 0.618033)
+                 '((12) 0.618033)
+                 '((13) 0.618033)
+                 '((14) 0.618033))
+
+(prn "k must be 12 before our estimate of 1/ψ is accurate to 4 decimal
+places.  After 11 steps we have 0.6180555555555556 which is 0.6181 to 4
+decimal places.  After 12 steps we have 0.6180257510729613 which is
+0.6180 to 4 decimal places.")
 
 (--end-- "1.37")
 
@@ -206,7 +252,21 @@ I.e. the golden ratio is a fixed point of x -> 1 + 1/x
 
 (-start- "1.38")
 
+(define (e-2 k)
+  (define (n i) 1.0)
+  (define (d i)
+    (if (= (remainder i 3) 2)
+        (* (+ (quotient i 3) 1) 2)
+        1))
+  (cont-frac-itr n d k))
 
+(present-compare e-2
+                 '((1) 0.71828182845904523)
+                 '((2) 0.71828182845904523)
+                 '((4) 0.71828182845904523)
+                 '((8) 0.71828182845904523)
+                 '((16) 0.71828182845904523)
+                 '((32) 0.71828182845904523))
 
 (--end-- "1.38")
 
@@ -240,7 +300,18 @@ I.e. the golden ratio is a fixed point of x -> 1 + 1/x
 
 (-start- "1.39")
 
-
+(define (tan-cf x k)  
+  (define (n i)
+    (if (= i 1) x (- (* x x))))
+  (define (d i)
+    (- (* i 2) 1))
+  (cont-frac-itr n d k))
+    
+(present-compare tan-cf
+                 '((0.5 1) 0.54630248984)
+                 '((0.5 2) 0.54630248984)
+                 '((0.5 4) 0.54630248984)
+                 '((0.5 8) 0.54630248984))
 
 (--end-- "1.39")
 
