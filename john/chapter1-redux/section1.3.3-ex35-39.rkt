@@ -50,7 +50,6 @@ rewrite as:
 I.e. the golden ratio is a fixed point of x -> 1 + 1/x
 ")
 
-
 (define tolerance 0.00001)
 (define (fixed-point f first-guess)
   (define (close-enough? v1 v2)
@@ -91,7 +90,34 @@ I.e. the golden ratio is a fixed point of x -> 1 + 1/x
 
 (-start- "1.36")
 
+(define (fp-display f average first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (average guess (f guess))))
+      (display "        ")(display guess)(newline)
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
 
+(define (x^x=1000-f x)
+  (/ (log 1000) (log x)))
+
+(define (damp-none guess f-of-guess)
+  f-of-guess)
+
+(define (damp-mean guess f-of-guess)
+  (/ (+ guess f-of-guess) 2))
+
+(present-compare fp-display
+                 (list (list x^x=1000-f damp-none 2.0) "4.5555"))
+
+(present-compare fp-display
+                 (list (list x^x=1000-f damp-mean 2.0) "4.5555"))
+
+(prn "Dampening with the mean-average reduces the number of iterations from
+34 to 9.")
 
 (--end-- "1.36")
 
