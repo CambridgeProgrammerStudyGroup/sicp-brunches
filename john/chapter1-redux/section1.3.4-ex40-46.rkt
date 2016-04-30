@@ -83,8 +83,43 @@
 
 (-start- "1.41")
 
+(define (inc n) (+ n 1))
 
+(define (double f)
+        (lambda (x) (f (f x))))
 
+(prn "It returns 23.
+
+Applying 'double' n times results in calling the given function 2ⁿ
+times.  E.g. *If* we had:
+
+    ((double (double (double inc))) 5)
+
+the result would be 13.  ('inc' applied 2^3 times to 5).
+
+However we have:
+
+  (((double (double double)) inc) 5)
+
+Let's look at this part:
+
+    (double (double double))
+
+If we consider this as
+
+    (double (double f))
+
+Then it's fairly clear this is the application of 'f' 2^2 times.  So:
+
+    (double (double double))
+
+is double applied 4 times.  This is the equivalent of applying the
+provided function 2^4 times = 16.  I.e.:
+
+    (((double (double double)) inc) 5) = 23
+")
+
+     
 (--end-- "1.41")
 
 ;   ========================================================================
@@ -107,7 +142,13 @@
 
 (-start- "1.42")
 
+(define (compose f g)
+  (define (composite-function x)
+    (f (g x)))
+  composite-function)
 
+(present-compare (compose square inc)
+                 '((6) 49))
 
 (--end-- "1.42")
 
@@ -140,7 +181,13 @@
 
 (-start- "1.43")
 
+(define (repeated f n)
+  (if (= n 1)
+      (lambda (x) (f x))
+      (compose f (repeated f (- n 1)))))
 
+(present-compare (repeated square 2)
+                 '((5) 625))
 
 (--end-- "1.43")
 
@@ -168,8 +215,32 @@
 
 (-start- "1.44")
 
+(define (smooth-with-delta delta)
+    (lambda (f)
+      (lambda (x)
+        (/ (+ (f (- x delta)) (f x) (f (+ x delta))) 3))))
 
+(define (repeated-smooth-with-delta delta n)
+  (if (= n 0)
+      identity
+      (repeated (smooth-with-delta delta) n)))
 
+(define (repeated-smooth n)
+  (repeated-smooth-with-delta dx n))
+
+(define smooth
+  (repeated-smooth 1))
+
+(define (apply-repeated-smoothing-of-cube-to-three repeat-count)
+  (((repeated-smooth repeat-count) cube) 3))
+
+(present apply-repeated-smoothing-of-cube-to-three
+         '(0)
+         '(1)
+         '(2)
+         '(3))
+
+  
 (--end-- "1.44")
 
 ;   ========================================================================
