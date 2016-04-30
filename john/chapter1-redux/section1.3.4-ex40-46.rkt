@@ -272,7 +272,44 @@ provided function 2^4 times = 16.  I.e.:
 
 (-start- "1.45")
 
+(define (average a b)
+  (/ (+ a b) 2))
 
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (repeated-damp n)
+  (repeated average-damp n))
+
+(define (root-damp x n damp-count)
+  (fixed-point
+    ((repeated-damp damp-count) (lambda (y) (/ x  (expt y (- n 1))  )))
+   5.0))
+
+; These can be used for experimenting.  I wasn't very thorough and
+; thought we needed to damp approx sqrt(n) times, where as it
+; seems one need only damp approx log2(n) times.
+
+;(root-damp 9 2 1)
+;(root-damp 81 4 2)
+;(root-damp 2187 8 3)
+;(root-damp 1000 16 4)
+
+(define (my-calc-damp n)
+  (ceiling (expt n 0.5)))
+
+(define (calc-damp n)
+  (floor (/ (log n) (log 2))))
+
+(define (root x n)
+  (root-damp x n (calc-damp n)))
+
+(present root
+         '(9 2)
+         '(81 4)
+         '(2187 8)
+         '(1000 16)
+         '(1000 50))
 
 (--end-- "1.45")
 
@@ -303,7 +340,38 @@ provided function 2^4 times = 16.  I.e.:
 
 (-start- "1.46")
 
+(define (iterative-improve good-enough? improve)
+  (define (improve-until-good-enough guess)
+    (if (good-enough? guess)
+        guess
+        (improve-until-good-enough (improve guess))))
+  improve-until-good-enough)
 
+    
+(define (sqrt-it-imp guess x)
+  ((iterative-improve
+    (lambda (y) (< (abs (- (* y y) x)) 0.00001))
+    (lambda (g) (average g (/ x g))))
+   x))
+
+(present-compare sqrt-it-imp
+                 '((1 2.) 2)
+                 '((1 64.) 8)
+                 '((1 144.) 12))
+
+(define tolerence 0.0001)
+
+(define (fixed-point-it-imp f first-guess)
+  ((iterative-improve
+    (lambda (g) (< (abs (- g (f g))) tolerence)) 
+    f)
+   first-guess))
+
+(define (1-over-golden)
+  (fixed-point-it-imp (lambda (x) (/ 1 (+ 1 x))) 1.0))
+
+(present-compare 1-over-golden
+                 '(() 0.61803))
 
 (--end-- "1.46")
 
