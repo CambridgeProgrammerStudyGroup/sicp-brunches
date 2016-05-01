@@ -81,17 +81,16 @@
   (= n (smallest-divisor n)))
 
 (define (report-prime-repeat prime? n repeat)
-  0)
-;  (define (prime-repeat repeat-count)
-;    (cond ((= 0 repeat-count)
-;           (prime? n))
-;          (else
-;           (prime? n)           
-;           (prime-repeat (- repeat-count 1)))))
-;  (display "    ") 
-;  (display n)
-;  (display " *** ")
-;  (ignore (time (prime-repeat repeat))))
+  (define (prime-repeat repeat-count)
+    (cond ((= 0 repeat-count)
+           (prime? n))
+          (else
+           (prime? n)           
+           (prime-repeat (- repeat-count 1)))))
+  (display "    ") 
+  (display n)
+  (display " *** ")
+  (ignore (time (prime-repeat repeat))))
 
 (define repeat-count 3000)
 
@@ -378,6 +377,7 @@ fold as the number increases from ≈1,000 to ≈1,000,000.
 
 The results are consistent with this if we assume that the time to test
 'prime? 2' gives a good estimate of the fixed testing overhead. ")
+
 (--end-- "1.24")
 
 ;   ========================================================================
@@ -440,16 +440,17 @@ then number is larger than that which is stored in a single word. ...")
      "-----------------------------------------------------------------
   ### The times below are for a single call to prime-test.  ###
 ")
+
 (report-prime-single fast-prime-fe-8? 10007)
 (report-prime-single fast-prime-fe-8? 10009)
 (report-prime-single fast-prime-fe-8? 10037)
 (report-prime-single fast-prime-fe-8? 100003)
 (report-prime-single fast-prime-fe-8? 100019) 
 (report-prime-single fast-prime-fe-8? 100043)
-;(prn "    ... this could take a while (≈19 sec on my machine)...")
-;(report-prime-single fast-prime-fe-8? 1000003) 
-;(report-prime-single fast-prime-fe-8? 1000033)
-;(report-prime-single fast-prime-fe-8? 1000037)
+(prn "    ... this could take a while (3 x ≈19 sec on my machine)...")
+(report-prime-single fast-prime-fe-8? 1000003) 
+(report-prime-single fast-prime-fe-8? 1000033)
+(report-prime-single fast-prime-fe-8? 1000037)
 
 (prn " 
 ... the impact on performance is huge, primes > 1,000 took x10 longer,
@@ -546,13 +547,11 @@ Just for the record:
     2,821 = 7 x 13 x 31
     6,601 = 7 x 23 x 41
 
-So we are testing if there are any non-primes, n, where aⁿ modulo n is 0
-for every a<n.
-
-
+So we are testing if there are any non-primes, n, where aⁿ modulo n is a
+for every a < n.
 ")
 
-(define (all-congruent? n)
+(define (fermat-test-all? n)
   (define (iter? n a)
     (cond
       ((>= a n) #true)
@@ -562,8 +561,22 @@ for every a<n.
   
 (define (carmichael? n)
   (if (not (sd-next-prime? n))
-      (all-congruent? n)
+      (fermat-test-all? n)
       #false))
+
+(define (find-carmichaels limit)
+  (prn (str "Looking for Carmichael numbers up to " limit))
+  (define (iter n)
+    (cond ((> n limit)
+           (prn "Done."))
+        (else
+         (if (carmichael? n)
+            (prn (str "    Carmichael: " n))
+            (ignore))
+         (iter (+ n 1)) )))
+  (iter 2))
+
+(find-carmichaels 10000)
 
 (--end-- "1.27")
 
@@ -600,7 +613,114 @@ for every a<n.
 
 (-start- "1.28")
 
+(define (non-trivial-root a n)
+  (cond
+    ((= a 1) #f)
+    ((= a (- n 1)) #f)
+    (else (= 1 (remainder (square a) n)))))
+
+(define (rm-test-one a n)
+  (define (expmod-rm base exp n)
+    (cond ((= exp 0) 1)
+          ((even? exp)
+           (define squared (square (expmod base (/ exp 2) n)))
+           (if (non-trivial-root a n)
+               0
+               (remainder squared n)))
+          (else
+           (remainder (* base (expmod-rm base (- exp 1) n))
+                      n))))
+  (= (expmod-rm a (- n 0) n) a))
+
+(define (rabin-miller? n)
+  (define (iter? n a)
+    (cond
+      ((>= a n) #true)
+      ((not (rm-test-one a n)) #false)
+      (else (iter? n (+ a 1)))))
+  (iter? n 2))
+
+(present-compare rabin-miller?
+                 '((56) #f)
+                 '((59) #t)
+                 '((560) #f)
+                 '((561) #f)
+                 '((1009) #t))
 
 
+(prn "The above appears to be a the desired miller-rabin implementation.
+
+It seems the same effect can be achieved simply but replaceing
+    aⁿ mod n = a
+with
+    aⁿ⁻¹ mod n = 1
+
+This is shown below with 'rabin-miller-2'.  The fact this works, or at
+the very least gives different results, is a little befuzzling as at
+first glance they could be thought as equivalent.
+")
+
+(define (rabin-miller2? n)
+  (define (iter? n a)
+    (cond
+      ((>= a n) #true)
+      ;((not (= (expmod a n n) a)) #false)
+      ((not (= (expmod a (- n 1) n) 1)) #false)
+      (else (iter? n (+ a 1)))))
+  (iter? n 2))
+
+(present-compare rabin-miller2?
+                 '((56) #f)
+                 '((59) #t)
+                 '((560) #f)
+                 '((561) #f)
+                 '((1009) #t))
+
+(prn "The above appears to be a the desired miller-rabin implementation.
+
+It seems the same effect can be achieved simply but replaceing
+    aⁿ mod n = a
+with
+    aⁿ⁻¹ mod n = 1
+
+This is shown below with 'rabin-miller-2'.  The fact this works, or at
+the very least gives different results, is at first glance counter
+intuitive as aⁿ=a => aⁿ⁻¹=1 however (aⁿ mod n)=a !=> (aⁿ⁻¹ mod n)=1 if
+we look at the Carmichael number 561 then:
+    3⁵⁶¹ mod 561 = 3   (satifies Fermat's test)
+but
+    3⁵⁶⁰ mod 561 = 375 (fails 'rm2' test)
+
+I.e. satisfying:
+    (aⁿ⁻¹ mod n) = 1
+is harder than satisfying:
+    (aⁿ mod n) = a
+
+There's no obvious relationship between the values that fail the 'n-1'
+test and the values of a that fail the non-trivial-root test.  The
+lowest number that fails the non-trivial-root test (in the evaluation of
+561) is 67:
+    67*67 = 4,489 = 1 mod 561
+but this passes the n-1 test:
+    67^560 mod 561 = 1
+")
+
+(define (compare limit)
+  (prn (str "Looking for different results from smallest-divisor,
+rabin-miller & rabin-miller2 with numbers up to " limit "..."))
+  (define (iter n)
+    (cond ((>= n limit) (prn "Done."))
+          (else
+           (define is-prime (sd-next-prime? n))
+           (if (and
+                ;(equal? is-prime (fermat-test-all? n))                
+                (equal? is-prime (rabin-miller? n))
+                (equal? is-prime (rabin-miller2? n)))
+               (ignore)
+               (prn (str "    Oops got different results for: " n)))
+           (iter (+ n 1)))))
+  (iter 2))
+
+(compare 10000)
+         
 (--end-- "1.28")
-
