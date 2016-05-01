@@ -21,8 +21,46 @@
 
 (-start- "1.40")
 
+(define (cubic a b c)
+  (lambda (x)
+    (+
+     (cube x)
+     (* a (square x))
+     (* b x)
+     c)))
 
+(define dx 0.00001)
 
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x) ((deriv g) x)))))
+
+(define (newtons-method f guess)
+  (fixed-point (newton-transform f) guess))
+
+(define (fixed-point f first-guess)
+  (define tolerance 0.00001)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(define (cube x) (* x x x))
+(define (square x) (* x x))
+
+(present-compare newtons-method
+                 (list (list (cubic 1 1 1) 1) -1)
+                 (list (list (cubic 3 -5 7) 1) -4.46922022674608))
+                 
 (--end-- "1.40")
 
 ;   ========================================================================
@@ -45,8 +83,43 @@
 
 (-start- "1.41")
 
+(define (inc n) (+ n 1))
 
+(define (double f)
+        (lambda (x) (f (f x))))
 
+(prn "It returns 23.
+
+Applying 'double' n times results in calling the given function 2ⁿ
+times.  E.g. *If* we had:
+
+    ((double (double (double inc))) 5)
+
+the result would be 13.  ('inc' applied 2^3 times to 5).
+
+However we have:
+
+  (((double (double double)) inc) 5)
+
+Let's look at this part:
+
+    (double (double double))
+
+If we consider this as
+
+    (double (double f))
+
+Then it's fairly clear this is the application of 'f' 2^2 times.  So:
+
+    (double (double double))
+
+is double applied 4 times.  This is the equivalent of applying the
+provided function 2^4 times = 16.  I.e.:
+
+    (((double (double double)) inc) 5) = 23
+")
+
+     
 (--end-- "1.41")
 
 ;   ========================================================================
@@ -69,7 +142,13 @@
 
 (-start- "1.42")
 
+(define (compose f g)
+  (define (composite-function x)
+    (f (g x)))
+  composite-function)
 
+(present-compare (compose square inc)
+                 '((6) 49))
 
 (--end-- "1.42")
 
@@ -102,7 +181,13 @@
 
 (-start- "1.43")
 
+(define (repeated f n)
+  (if (= n 1)
+      (lambda (x) (f x))
+      (compose f (repeated f (- n 1)))))
 
+(present-compare (repeated square 2)
+                 '((5) 625))
 
 (--end-- "1.43")
 
@@ -130,8 +215,32 @@
 
 (-start- "1.44")
 
+(define (smooth-with-delta delta)
+    (lambda (f)
+      (lambda (x)
+        (/ (+ (f (- x delta)) (f x) (f (+ x delta))) 3))))
 
+(define (repeated-smooth-with-delta delta n)
+  (if (= n 0)
+      identity
+      (repeated (smooth-with-delta delta) n)))
 
+(define (repeated-smooth n)
+  (repeated-smooth-with-delta dx n))
+
+(define smooth
+  (repeated-smooth 1))
+
+(define (apply-repeated-smoothing-of-cube-to-three repeat-count)
+  (((repeated-smooth repeat-count) cube) 3))
+
+(present apply-repeated-smoothing-of-cube-to-three
+         '(0)
+         '(1)
+         '(2)
+         '(3))
+
+  
 (--end-- "1.44")
 
 ;   ========================================================================
@@ -163,7 +272,44 @@
 
 (-start- "1.45")
 
+(define (average a b)
+  (/ (+ a b) 2))
 
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (repeated-damp n)
+  (repeated average-damp n))
+
+(define (root-damp x n damp-count)
+  (fixed-point
+    ((repeated-damp damp-count) (lambda (y) (/ x  (expt y (- n 1))  )))
+   5.0))
+
+; These can be used for experimenting.  I wasn't very thorough and
+; thought we needed to damp approx sqrt(n) times, where as it
+; seems one need only damp approx log2(n) times.
+
+;(root-damp 9 2 1)
+;(root-damp 81 4 2)
+;(root-damp 2187 8 3)
+;(root-damp 1000 16 4)
+
+(define (my-calc-damp n)
+  (ceiling (expt n 0.5)))
+
+(define (calc-damp n)
+  (floor (/ (log n) (log 2))))
+
+(define (root x n)
+  (root-damp x n (calc-damp n)))
+
+(present root
+         '(9 2)
+         '(81 4)
+         '(2187 8)
+         '(1000 16)
+         '(1000 50))
 
 (--end-- "1.45")
 
@@ -194,7 +340,38 @@
 
 (-start- "1.46")
 
+(define (iterative-improve good-enough? improve)
+  (define (improve-until-good-enough guess)
+    (if (good-enough? guess)
+        guess
+        (improve-until-good-enough (improve guess))))
+  improve-until-good-enough)
 
+    
+(define (sqrt-it-imp guess x)
+  ((iterative-improve
+    (lambda (y) (< (abs (- (* y y) x)) 0.00001))
+    (lambda (g) (average g (/ x g))))
+   x))
+
+(present-compare sqrt-it-imp
+                 '((1 2.) 2)
+                 '((1 64.) 8)
+                 '((1 144.) 12))
+
+(define tolerence 0.0001)
+
+(define (fixed-point-it-imp f first-guess)
+  ((iterative-improve
+    (lambda (g) (< (abs (- g (f g))) tolerence)) 
+    f)
+   first-guess))
+
+(define (1-over-golden)
+  (fixed-point-it-imp (lambda (x) (/ 1 (+ 1 x))) 1.0))
+
+(present-compare 1-over-golden
+                 '(() 0.61803))
 
 (--end-- "1.46")
 

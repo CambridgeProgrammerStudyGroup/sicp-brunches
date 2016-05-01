@@ -30,7 +30,15 @@
 
 (-start- "1.34")
 
+(prn "We will get an error as it will try to evauate '2' as a function.
 
+(f f)  ->  (f 2)  ->  (2 2)  ->  oops!
+")
+
+(define (f g)
+  (g 2))
+
+(f f)
 
 (--end-- "1.34")
 

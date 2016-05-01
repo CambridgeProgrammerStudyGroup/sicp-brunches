@@ -19,7 +19,52 @@
 
 (-start- "1.35")
 
+(prn "By definition the golden ratio is the ratio of a to b when:
 
+    a + b   a
+    ————— = —
+      a     b
+
+Lets fix b = 1 then:
+
+    a + 1   a
+    ————— = —
+      a     1
+
+Now a/1 is the golden ratio so 'a' represents its numeric value. We can
+rewrite as:
+
+    ψ + 1   ψ
+    ————— = —
+      ψ     1
+
+    ψ   1   ψ
+    — + — = —
+    ψ   ψ   1
+
+        1
+    1 + — = ψ
+        ψ
+
+
+I.e. the golden ratio is a fixed point of x -> 1 + 1/x
+")
+
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(define (golden-f x) (+ 1 (/ 1 x)))
+
+(present-compare fixed-point
+                 (list (list golden-f 1.0) "1.6180"))
 
 (--end-- "1.35")
 
@@ -45,7 +90,34 @@
 
 (-start- "1.36")
 
+(define (fp-display f average first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (average guess (f guess))))
+      (display "        ")(display guess)(newline)
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
 
+(define (x^x=1000-f x)
+  (/ (log 1000) (log x)))
+
+(define (damp-none guess f-of-guess)
+  f-of-guess)
+
+(define (damp-mean guess f-of-guess)
+  (/ (+ guess f-of-guess) 2))
+
+(present-compare fp-display
+                 (list (list x^x=1000-f damp-none 2.0) "4.5555"))
+
+(present-compare fp-display
+                 (list (list x^x=1000-f damp-mean 2.0) "4.5555"))
+
+(prn "Dampening with the mean-average reduces the number of iterations from
+34 to 9.")
 
 (--end-- "1.36")
 
@@ -109,7 +181,53 @@
 
 (-start- "1.37")
 
+(define (cont-frac-rec n d k)
+  (define (recur i)
+    (if (= i k)
+        (/ (n i) (d i))
+        (/ (n i) (+ (d i) (recur (+ i 1))))))
+  (recur 1))
 
+(define (cont-frac-itr n d k)
+  (define (iter i nextTerm)
+    (let ((currentTerm (/ (n i) (+ (d i) nextTerm))))
+      (if (= i 1)
+          currentTerm
+          (iter (- i 1) currentTerm))))
+  (iter k 0))
+
+(define (golden-cf-rec k)
+  (cont-frac-rec
+        (lambda (i) 1.0)
+        (lambda (i) 1.0)
+        k))
+
+(define (golden-cf-itr k)
+  (cont-frac-itr
+        (lambda (i) 1.0)
+        (lambda (i) 1.0)
+        k))
+
+(present-compare golden-cf-rec
+                 '((09) 0.618033)
+                 '((10) 0.618033)
+                 '((11) 0.618033)
+                 '((12) 0.618033)
+                 '((13) 0.618033)
+                 '((14) 0.618033))
+
+(present-compare golden-cf-itr
+                 '((09) 0.618033)
+                 '((10) 0.618033)
+                 '((11) 0.618033)
+                 '((12) 0.618033)
+                 '((13) 0.618033)
+                 '((14) 0.618033))
+
+(prn "k must be 12 before our estimate of 1/ψ is accurate to 4 decimal
+places.  After 11 steps we have 0.6180555555555556 which is 0.6181 to 4
+decimal places.  After 12 steps we have 0.6180257510729613 which is
+0.6180 to 4 decimal places.")
 
 (--end-- "1.37")
 
@@ -134,7 +252,21 @@
 
 (-start- "1.38")
 
+(define (e-2 k)
+  (define (n i) 1.0)
+  (define (d i)
+    (if (= (remainder i 3) 2)
+        (* (+ (quotient i 3) 1) 2)
+        1))
+  (cont-frac-itr n d k))
 
+(present-compare e-2
+                 '((1) 0.71828182845904523)
+                 '((2) 0.71828182845904523)
+                 '((4) 0.71828182845904523)
+                 '((8) 0.71828182845904523)
+                 '((16) 0.71828182845904523)
+                 '((32) 0.71828182845904523))
 
 (--end-- "1.38")
 
@@ -168,7 +300,18 @@
 
 (-start- "1.39")
 
-
+(define (tan-cf x k)  
+  (define (n i)
+    (if (= i 1) x (- (* x x))))
+  (define (d i)
+    (- (* i 2) 1))
+  (cont-frac-itr n d k))
+    
+(present-compare tan-cf
+                 '((0.5 1) 0.54630248984)
+                 '((0.5 2) 0.54630248984)
+                 '((0.5 4) 0.54630248984)
+                 '((0.5 8) 0.54630248984))
 
 (--end-- "1.39")
 

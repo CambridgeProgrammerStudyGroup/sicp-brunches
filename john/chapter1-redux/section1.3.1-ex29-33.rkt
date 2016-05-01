@@ -13,7 +13,7 @@
 ;   
 ;   h
 ;   ─ [y₀ + 4y₁ + 2y₂ + 4y₃ + 2y₄ + ... + 2y    + 4y    + y ]
-;   3                                       ⁿ⁻²     ⁿ⁻¹    ⁿ
+;   3                                      ⁿ⁻²     ⁿ⁻¹    ⁿ
 ;   
 ;   where h = (b - a)/n, for some even integer n, and y_(k) = f(a + kh).
 ;   (Increasing n increases the accuracy of the approximation.) Define a
@@ -29,7 +29,55 @@
 
 (-start- "1.29")
 
+(define (cube n)
+  (* n n n))
 
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a) (sum term (next a) next b))))
+
+(define (inc n)
+  (+ n 1))
+
+(define (simpson f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum term 0 inc n)))
+
+(present simpson
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(define (integral f a b dx)
+  (define (add-dx x) (+ x dx))
+  (* (sum f (+ a (/ dx 2.0)) add-dx b)
+     dx))
+
+(present integral
+         (list cube 0 1. 0.5)
+         (list cube 0 1. 0.01)
+         (list cube 0 1. 0.001)
+         (list cube 0 1. 0.00001))
+
+(prn "As promised Simpson Rule is much more accurate for a given number of
+iterations.  It looks like it would take 100,000,000 iterations for
+Integral to be as accurate as Simpson is after 100 iterations.
+
+Integral appears to be approaching the solution from below whereas we
+see Simpson producse positive errors as well as negative errors.
+
+This particular integration does seem to suite Simpsons well as it gives
+an exactly correct answer after just 2 iterations.")
 
 (--end-- "1.29")
 
@@ -56,7 +104,33 @@
 
 (-start- "1.30")
 
+(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
 
+(define (simpson-iter f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum-iter term 0 inc n)))
+
+(present simpson-iter
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(prn "Results appear equally accurate, but they are different; possibly just
+the vagaries of floating point.")
 
 (--end-- "1.30")
 
@@ -89,8 +163,45 @@
 
 (-start- "1.31")
 
+(define (prod-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* result (term a)))))
+  (iter a 1))
 
+(prn (str "Iterative product of terms:
 
+    The product of numbers from 1 to 6: " (prod-iter identity 1 inc 6)))
+
+(define (pi-term i)
+  (/
+   (* 2 (quotient (+ i 3) 2))
+   (+ 1 (* 2 (quotient (+ i 2) 2)))))
+
+(define (pi-iter n)
+  (* 4.0 (prod-iter pi-term 0 inc n)))
+
+(prn (str "
+    Estimate of π with 100 steps " (pi-iter 100)))
+
+(define (prod-rec term a next b)
+  (if (= a b)
+      (term a)
+      (* (term a) (prod-rec term (next a) next b))))
+
+(define (pi-rec n)
+  (* 4.0 (prod-rec pi-term 0 inc n)))
+
+(prn
+ (str "
+
+Recursive product of terms:
+
+    The product of numbers from 1 to 6: " (prod-rec identity 1 inc 6))
+ (str "
+    Estimate of π with 100 steps " (pi-rec 100)))
+         
 (--end-- "1.31")
 
 ;   ========================================================================
@@ -123,7 +234,84 @@
 
 (-start- "1.32")
 
+(define (acc-iter combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (combiner result (term a)))))
+  (iter a null-value))
 
+(define (sum-acc-iter term a next b)
+  (acc-iter + 0 term a next b))
+
+(define (prod-acc-iter term a next b)
+  (acc-iter * 1 term a next b))
+
+(define (simpson-acc-iter f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum-acc-iter term 0 inc n)))
+
+(prn "Implementing product and sum in terms of general accumulators:
+")
+
+(present simpson-acc-iter
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(define (pi-acc-iter n)
+  (* 4.0 (prod-acc-iter pi-term 0 inc n)))
+
+(prn (str "Estimate of π with 100 steps (prod-acc-iter): "
+          (pi-acc-iter 100)))
+
+(define (acc-rec combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (acc-rec combiner null-value term (next a) next b))))
+
+(define (sum-acc-rec term a next b)
+  (acc-rec + 0 term a next b))
+
+(define (prod-acc-rec term a next b)
+  (acc-rec * 1 term a next b))
+
+(define (simpson-acc-rec f a b n)
+  (define h (/ (- b a) n))
+  (define (y k) (f (+ a (* k h))))
+  (define (term k)
+    (cond
+      ((= k 0) (y 0))
+      ((= k n) (y n))
+      ((even? k) (* 2 (y k)))
+      (else (* 4 (y k)))))
+  (* (/ h  3)
+     (sum-acc-rec term 0 inc n)))
+
+(prn "Implementing product and sum in terms of general accumulators:
+")
+
+(present simpson-acc-rec
+         (list cube 0 1. 2)
+         (list cube 0 1. 100)
+         (list cube 0 1. 1000) 
+         (list cube 0 1. 100000))
+
+(define (pi-acc-rec n)
+  (* 4.0 (prod-acc-rec pi-term 0 inc n)))
+
+(prn (str "Estimate of π with 100 steps (prod-acc-rec): "
+          (pi-acc-rec 100)))
 
 (--end-- "1.32")
 
@@ -156,7 +344,52 @@
 
 (-start- "1.33")
 
+(define (prime? n)
+  (define (smallest-divisor-next-inline n)
+    (define (find-divisor n test-divisor)
+      (define (square n) (* n n))
+      (define (divides? a b)
+        (= (remainder b a) 0))
+      (cond ((> (square test-divisor) n) n)
+            ((divides? test-divisor n) test-divisor)
+            (else (find-divisor n (if (= test-divisor 2)
+                                      3 
+                                      (+ test-divisor 2))))))
+    (find-divisor n 2))
+  (if (< n 2)
+      #f
+      (= n (smallest-divisor-next-inline n))))
 
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+
+(define
+  (filtered-accumulate include-a? combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b) result
+        (if (include-a? a)
+            (iter (next a) (combiner result (term a)))
+            (iter (next a) result))))
+  (iter a null-value))
+
+(define (sum-square-primes a b)
+  (define (square n) (* n n))
+  (filtered-accumulate prime? + 0 square a inc b))
+
+(present-compare sum-square-primes
+                 '((1 5) 38)
+                 '((1000 1020) 3082611))
+
+(define (product-of-coprimes n)
+  (define (coprime? a)
+    (= 1 (gcd a n)))
+  (filtered-accumulate coprime? * 1 identity 2 inc n))
+
+(present-compare product-of-coprimes
+                 '((12) 385)
+                 '((11) 3628800))
 
 (--end-- "1.33")
 
