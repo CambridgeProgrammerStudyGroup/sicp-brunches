@@ -30,16 +30,15 @@
 ; https://docs.racket-lang.org/sicp-manual/index.html
 
 (require sicp-pict)
-(define picture diagonal-shading)
+(define picture einstein)
 
-(define (up-split painter n)
+(define (up-split1 painter n)
   (if (= n 0)
       painter
-      (let ((smaller (up-split painter (- n 1))))
+      (let ((smaller (up-split1 painter (- n 1))))
         (below painter (beside smaller smaller)))))
 
-(paint-hi-res (up-split picture 3))
-
+(paint-hi-res (up-split1 picture 3))
 
 (--end-- "2.44")
 
@@ -65,7 +64,18 @@
 
 (-start- "2.45")
 
+(define (split outer inner)
+  (define (splitter painter n)
+    (if (= n 0)
+        painter
+        (let ((smaller (splitter painter (- n 1))))
+          (outer painter (inner smaller smaller)))))
+  (lambda (painter n) (splitter painter n)))
 
+(define right-split (split beside below))
+(define up-split (split below beside))
+
+(paint-hi-res (up-split picture 3))
 
 (--end-- "2.45")
 
