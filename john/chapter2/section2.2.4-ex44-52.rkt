@@ -30,7 +30,8 @@
 ; https://docs.racket-lang.org/sicp-manual/index.html
 
 (require sicp-pict)
-(define picture einstein)
+(define pict-for-hi einstein)
+(define pict-for-lo diagonal-shading)
 
 (define (up-split1 painter n)
   (if (= n 0)
@@ -38,7 +39,7 @@
       (let ((smaller (up-split1 painter (- n 1))))
         (below painter (beside smaller smaller)))))
 
-(paint-hi-res (up-split1 picture 3))
+(paint-hi-res (up-split1 pict-for-hi 3))
 
 (--end-- "2.44")
 
@@ -75,7 +76,8 @@
 (define right-split (split beside below))
 (define up-split (split below beside))
 
-(paint-hi-res (up-split picture 3))
+(paint-hi-res (up-split pict-for-hi 3))
+(paint (right-split pict-for-lo 3))
 
 (--end-- "2.45")
 
@@ -103,8 +105,42 @@
 
 (-start- "2.46")
 
+(define (make-vect xcor ycor)
+  (cons xcor ycor))
 
+(define (xcor-vect vect)
+  (car vect))
 
+(define (ycor-vect vect)
+  (cdr vect))
+
+(define (add-vect vect1 vect2)
+  (cons
+   (+ (xcor-vect vect1) (xcor-vect vect2))
+   (+ (ycor-vect vect1) (ycor-vect vect2))))
+
+(define (sub-vect vect1 vect2)
+  (cons
+   (- (xcor-vect vect1) (xcor-vect vect2))
+   (- (ycor-vect vect1) (ycor-vect vect2))))
+
+(define (scale-vect s vect)
+  (cons
+   (* s (xcor-vect vect))
+   (* s (ycor-vect vect))))
+
+(define vect1 (make-vect 10 3))
+(define vect2 (make-vect 21 12))
+
+(present-compare add-vect
+                 (list (list vect1 vect2) (make-vect 31 15)))
+ 
+(present-compare sub-vect
+                 (list (list vect1 vect2) (make-vect -11 -9)))
+ 
+(present-compare scale-vect
+                 (list (list 3 vect1) (make-vect 30 9)))
+ 
 (--end-- "2.46")
 
 ;   ========================================================================
@@ -130,7 +166,11 @@
 
 (-start- "2.47")
 
+(define (make-frame-l origin edge1 edge2)
+  (list origin edge1 edge2))
 
+(define (make-frame-c origin edge1 edge2)
+  (cons origin (cons edge1 edge2)))
 
 (--end-- "2.47")
 
