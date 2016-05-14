@@ -166,11 +166,68 @@
 
 (-start- "2.47")
 
+(prn
+ (dbl-un "Using list:") "")
+
 (define (make-frame-l origin edge1 edge2)
   (list origin edge1 edge2))
 
+(define (origin-frame-l frame)
+  (car frame))
+
+(define (edge1-frame-l frame)
+  (car (cdr frame)))
+
+(define (edge2-frame-l frame)
+  (car (cdr (cdr frame))))
+
+(define frame-l
+  (make-frame-l
+   (make-vect -7 2)
+   (make-vect 9 6)
+   (make-vect -3 6)))
+
+(present-compare origin-frame-l
+                 (list (list frame-l) (cons -7 2)))
+
+(present-compare edge1-frame-l
+                 (list (list frame-l) (cons 9 6)))
+
+(present-compare edge2-frame-l
+                 (list (list frame-l) (cons -3 6)))
+
+
+(prn "" (dbl-un "And using cons:") "")
+
 (define (make-frame-c origin edge1 edge2)
   (cons origin (cons edge1 edge2)))
+
+(define (origin-frame-c frame)
+  (car frame))
+
+(define (edge1-frame-c frame)
+  (car (cdr frame)))
+
+(define (edge2-frame-c frame)
+  (cdr (cdr frame)))
+
+(define frame-c
+  (make-frame-c
+   (make-vect -7 2)
+   (make-vect 9 6)
+   (make-vect -3 6)))
+
+(present-compare origin-frame-c
+                 (list (list frame-c) (cons -7 2)))
+
+(present-compare edge1-frame-c
+                 (list (list frame-c) (cons 9 6)))
+
+(present-compare edge2-frame-c
+                 (list (list frame-c) (cons -3 6)))
+(prn
+ "Only the imlementation of 'edge2-frame' needs to change depending on
+whether the imlementation uses cons or list.")
 
 (--end-- "2.47")
 

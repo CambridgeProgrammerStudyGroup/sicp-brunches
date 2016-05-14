@@ -21,7 +21,7 @@
   (prnl lines))
 
 (define (dbl-un text)
-  (list text (make-string (string-length text) #\=)))
+  (str text nl (make-string (string-length text) #\=)))
 
 (define (double-underline text)
   (apply prn (dbl-un text)))
