@@ -260,8 +260,8 @@ whether the imlementation uses cons or list.")
 (define (end-segment segment)
   (cdr segment))
 
-(define start (make-vect 0 10))
-(define end (make-vect 10 0))
+(define start (make-vect 0 1))
+(define end (make-vect 1 0))
 
 (define segment
   (make-segment start end))
@@ -299,7 +299,86 @@ whether the imlementation uses cons or list.")
 
 (-start- "2.49")
 
+;(define (outline frame)
+;  (let ((left   (make-segment (make-vect 0 0) (make-vect 0 1)))
+;        (top    (make-segment (make-vect 0 1) (make-vect .5 .5)))
+;        (right  (make-segment (make-vect .5 .5) (make-vect 1 0)))
+;        (bottom (make-segment (make-vect 1 0) (make-vect 0 0))))
+;    (segments->painter
+;     (list segment left top right bottom))))
 
+(prn (dbl-un "a: Outline:"))
+
+(define outline
+  (let ((left   (make-segment (make-vect 0 0) (make-vect 0 1)))
+        (top    (make-segment (make-vect 0 1) (make-vect 1.0 1.0)))
+        (right  (make-segment (make-vect 1 1) (make-vect 1 0)))
+        (bottom (make-segment (make-vect 1 0) (make-vect 0 0))))
+    (segments->painter
+     (list left top right bottom))))
+
+(paint outline)
+        
+(prn "It seems that paint only supports values where 0 <= x < 1 unike in the
+book where it supports 0 <= x <= 1.")
+
+(prn "" (dbl-un "b: X"))
+
+(define X
+  (segments->painter
+   (list (make-segment (make-vect 0 0) (make-vect 1 1))
+         (make-segment (make-vect 0 1) (make-vect 1 0)))))
+    
+(paint X)
+
+(prn "" (dbl-un "c: Diamond"))
+
+(define diamond
+  (segments->painter
+   (list (make-segment (make-vect 0 0.5) (make-vect 0.5 1))
+         (make-segment (make-vect 0.5 1) (make-vect 1 0.5))
+         (make-segment (make-vect 1 0.5) (make-vect 0.5 0))
+         (make-segment (make-vect 0.5 0) (make-vect 0 0.5)))))
+
+(paint diamond)
+
+(prn "" (dbl-un "d: (not) Wave"))
+
+(define (ms x1 y1 x2 y2)
+  (make-segment (make-vect x1 y1) (make-vect x2 y2)))
+
+(define see
+  (segments->painter
+   (list (ms 0.1 0.5   0.2 0.7)
+         (ms 0.2 0.7   0.8 0.7)
+         (ms 0.8 0.7   0.9 0.6)
+         (ms 0.9 0.6   0.9 0.4)
+         (ms 0.9 0.4   0.8 0.3)
+         (ms 0.8 0.3   0.2 0.3)
+         (ms 0.2 0.3   0.1 0.5)
+
+         (ms 0.9 0.55  1 0.55)
+         (ms 0.9 0.53  1 0.53)
+         (ms 0.9 0.47  1 0.47)
+         (ms 0.9 0.45  1 0.45)
+
+         (ms 0.15 0.6   0.10 0.6)
+         (ms 0.10 0.6   0.115 0.65)
+         (ms 0.115 0.65  0.165 0.65)
+
+         (ms 0.13 0.5      0.225 0.675)
+         (ms 0.225 0.675   0.775 0.675)
+         (ms 0.775 0.675   0.863 0.592)
+         (ms 0.863 0.592   0.863 0.418)
+         (ms 0.863 0.418   0.775 0.325)
+         (ms 0.775 0.325   0.225 0.325)
+         (ms 0.225 0.325   0.13  0.5)
+         
+   )))
+
+(paint see)
+
+(paint-hi-res (beside see (flip-horiz see)))
 
 (--end-- "2.49")
 
