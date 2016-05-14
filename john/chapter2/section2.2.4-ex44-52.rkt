@@ -251,6 +251,26 @@ whether the imlementation uses cons or list.")
 
 (-start- "2.48")
 
+(define (make-segment start end)
+  (cons start end))
+
+(define (start-segment segment)
+  (car segment))
+
+(define (end-segment segment)
+  (cdr segment))
+
+(define start (make-vect 0 10))
+(define end (make-vect 10 0))
+
+(define segment
+  (make-segment start end))
+
+(present-compare start-segment
+                 (list (list segment) start))
+
+(present-compare end-segment
+                 (list (list segment) end))             
 
 
 (--end-- "2.48")
