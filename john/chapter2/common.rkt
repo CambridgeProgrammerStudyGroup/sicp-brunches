@@ -21,7 +21,7 @@
   (prnl lines))
 
 (define (dbl-un text)
-  (list text (make-string (string-length text) #\=)))
+  (str text nl (make-string (string-length text) #\=)))
 
 (define (double-underline text)
   (apply prn (dbl-un text)))
@@ -49,7 +49,6 @@
 
 (define (present-one function inputs)
   (list
-   (str)
    (str "    With: " inputs)
    (str "    Got:  " (apply function inputs))))
 
@@ -66,7 +65,6 @@
 
 (define (present-compare-one function inputs expected)
   (list
-   (str)
    (str "    With:     " inputs)
    (str "    Expected: " expected)
    (str "    Actual:   " (apply function inputs))))
