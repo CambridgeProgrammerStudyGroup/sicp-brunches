@@ -357,13 +357,13 @@ book where it supports 0 <= x <= 1.")
          (ms 0.8 0.3   0.2 0.3)
          (ms 0.2 0.3   0.1 0.5)
 
-         (ms 0.9 0.55  1 0.55)
-         (ms 0.9 0.53  1 0.53)
-         (ms 0.9 0.47  1 0.47)
-         (ms 0.9 0.45  1 0.45)
+         (ms 0.9 0.60  1 0.60)
+         (ms 0.9 0.58  1 0.58)
+         (ms 0.9 0.54  1 0.56)
+         (ms 0.9 0.52  1 0.54)
 
-         (ms 0.15 0.6   0.10 0.6)
-         (ms 0.10 0.6   0.115 0.65)
+         (ms 0.15 0.6   0.11 0.6)
+         (ms 0.11 0.6   0.115 0.65)
          (ms 0.115 0.65  0.165 0.65)
 
          (ms 0.13 0.5      0.225 0.675)
@@ -376,9 +376,7 @@ book where it supports 0 <= x <= 1.")
          
    )))
 
-(paint see)
-
-(paint-hi-res (beside see (flip-horiz see)))
+(paint-hi-res see)
 
 (--end-- "2.49")
 
@@ -398,7 +396,44 @@ book where it supports 0 <= x <= 1.")
 
 (-start- "2.50")
 
+(define flip-horiz
+  (transform-painter
+   (make-vect 1.0 0.0)
+   (make-vect 0.0 0.0)
+   (make-vect 1.0 1.0)))
 
+(define rotate180
+  (transform-painter
+   (make-vect 1.0 1.0)
+   (make-vect 0.0 1.0)
+   (make-vect 1.0 0.0)))
+
+(define rotate270
+  (transform-painter
+   (make-vect 0.0 1.0)
+   (make-vect 0.0 0.0)
+   (make-vect 1.0 1.0)))
+
+; The signature of transform-painter appears to be differen (3 arguments) in
+; the package compared to the book (4 aguments).
+
+(prn "flip-horiz:")
+(paint-hi-res (flip-horiz see))
+
+(define pair (beside see (flip-horiz see)))
+
+(prn "pair:")
+(paint-hi-res pair)
+
+(prn "rotate90 (built-in):")
+(paint-hi-res (rotate90 pair))
+
+(prn "rotate180:")
+(paint-hi-res (rotate180 pair))
+
+(prn "rotate270:")
+(paint-hi-res (rotate270 pair))
+     
 
 (--end-- "2.50")
 
