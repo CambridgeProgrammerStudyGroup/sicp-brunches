@@ -457,7 +457,31 @@ book where it supports 0 <= x <= 1.")
 
 (-start- "2.51")
 
+(define (below-like-beside painter1 painter2)
+  (let ((split-point (make-vect 0.0 0.5)))
+    (let ((paint-bottom
+           (transform-painter 
+            (make-vect 0.0 0.0)
+            (make-vect 1.0 0.0)
+            split-point))
+          (paint-top
+           (transform-painter 
+            split-point
+            (make-vect 1.0 0.5)
+            (make-vect 0.0 1.0))))
+      (lambda (frame)
+        ((paint-bottom painter1) frame)
+        ((paint-top    painter2) frame)))))
 
+(prn "below-like-beside")
+(paint-hi-res (below-like-beside pair pict-for-hi))
+
+(define (below-using-beside painter1 painter2)
+  (rotate90
+   (beside (rotate270 painter1) (rotate270 painter2))))
+
+(prn "below-using-beside:")
+(paint-hi-res (below-using-beside pair pict-for-hi))
 
 (--end-- "2.51")
 
