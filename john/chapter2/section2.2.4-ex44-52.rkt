@@ -347,8 +347,7 @@ book where it supports 0 <= x <= 1.")
 (define (ms x1 y1 x2 y2)
   (make-segment (make-vect x1 y1) (make-vect x2 y2)))
 
-(define see
-  (segments->painter
+(define see-segments
    (list (ms 0.1 0.5   0.2 0.7)
          (ms 0.2 0.7   0.8 0.7)
          (ms 0.8 0.7   0.9 0.6)
@@ -372,9 +371,10 @@ book where it supports 0 <= x <= 1.")
          (ms 0.863 0.592   0.863 0.418)
          (ms 0.863 0.418   0.775 0.325)
          (ms 0.775 0.325   0.225 0.325)
-         (ms 0.225 0.325   0.13  0.5)
-         
-   )))
+         (ms 0.225 0.325   0.13  0.5)))
+
+(define see
+  (segments->painter see-segments))
 
 (paint-hi-res see)
 
@@ -515,5 +515,53 @@ book where it supports 0 <= x <= 1.")
 
 
 
+(define (corner-split painter n)
+  (if (= n 0)
+      painter
+      (let* ((up (up-split painter (- n 1)))
+            (right (right-split painter (- n 1)))
+            (top-left (beside up up))
+            (bottom-right (below right right))
+            (corner (corner-split painter (- n 1))))
+        (beside (below painter top-left)
+                (below bottom-right corner)))))
+
+(define (square-limit painter n)
+  (let* ((quater (corner-split painter n))
+         (half (beside (flip-horiz quater) quater)))
+    (below (flip-vert half) half)))
+
+(prn "square-limit see")
+(paint-hi-res (square-limit see 5))
+
+(define see2-segments
+  (append
+   see-segments
+   (list
+    (ms 0.3 0.5   0.5 0.6)
+    (ms 0.5 0.6   0.7 0.5)
+    (ms 0.7 0.5   0.5 0.4)
+    (ms 0.5 0.4   0.3 0.5))))
+
+(define see2 (segments->painter see2-segments))
+
+(define (corner-split2 painter n)
+  (if (= n 0)
+      painter
+      (let* ((up (up-split painter (- n 1)))
+            (right (right-split painter (- n 1)))
+            (top-left (beside up up))
+            (bottom-right (below right right))
+            (corner (corner-split painter (- n 1))))
+        (beside (below (flip-horiz painter) painter)
+                (below bottom-right corner)))))
+
+(define (square-limit2 painter n)
+  (let* ((quater (corner-split2 painter n))
+         (half (beside (flip-horiz quater) quater)))
+    (below (flip-vert half) half)))
+
+(prn "" "" "square-limit2 of see2 using corner-split2:" "")
+(paint-hi-res (square-limit2 see2 5))
 (--end-- "2.52")
 
