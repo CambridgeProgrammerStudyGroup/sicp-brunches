@@ -67,7 +67,26 @@
 
 (-start- "2.54")
 
+(define (equal? a b)
+  (if (list? a)
+      (if (list? b)
+          (if (or (empty? a) (empty? b))
+              (and (empty? a) (empty? b))
+              (and (eq? (car a) (car b))
+                   (equal? (cdr a) (cdr b))))
+          #f)
+      (eq? a b)))
 
+(present-compare equal?
+                 (list (list '(this is a list) '(this is a list)   ) #t)
+                 (list (list '(this is a list) '(this (is a) list) ) #f)
+                 (list (list '() '())   #t)
+                 (list (list '() 0)     #f)
+                 (list (list 0 '())     #f)
+                 (list (list 0 0)       #t)
+                 (list (list '() '(a))  #f)
+                 (list (list '(a) '())  #f)
+                 (list (list '(a) '(a)) #t))
 
 (--end-- "2.54")
 
@@ -89,7 +108,8 @@
 
 (-start- "2.55")
 
-
+(car ''abracadabra)
+;(car 'abracadabra)
 
 (--end-- "2.55")
 
