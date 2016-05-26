@@ -107,9 +107,19 @@
 ;   ------------------------------------------------------------------------
 
 (-start- "2.55")
-
 (car ''abracadabra)
-;(car 'abracadabra)
+(prn "The interpreter returns:
+    'quote
+This is because ' is expaneded to its full form (quote ...), i.e.:
+    (car ''abracadabra)
+is expanded to:
+    (car (quote (quote abracadabra)))
+=>
+    (car ('quote 'abracadabra))
+=>
+    'quote
+
+I think this also demonstrates quote is using normal evaluation.")
 
 (--end-- "2.55")
 
