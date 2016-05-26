@@ -67,7 +67,8 @@
   (list
    (str "    With:     " inputs)
    (str "    Expected: " expected)
-   (str "    Actual:   " (apply function inputs))))
+   (str "    Actual:   " (apply function inputs))
+   ""))
 
 (define (present-compare function . input-expected-pairs)
   (define (present-compare-pair pair)
