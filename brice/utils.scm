@@ -139,3 +139,13 @@
   (if (> low high)
       nil
       (cons low (enumerate-interval (+ low 1) high))))
+
+(define (all-equal? . xs)
+	(define (inner item xs)
+		(if (empty? xs)
+			#t
+			(if (equal? item (first xs))
+				(inner (first xs) (rest xs))
+				#f)))
+	(inner (first xs) (rest xs)))
+	
