@@ -5,6 +5,8 @@
 (require "./exercise-2.47.scm")
 (require "./exercise-2.48.scm")
 
+(provide (all-defined-out))
+
 
 ; Exercise 2.49:
 ; Use segments->painter to define the following
@@ -58,6 +60,7 @@
 		(list
 			(make-segment (make-vect 0 0) (make-vect 1 1))
 			(make-segment (make-vect 1 0) (make-vect 0 1)))) frame))
+
 (define (paint-diamond frame)
 		((segments->painter
 			(list
@@ -67,19 +70,20 @@
 				(make-segment (make-vect 1.0 0.5) (make-vect 0.5 0.0))
 				)) frame))
 
-(let*
-	(
-		(image (mkimage 600 600))
-		(canvas (get-canvas image))
-		(myFrame (frame (make-vect 0 0) (make-vect 100  200) (make-vect 200 100)))
-	)
-	((paint-outline myFrame) canvas)
-	((paint-X myFrame) canvas)
-	((paint-diamond myFrame) canvas)
-	;(send canvas draw-line 0 0 1 1)
-	(save-image image "exercise-2.49.png")
-	(prn "")
-)
+(module+ main
+	(let*
+		(
+			(image (mkimage 600 600))
+			(canvas (get-canvas image))
+			(myFrame (frame (make-vect 0 0) (make-vect 100  200) (make-vect 200 100)))
+		)
+		((paint-outline myFrame) canvas)
+		((paint-X myFrame) canvas)
+		((paint-diamond myFrame) canvas)
+		;(send canvas draw-line 0 0 1 1)
+		(save-image image "exercise-2.49.png")
+		(prn "")
+	))
 
 
 
