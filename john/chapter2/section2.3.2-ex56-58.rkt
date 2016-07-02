@@ -147,8 +147,7 @@
                  (list (list '(** x 1) 'x)
                        '1)
                  (list (list '(+ (* 7 (** x 4)) (* 5 (** x 2))) 'x)
-                       '(+ (* 7 (* 4 (** x 3))) (* 5 (* 2 x))) )
-                 )
+                       '(+ (* 7 (* 4 (** x 3))) (* 5 (* 2 x))) ))
 
 (--end-- "2.56")
 
@@ -175,7 +174,43 @@
 
 (-start- "2.57")
 
+(define (multi-product? exp)
+  (pair? (cdddr exp)))
 
+(define (nest-products exp)
+  ; (* a b c) -> (* a (* b c))
+  (make-product
+   (multiplier exp)
+    (make-product
+    (car (cddr exp))
+    (cadr (cddr exp)))))
+   
+
+(define (deriv-57 exp var) 
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var) 1 0))
+        ((sum? exp)
+         (make-sum (deriv-57 (addend exp) var)
+                   (deriv-57 (augend exp) var)))
+        ((multi-product? exp)
+         (deriv-57 (nest-products exp) var))
+        ((product? exp)
+         (make-sum
+          (make-product (multiplier exp)
+                        (deriv-57 (multiplicand exp) var))
+          (make-product (deriv-57 (multiplier exp) var)
+                        (multiplicand exp))))
+        ((exponent? exp)         
+         (make-product (exponent exp) (make-exponent (base exp) (make-sum (exponent exp) '-1))))
+        (else
+         (error "unknown expression type -- DERIV" exp))))
+
+(present-compare deriv-57
+                 (list (list '(* x y (+ x 3)) 'x)
+                       '(+ (* x y) (* y (+ x 3))))
+                 (list (list '(* x x x) 'x)
+                       '(+ (* x (+ x x)) (* x x))))
 
 (--end-- "2.57")
 
