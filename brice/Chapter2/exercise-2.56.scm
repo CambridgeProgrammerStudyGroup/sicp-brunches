@@ -2,7 +2,9 @@
 (require "../utils.scm")
 (require "../meta.scm")
 
-(title "Exercise 2.56")
+(provide (all-defined-out))
+
+
 
 ;   Exercise 2.56
 ;   =============
@@ -127,30 +129,35 @@
         (else
          (error "unknown expression type -- DERIV" exp))))
 
-(assertequal? "Derive 1 wrt x"
-  0
-  (derive 1 'x))
+(module* main #f
+  (title "Exercise 2.56")
+  
+  (assertequal? "Derive 1 wrt x"
+    0
+    (derive 1 'x))
 
-(assertequal? "Derive 0 wrt x"
-  0
-  (derive 0 'x))
+  (assertequal? "Derive 0 wrt x"
+    0
+    (derive 0 'x))
 
-(assertequal? "Derive x wrt x"
-  1
-  (derive 'x 'x))
+  (assertequal? "Derive x wrt x"
+    1
+    (derive 'x 'x))
 
-(assertequal? "Derive 2x wrt x"
-  2
-  (derive '(* 2 x) 'x))
+  (assertequal? "Derive 2x wrt x"
+    2
+    (derive '(* 2 x) 'x))
 
-(assertequal? "Derive x**2 wrt x"
-  '(* 2 x)
-  (derive '(** x 2) 'x))
+  (assertequal? "Derive x**2 wrt x"
+    '(* 2 x)
+    (derive '(** x 2) 'x))
 
-(assert-raises-error "Derive x**x wrt x will raise an error"
-  ;'(* (+ (ln x) 1) (** x x))
-  (derive '(** x x) 'x))
+  (assert-raises-error "Derive x**x wrt x will raise an error"
+    ;'(* (+ (ln x) 1) (** x x))
+    (derive '(** x x) 'x))
 
-(assertequal? "Derive 4x**3 wrt x"
-  '(* 4 (* 3 (** x 2)))
-  (derive '(* 4 (** x 3)) 'x))
+  (assertequal? "Derive 4x**3 wrt x"
+    '(* 4 (* 3 (** x 2)))
+    (derive '(* 4 (** x 3)) 'x))
+
+)
