@@ -18,3 +18,34 @@ The real power is that you can pretend you've made the decision.
 
 ... it's alway much harder ... to talk about what something means than to 
 go off and do it.
+
+lec3a  55:45
+============
+
+... not only is this language implemented in Lisp, ... but the language is
+nicely embedded in Lisp. 
+
+1:02:50
+
+What List is great at, - see, Lisp is a lousy language for any particular
+problem, what it's good for is figuring out the right language that you want
+and embedding that in Lisp...
+
+1:07:49
+
+< a general criticism on the 'mythology' of Software Engineering:
+    - splitting task into sub (sub) tasks.
+    - only and engineer could that thing that this might work.
+
+  Contrast with Henderson - layers of languages.
+    - language of primitive pictures
+    - language of geometric combinators
+    - language of schemes of combinations (push, .... )
+
+
+lec3b 0:00:30
+=============
+
+... in order to make a system robust it has to be insensitive to small changes.
+
+21:25  We cannot reference into referentially opaque contexts.
