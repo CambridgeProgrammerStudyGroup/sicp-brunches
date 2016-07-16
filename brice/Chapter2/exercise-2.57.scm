@@ -26,10 +26,27 @@
 (module* main #f
   (title "Exercise 2.57")
 
+  (define-syntax make-maker
+  	(syntax-rules ()
+  		[(_ operator)
+        (lambda args
+          (cond
+            ((< (length args) 2)
+              (error "Can't operate on one value"))
+            ((findf number? args)
+              (append
+                (list (quote operator))
+                (list (apply operator (filter number? args)))
+                (filter (lambda (x) (not (number? x))) args)))
+            (else
+              (cons (quote operator) args)))) ]))
+
+  (define make-sum (make-maker +))
+  (define make-product (make-maker *))
+
   (let*
     (
       (sum? (lambda (x) (and (list? x) (eq? (car x) '+))))
-      (make-sum (lambda args (cons '+ args)))
       (addend (lambda (xs) (second xs)))
       (augend (lambda (xs)
         (if (> (length xs) 3)
@@ -37,58 +54,36 @@
           (third xs))))
 
       (product? (lambda (x) (and (list? x) (eq? (car x) '*))))
-      (make-product (lambda args (cons '* args)))
       (multiplier (lambda (xs) (second xs)))
       (multiplicand (lambda (xs)
         (if (> (length xs) 3)
           (cons '* (rest (rest xs)))
           (third xs))))
 
-
-      (TESTSUM (make-sum 1 2 3 4))
-      (TESTPRODUCT (make-product 1 2 3 4))
+      (TESTSUM (make-sum 'a 'b 'c 'd))
+      (TESTPRODUCT (make-product 'a 'b 'c 'd))
     )
 
+    (assertequal? "We can make sums of multiple values" '(+ a b c d) TESTSUM)
+    (assertequal? "We can get the augend of a long sum" '(+ b c d) (augend TESTSUM))
+    (assertequal? "We can get the addend of a long sum" 'a (addend TESTSUM))
+    (assertequal? "We can make sums of two values" '(+ a b) (make-sum 'a 'b))
+    (assertequal? "We can get the addend of a simple sum" 'a (addend (make-sum 'a 'b)))
+    (assertequal? "We can get the augend of a simple sum" 'b (augend (make-sum 'a 'b)))
+    (assertequal? "Sum will collapse numbers together when at the front" '(+ 3 c) (make-sum 1 2 'c))
+    (assertequal? "Sum will collapse numbers together when at the back" '(+ 5 a) (make-sum 'a 2 3))
+    (assertequal? "Sum will collapse numbers together when in the middle" '(+ 5 a d) (make-sum 'a 2 3 'd))
+    (assertequal? "Sum will collapse numbers together anywhere" '(+ 5 a d) (make-sum 1 'a 2 1 'd 1))
 
-  (define (derive exp var)
-    (cond ((number? exp) 0)
-          ((variable? exp)
-           (if (same-variable? exp var) 1 0))
-          ((sum? exp)
-           (make-sum (derive (addend exp) var)
-                     (derive (augend exp) var)))
-          ((product? exp)
-           (make-sum
-             (make-product (multiplier exp)
-                           (derive (multiplicand exp) var))
-             (make-product (derive (multiplier exp) var)
-                           (multiplicand exp))))
-           ;   d(uⁿ)          du
-           ;   ─── = nuⁿ⁻¹  ──
-           ;    dx            dx
-          ((exponentiation? exp)
-            (let* ((u (base exp)) (n (exponent exp)))
-              (make-product
-                (make-product n (make-exponentiation u (make-sum n -1)))
-                (derive u var))))
-          (else
-           (error "unknown expression type -- DERIV" exp))))
-
-
-
-
-    (assertequal? "We can make sums of multiple values" '(+ 1 2 3 4) TESTSUM)
-    (assertequal? "We can get the augend of a long sum" '(+ 2 3 4) (augend TESTSUM))
-    (assertequal? "We can get the addend of a long sum" 1 (addend TESTSUM))
-    (assertequal? "We can make sums of two values" '(+ 1 2) (make-sum 1 2))
-    (assertequal? "We can get the addend of a simple sum" 1 (addend (make-sum 1 2)))
-    (assertequal? "We can get the augend of a simple sum" 2 (augend (make-sum 1 2)))
-
-    (assertequal? "We can make products of multiple values" '(* 1 2 3 4) (make-product 1 2 3 4))
-    (assertequal? "We can get the multiplicand of a long product" '(* 2 3 4) (multiplicand (make-product 1 2 3 4)))
-    (assertequal? "We can get the multiplier of a long product" 1 (multiplier (make-product 1 2 3 4)))
-    (assertequal? "we can make products out of two numbers " '(* 1 2) (make-product 1 2))
-    (assertequal? "we can get the multiplier out of a simple product " 1 (multiplier (make-product 1 2)))
-    (assertequal? "we can get the multiplicand out of a simple product " 2 (multiplicand (make-product 1 2)))
+    (assertequal? "We can make products of multiple values" '(* a b c d) (make-product 'a 'b 'c 'd))
+    (assertequal? "We can get the multiplicand of a long product" '(* b c d) (multiplicand (make-product 'a 'b 'c 'd)))
+    (assertequal? "We can get the multiplier of a long product" 'a (multiplier (make-product 'a 'b 'c 'd)))
+    (assertequal? "we can make products out of two numbers " '(* a b) (make-product 'a 'b))
+    (assertequal? "we can get the multiplier out of a simple product " 'a (multiplier (make-product 'a 'b)))
+    (assertequal? "we can get the multiplicand out of a simple product " 'b (multiplicand (make-product 'a 'b)))
+    (assertequal? "Product will collapse numbers together when at the front" '(* 2 c) (make-product 1 2 'c))
+    (assertequal? "Product will collapse numbers together when at the back" '(* 6 a ) (make-product 'a 2 3))
+    (assertequal? "Product will collapse numbers together when in the middle" '(* 6 a d) (make-product 'a 2 3 'd))
+    (assertequal? "Product will collapse numbers together anywhere" '(* 30 b e) (make-product 1 'b 2 3 'e 5))
   )
 )
