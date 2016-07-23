@@ -4,6 +4,78 @@
 
 (require "common.rkt")
 
+(define (deriv-takes-makes exp var
+                           sum? addend augend make-sum
+                           product? multiplicand multiplier make-product)
+  (cond ((number? exp) 0)
+        ((variable? exp)
+         (if (same-variable? exp var) 1 0))
+        ((sum? exp)
+         (make-sum (deriv-takes-makes (addend exp) var
+                                      sum? addend augend make-sum
+                                      product? multiplicand multiplier make-product)
+                   (deriv-takes-makes (augend exp) var
+                                      sum? addend augend make-sum
+                                      product? multiplicand multiplier make-product)))
+        ((product? exp)
+         (make-sum
+          (make-product (multiplier exp)
+                        (deriv-takes-makes (multiplicand exp) var
+                                           sum? addend augend make-sum
+                                           product? multiplicand multiplier make-product))
+          (make-product (deriv-takes-makes (multiplier exp) var
+                                           sum? addend augend make-sum
+                                           product? multiplicand multiplier make-product)
+                        (multiplicand exp))))
+        (else
+         (error "unknown expression type -- DERIV" exp))))
+
+  
+(define (variable? exp) (symbol? exp))
+
+(define (same-variable? v1 v2)
+  (and (variable? v1) (variable? v2) (eq? v1 v2)))
+
+(define (=number? exp num)
+  (and (number? exp) (= exp num)))
+
+(define (deriv-prefix exp var)
+  (define (sum? x)
+    (and (pair? x) (eq? (car x) '+)))
+  (define (make-sum-simple a1 a2) (list '+ a1 a2))
+  (define (addend s) (cadr s))
+  (define (augend s) (caddr s))
+  (define (make-sum a1 a2)
+    (cond ((=number? a1 0) a2)
+          ((=number? a2 0) a1)
+          ((and (number? a1) (number? a2)) (+ a1 a2))
+          (else (make-sum-simple a1 a2))))
+  
+  
+  (define (product? x)
+    (and (pair? x) (eq? (car x) '*)))
+  (define (make-product-simple m1 m2) (list '* m1 m2))
+  (define (multiplier p) (cadr p))
+  (define (multiplicand p) (caddr p))
+  (define (make-product m1 m2)
+    (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+          ((=number? m1 1) m2)
+          ((=number? m2 1) m1)
+          ((and (number? m1) (number? m2)) (* m1 m2))
+          (else (make-product-simple m1 m2))))
+
+  (deriv-takes-makes exp var
+                     sum? addend augend make-sum
+                     product? multiplicand multiplier make-product))
+
+(prn "Examples from text - simplifying makes...")
+(present-compare deriv-prefix
+                 (list (list '(+ x 3) 'x) 1)
+                 (list (list '(* x y) 'x) 'y)
+                 (list (list '(* (* x y) (+ x 3)) 'x)
+                       '(+ (* x y) (* y (+ x 3)))))
+
+
 
 ;   ========================================================================
 ;   
