@@ -77,13 +77,108 @@
 )
 
 (module* infix #f
-  (title "Exercise 2.58b"))
+  (title "Exercise 2.58b")
+
+  (define operators '(+ * **)) ; in order of precedence
+
+  (define (operator? x)
+    (if (member x operators) #t #f))
+
+  (define (make-op-pred op)
+    (lambda (exp)
+      (empty?
+        (remove*
+          (member op operators)
+          (filter operator? exp)))))
+
+  (define sum? (make-op-pred '+))
+  (define product? (make-op-pred '*))
+  (define exponentiation? (make-op-pred '**))
+
+  (define (get-left op exp)
+    (let ((left (takef exp (lambda (x) (not (equal? x op))))))
+      (if (> (length left) 1)
+        left
+        (first left))))
+
+  (define (get-right op exp)
+    (let ((right (rest (member op exp))))
+      (if (> (length right) 1)
+        right
+        (first right))))
+
+  (define (addend sum) (get-left '+ sum))
+  (define (augend sum) (get-right '+ sum))
+
+  (define (multiplier product) (get-left '* product))
+  (define (multiplicand product) (get-right '* product))
+
+  (define (intersperse x ys)
+    (cond
+      [(empty? ys) '()]
+      [(empty? (rest ys)) ys]
+      [else (cons (first ys)
+              (cons x
+                (intersperse x (rest ys))))]))
+
+  (define (complement pred)
+    (lambda args
+      (not (apply pred args))))
+
+  (define-syntax make-maker
+  	(syntax-rules ()
+  		[(_ operator)
+        (lambda args
+          (cond
+            ((< (length args) 2)
+              (error "Can't operate on one value"))
+            ((findf number? args)
+                (intersperse (quote operator)
+                  (cons
+                    (apply operator (filter number? args))
+                    (filter (complement number?) args))))
+            (else
+              (intersperse (quote operator) args)))) ]))
+
+  (define make-sum (make-maker +))
+  (define make-product (make-maker *))
+
+  (assertequal? "We can create a simple sum" '(a + b)  (make-sum 'a 'b ))
+  (assertequal? "We can create a multiple value sum" '(a + b + c) (make-sum 'a 'b 'c))
+  (assertequal? "We will collect all values that can be collected in a sum" '(5 + a + b) (make-sum 1 'a 2 'b 2 ))
+
+  (assert "We can detect a simple sum" (sum? '(1 + 2)))
+  (assert "We can detect a sum within a compound expression" (sum? '(1 + 3 * 4)))
+  (assert "We can detect a sum within a compound expression (2)" (sum? '(1 * 3 + 4)))
+
+  (assert "We do not detect a product in an expression with a sum" (not (product? '(1 + 3 * 4 + 4 ** 8))))
+  (assert "We do not detect a product in an expression with a sum (2)" (not (product? '(1 * 3 * 4 + 4 ** 8))))
+  (assert "We detect a product in a expression with an exponentiation" (product? '(1 * 4 ** 8)))
+  (assert "We detect a simple product" (product? '(1 * 2)))
+
+  (assert "We do not detect an exponentiation in an expression with another operator" (not (exponentiation? '(1 + 4 ** 8))))
+  (assert "We detect a simple exponentiation" (exponentiation? '(1 ** 2)))
+
+  (assertequal? "We can get the addend of a simple sum" 1 (addend '(1 + 2)))
+  (assertequal? "We can get the addend of a simple compound sum" 1 (addend '(1 + 2 * 6)))
+  (assertequal? "We can get the addend of a compound sum" '(1 * 2) (addend '(1 * 2 + 6)))
+  (assertequal? "We can get the augend of a simple sum" 2 (augend '(1 + 2)))
+  (assertequal? "We can get the augend of a simple compound sum" 2 (augend '(1 * 7 + 2)))
+  (assertequal? "We can get the augend of a compound sum" '(2 ** 4) (augend '(1 * 7 + 2 ** 4)))
+  (assertequal? "We can get the augend of a sum of multiple values" '(2 + 3) (augend '(1 + 2 + 3)))
+
+  (assertequal? "We can get the multiplier of a simple product" 1 (multiplier '(1 * 2)))
+  (assertequal? "We can get the multiplier of a simple compound product" 1 (multiplier '(1 * 2 ** 6)))
+  (assertequal? "We can get the multiplier of a compound product" '(1 ** 2) (multiplier '(1 ** 2 * 6)))
+  (assertequal? "We can get the multiplicand of a simple product" 2 (multiplicand '(1 * 2)))
+  (assertequal? "We can get the multiplicand of a simple compound product" 2 (multiplicand '(1 ** 7 * 2)))
+  (assertequal? "We can get the multiplicand of a compound product" '(2 ** 4) (multiplicand '(1 ** 7 * 2 ** 4)))
+  (assertequal? "We can get the multiplicand of a product of multiple values" '(2 * 3) (multiplicand '(1 * 2 * 3)))
+)
 
 
 
 (module* main #f
   (require (submod ".." infix-simple))
   (require (submod ".." infix))
-
-
 )
