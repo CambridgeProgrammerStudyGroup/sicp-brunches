@@ -148,4 +148,10 @@
 				(inner (first xs) (rest xs))
 				#f)))
 	(inner (first xs) (rest xs)))
-	
+
+
+(define (Q: . txt)
+  (apply prn (append '("QUESTION:") txt '(""))))
+
+(define (A: . txt)
+  (apply prn (append '("ANSWER:") txt '(""))))
