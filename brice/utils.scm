@@ -53,9 +53,9 @@
 
 (define-syntax assert-raises-error
 	(syntax-rules ()
-		[(assertraises msg body) 
-			(with-handlers 
-				([exn:fail? (lambda (ex) (reportok msg))]) 
+		[(assertraises msg body)
+			(with-handlers
+				([exn:fail? (lambda (ex) (reportok msg))])
 				(begin body (reporterr msg)))]))
 ; (require macro-debugger/expand)
 
@@ -64,15 +64,15 @@
 	(/ (+ a b) 2))
 
 (define (repeat x n)
-	
+
 	(define (intern i seq)
 		(if (> i 0)
 			(intern (dec i) (cons x seq))
 			seq))
-	
+
 	(intern n '()))
 
-(define (gcd a b) 
+(define (gcd a b)
 	(if (= b 0)
 		a
       	(gcd b (remainder a b))))
@@ -97,7 +97,7 @@
 (define (zip . xs)
 	(if (any? empty? xs)
 		'()
-		(cons 
+		(cons
 			(map first xs)
 			(apply zip (map rest xs)))))
 
@@ -123,9 +123,9 @@
 
 (define (inspect fn)
 	(lambda args
-		(let 
+		(let
 			((output (apply fn args)))
-			(prn 
+			(prn
 				(str "function:" fn)
 				(str "    inputs:" (apply str args))
 				(str "    output:" output))
@@ -155,3 +155,5 @@
 
 (define (A: . txt)
   (apply prn (append '("ANSWER:") txt '(""))))
+
+(define (log2 n) (/ (log n) (log 2)))
