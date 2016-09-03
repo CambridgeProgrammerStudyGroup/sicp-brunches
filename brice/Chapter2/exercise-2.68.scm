@@ -1,6 +1,7 @@
 #lang racket
 (require "../utils.scm")
 (require "../huffman.scm")
+(provide (all-defined-out))
 
 ;   Exercise 2.68
 ;   =============
