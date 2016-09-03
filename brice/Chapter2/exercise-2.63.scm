@@ -1,6 +1,6 @@
 #lang racket
 (require "../utils.scm")
-
+(provide (all-defined-out))
 ;   Exercise 2.63
 ;   =============
 ;
@@ -122,10 +122,12 @@ and this will be true no matter how the trees are balanced.")
   (for-each
     (λ (tree)
       (for-each (λ (fn)
-        (assertequal? (str (object-name fn) " returns as expected for " tree)
+        (assertequal? (str (object-name fn) "returns as expected for" tree)
           expected (fn tree)))
             (list tree->list-1 tree->list-2)))
     (list tree-1 tree-2 tree-3))
+
+    (newline)
 
     (Q: "b. Do the two procedures have the same order of growth in the number of
 steps required to convert a balanced tree with n elements to a list? If
