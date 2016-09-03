@@ -2,6 +2,7 @@
 (require "../utils.scm")
 (require "../huffman.scm")
 (require "./exercise-2.68.scm")
+(provide (all-defined-out))
 
 ;   Exercise 2.69
 ;   =============
