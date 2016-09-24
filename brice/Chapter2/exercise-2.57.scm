@@ -1,8 +1,8 @@
 #lang racket
 (require "../utils.scm")
 (require "../meta.scm")
+(provide (all-defined-out))
 
-(require "./exercise-2.56.scm")
 
 ;   Exercise 2.57
 ;   =============
@@ -23,43 +23,54 @@
 ;   2.3.2 Example: Symbolic Differentiation - p151
 ;   ------------------------------------------------------------------------
 
+(define (cleanup operator expr)
+  (if (list? expr)
+    (cond
+      [(and (eq? (length expr) 2)) (cleanup operator (second expr))]
+      [(and (eq? operator '*) (member 0 expr)) 0]
+      [(and (eq? operator '*) (member 1 expr)) (cleanup operator (filter (lambda (x) (not (eq? 1 x))) expr))]
+      [else expr])
+    expr))
+
+(define-syntax make-maker
+  (syntax-rules ()
+    [(_ operator)
+      (lambda args
+        (cond
+          ((< (length args) 2)
+            (error "Can't operate on one value"))
+
+          ((findf number? args)
+            (cleanup (quote operator) (append
+                          (list (quote operator))
+                          (list (apply operator (filter number? args)))
+                          (filter (lambda (x) (not (number? x))) args))))
+          (else
+            (cons (quote operator) args)))) ]))
+
+(define make-sum (make-maker +))
+(define make-product (make-maker *))
+
+(define (sum? x)
+  (and (list? x) (eq? (car x) '+)))
+(define (addend xs) (second xs))
+(define (augend xs)
+  (if (> (length xs) 3)
+    (cons '+ (rest (rest xs)))
+    (third xs)))
+(define (product? x)
+  (and (list? x) (eq? (car x) '*)))
+(define (multiplier xs) (second xs))
+(define (multiplicand xs)
+  (if (> (length xs) 3)
+    (cons '* (rest (rest xs)))
+    (third xs)))
+
 (module* main #f
   (title "Exercise 2.57")
 
-  (define-syntax make-maker
-  	(syntax-rules ()
-  		[(_ operator)
-        (lambda args
-          (cond
-            ((< (length args) 2)
-              (error "Can't operate on one value"))
-            ((findf number? args)
-              (append
-                (list (quote operator))
-                (list (apply operator (filter number? args)))
-                (filter (lambda (x) (not (number? x))) args)))
-            (else
-              (cons (quote operator) args)))) ]))
-
-  (define make-sum (make-maker +))
-  (define make-product (make-maker *))
-
   (let*
     (
-      (sum? (lambda (x) (and (list? x) (eq? (car x) '+))))
-      (addend (lambda (xs) (second xs)))
-      (augend (lambda (xs)
-        (if (> (length xs) 3)
-          (cons '+ (rest (rest xs)))
-          (third xs))))
-
-      (product? (lambda (x) (and (list? x) (eq? (car x) '*))))
-      (multiplier (lambda (xs) (second xs)))
-      (multiplicand (lambda (xs)
-        (if (> (length xs) 3)
-          (cons '* (rest (rest xs)))
-          (third xs))))
-
       (TESTSUM (make-sum 'a 'b 'c 'd))
       (TESTPRODUCT (make-product 'a 'b 'c 'd))
     )
@@ -74,6 +85,7 @@
     (assertequal? "Sum will collapse numbers together when at the back" '(+ 5 a) (make-sum 'a 2 3))
     (assertequal? "Sum will collapse numbers together when in the middle" '(+ 5 a d) (make-sum 'a 2 3 'd))
     (assertequal? "Sum will collapse numbers together anywhere" '(+ 5 a d) (make-sum 1 'a 2 1 'd 1))
+    (assertequal? "Summ will collapse into bare number if needed" 6 (make-sum 1 2 3))
 
     (assertequal? "We can make products of multiple values" '(* a b c d) (make-product 'a 'b 'c 'd))
     (assertequal? "We can get the multiplicand of a long product" '(* b c d) (multiplicand (make-product 'a 'b 'c 'd)))
@@ -85,5 +97,8 @@
     (assertequal? "Product will collapse numbers together when at the back" '(* 6 a ) (make-product 'a 2 3))
     (assertequal? "Product will collapse numbers together when in the middle" '(* 6 a d) (make-product 'a 2 3 'd))
     (assertequal? "Product will collapse numbers together anywhere" '(* 30 b e) (make-product 1 'b 2 3 'e 5))
+    (assertequal? "Product will collapse to a single number if possible" 12 (make-product 3 4))
+    (assertequal? "Product will be 0 if any term is" 0 (make-product 0 'x 2 3 '(* 3 x)))
+    (assertequal? "Product with 1 will ignore 1" '(* 3 x) (make-product 1 '(* 3 x)))
   )
 )
