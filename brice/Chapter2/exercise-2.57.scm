@@ -1,8 +1,8 @@
 #lang racket
 (require "../utils.scm")
 (require "../meta.scm")
+(provide (all-defined-out))
 
-(require "./exercise-2.56.scm")
 
 ;   Exercise 2.57
 ;   =============
@@ -23,43 +23,44 @@
 ;   2.3.2 Example: Symbolic Differentiation - p151
 ;   ------------------------------------------------------------------------
 
+(define-syntax make-maker
+  (syntax-rules ()
+    [(_ operator)
+      (lambda args
+        (cond
+          ((< (length args) 2)
+            (error "Can't operate on one value"))
+          ((findf number? args)
+            (append
+              (list (quote operator))
+              (list (apply operator (filter number? args)))
+              (filter (lambda (x) (not (number? x))) args)))
+          (else
+            (cons (quote operator) args)))) ]))
+
+(define make-sum (make-maker +))
+(define make-product (make-maker *))
+
+(define (sum? x)
+  (and (list? x) (eq? (car x) '+)))
+(define (addend xs) (second xs))
+(define (augend xs)
+  (if (> (length xs) 3)
+    (cons '+ (rest (rest xs)))
+    (third xs)))
+(define (product? x)
+  (and (list? x) (eq? (car x) '*)))
+(define (multiplier xs) (second xs))
+(define (multiplicand xs)
+  (if (> (length xs) 3)
+    (cons '* (rest (rest xs)))
+    (third xs)))
+
 (module* main #f
   (title "Exercise 2.57")
 
-  (define-syntax make-maker
-  	(syntax-rules ()
-  		[(_ operator)
-        (lambda args
-          (cond
-            ((< (length args) 2)
-              (error "Can't operate on one value"))
-            ((findf number? args)
-              (append
-                (list (quote operator))
-                (list (apply operator (filter number? args)))
-                (filter (lambda (x) (not (number? x))) args)))
-            (else
-              (cons (quote operator) args)))) ]))
-
-  (define make-sum (make-maker +))
-  (define make-product (make-maker *))
-
   (let*
     (
-      (sum? (lambda (x) (and (list? x) (eq? (car x) '+))))
-      (addend (lambda (xs) (second xs)))
-      (augend (lambda (xs)
-        (if (> (length xs) 3)
-          (cons '+ (rest (rest xs)))
-          (third xs))))
-
-      (product? (lambda (x) (and (list? x) (eq? (car x) '*))))
-      (multiplier (lambda (xs) (second xs)))
-      (multiplicand (lambda (xs)
-        (if (> (length xs) 3)
-          (cons '* (rest (rest xs)))
-          (third xs))))
-
       (TESTSUM (make-sum 'a 'b 'c 'd))
       (TESTPRODUCT (make-product 'a 'b 'c 'd))
     )
