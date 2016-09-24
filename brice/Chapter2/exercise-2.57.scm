@@ -23,6 +23,15 @@
 ;   2.3.2 Example: Symbolic Differentiation - p151
 ;   ------------------------------------------------------------------------
 
+(define (cleanup operator expr)
+  (if (list? expr)
+    (cond
+      [(and (eq? (length expr) 2)) (cleanup operator (second expr))]
+      [(and (eq? operator '*) (member 0 expr)) 0]
+      [(and (eq? operator '*) (member 1 expr)) (cleanup operator (filter (lambda (x) (not (eq? 1 x))) expr))]
+      [else expr])
+    expr))
+
 (define-syntax make-maker
   (syntax-rules ()
     [(_ operator)
@@ -32,15 +41,10 @@
             (error "Can't operate on one value"))
 
           ((findf number? args)
-            (let [[expr (append
+            (cleanup (quote operator) (append
                           (list (quote operator))
                           (list (apply operator (filter number? args)))
-                          (filter (lambda (x) (not (number? x))) args))]]
-              (cond
-                [(eq? (length expr) 2) (second expr)]
-                [(and (eq? (quote operator) '*) (member 0 expr)) 0]
-                [else expr]))
-              )
+                          (filter (lambda (x) (not (number? x))) args))))
           (else
             (cons (quote operator) args)))) ]))
 
@@ -95,5 +99,6 @@
     (assertequal? "Product will collapse numbers together anywhere" '(* 30 b e) (make-product 1 'b 2 3 'e 5))
     (assertequal? "Product will collapse to a single number if possible" 12 (make-product 3 4))
     (assertequal? "Product will be 0 if any term is" 0 (make-product 0 'x 2 3 '(* 3 x)))
+    (assertequal? "Product with 1 will ignore 1" '(* 3 x) (make-product 1 '(* 3 x)))
   )
 )
