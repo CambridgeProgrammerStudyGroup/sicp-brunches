@@ -33,3 +33,31 @@
 (append x y) ; --> '(1 2 3 4 5 6)
 (cons x y)   ; --> '((1 2 3) 4 5 6)
 (list x y)   ; --> '((1 2 3) (4 5 6))
+
+"Exercise 2.27"
+
+(define (reverse lst)
+  (if (null? lst)
+      lst
+      (append (reverse (cdr lst)) (list (car lst)))))
+
+(define (deep-reverse lst)
+  (if (list? lst)
+      (reverse (map deep-reverse lst))
+      lst))
+
+(define list-to-reverse (list (list 1 2) (list 3 4)))
+(deep-reverse list-to-reverse)
+
+"Exercise 2.28"
+
+(define (fringe lst)
+  (if (list? lst)
+      (map fringe lst)
+      (display-all lst " ")))
+
+(fringe (list (list 1 2 3) (list 4 5 6)))
+
+
+
+
