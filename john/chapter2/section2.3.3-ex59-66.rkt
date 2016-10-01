@@ -17,7 +17,26 @@
 
 (-start- "2.59")
 
+(define (element-of-set? x set)
+  (if (empty? set)
+      #false
+      (if (equal? x (car set))
+          #true
+          (element-of-set? x (cdr set)))))
 
+(define (union-set set1 set2)
+  (if (empty? set2)
+      set1
+      (union-set
+       (if (element-of-set? (car set2) set1)
+           set1
+           (cons (car set2) set1))
+       (cdr set2))))
+
+(present-compare union-set
+                 (list (list '(1 2 3) '(4 5 6)) '(1 2 3 4 5 6))
+                 (list (list '(1 2 3) '(1 2 3)) '(1 2 3))
+                 (list (list '(1 2 3) '(2 3 4)) '(4 1 2 3)))
 
 (--end-- "2.59")
 
@@ -42,7 +61,40 @@
 
 (-start- "2.60")
 
+; duplicate ignoring adjoin
+(define (adjoin-set-dup x set2)
+  (cons x set2))
 
+; duplicate ignoring union
+(define (union-set-dup set1 set2)
+  (append set1 set2))
+
+; regular intersection
+(define (intersection-set set1 set2)
+  (if (or (empty? set1) (empty? set2))
+      '()
+      (if (element-of-set? (car set2) set1)
+          (cons (car set2) (intersection-set set1 (cdr set2)))
+          (intersection-set set1 (cdr set2)))))
+                
+      
+(present-compare intersection-set
+                 (list (list '(1 1 2 2) '(2 2 3 3)) '(2 2)))
+
+(present-compare adjoin-set-dup
+                 (list (list 3 '(3)) '(3 3)))
+
+(present-compare union-set-dup
+                 (list (list '(1 2 3) '(4 5 6)) '(1 2 3 4 5 6 ))
+                 (list (list '(1 2 3) '(1 2 3)) '(1 2 3 1 2 3))
+                 (list (list '(1 2 3) '(2 3 4)) '(1 2 3 2 3 4)))
+
+(prn
+ "The adjoin and union functions are much faster ( O(1)? ) so this
+implementation might be desireable if a process does a lot of unions.
+Intersection will be slower, because the lists are longer, but that
+might not be significant if intersections is rarely used or if duplicates
+are rare,")
 
 (--end-- "2.60")
 
@@ -63,6 +115,18 @@
 
 (-start- "2.61")
 
+(define (adjoin-set-ordered x set)
+  (cond ((empty? set) (list x))
+        ((< x (car set)) (cons x set))
+        ((= x (car set)) set)
+        (else (cons (car set) (adjoin-set-ordered x (cdr set))))))
+
+(present-compare adjoin-set-ordered
+                 (list (list 5 '()) '(5))
+                 (list (list 5 '(6 7)) '(5 6 7))
+                 (list (list 5 '(3 4)) '(3 4 5))
+                 (list (list 5 '(4 6)) '(4 5 6))
+                 (list (list 5 '(4 5 6)) '(4 5 6)))
 
 
 (--end-- "2.61")
@@ -82,8 +146,21 @@
 
 (-start- "2.62")
 
+(define (union-set-ordered set1 set2)
+  (cond ((empty? set1) set2)
+        ((empty? set2) set1)
+        ((< (car set1) (car set2))
+         (cons (car set1) (union-set-ordered (cdr set1) set2)))
+        ((= (car set1) (car set2))
+         (cons (car set1) (union-set-ordered (cdr set1) (cdr set2))))
+        ((> (car set1) (car set2))
+         (cons (car set2) (union-set-ordered set1 (cdr set2))))))
 
-
+(present-compare union-set-ordered
+                 (list (list '(1 2 3) '(4 5 6)) '(1 2 3 4 5 6 ))
+                 (list (list '(1 2 3) '(1 2 3)) '(1 2 3))
+                 (list (list '(1 2 3) '(2 3 4)) '(1 2 3 4)))
+         
 (--end-- "2.62")
 
 ;   ========================================================================
