@@ -59,6 +59,9 @@
   (define records-b (file->list "Chapter2/exercise-274/data-b.scm" read))
   (define records-c (file->list "Chapter2/exercise-274/data-c.scm" read))
 
+  (define all-divisions
+    (list records-a records-b records-c))
+
   (Q: "2.74a) Implement for headquarters a get-record procedure that retrieves a
 specified employee's record from a specified personnel file.  The
 procedure should be applicable to any division's file. Explain how the
@@ -69,33 +72,105 @@ type information must be supplied?")
 be used to access the data. This is done by providing a type tag as
 the first valid form of the record. For example
 
-    'type-xyz
+    type-xyz
     (1 2 3 4)
 
 Would be a valid file with the type `'type-xyz` and value `'(1 2 3 4)`.
 This requires absolutley minimal changes to division records, while
 giving us sufficient information to carry out type dispatch. We can
-also stip out the type tag and still use previous functions.
+also strip out the type tag and still use previous functions.
 ")
 
   (require (prefix-in divA: "exercise-274/division-a.scm"))
 
   (void
     (put 'get-record 'division-a divA:get-record)
+    (put 'get-salary 'division-a divA:get-salary)
   )
 
   (define (typeof x) (first x))
   (define (value x) (second x))
 
-  (define (my-get-record name records)
-    ((get 'get-record (typeof records)) name (value records)))
+  (define (get-record name records)
+    (let* [[division (typeof records)]]
+     (list division ((get 'get-record division) name(value records)))))
 
   (assertequal? "We can use get record to get division A records"
-    (my-get-record "Wendy Barnacles" records-a)
-    '(('address "321 Seal St, 62532, Sealand")
-      ('role "VP Carrot growing")
-      ('salary 54343.00)
-      ('age 12)))
+    '(division-a
+      ( (address "321 Seal St, 62532, Sealand")
+        (role "VP Carrot growing")
+        (salary 54343.00)
+        (age 12)))
+      (get-record "Wendy Barnacles" records-a))
 
+  (newline)
+
+  (Q: "2.74b) Implement for headquarters a get-salary procedure that returns the
+salary information from a given employee's record from any division's
+personnel file.  How should the record be structured in order to make
+this operation work?")
+
+  (define (get-salary record)
+    (let* [
+      [division (typeof record)]]
+      ((get 'get-salary division) (value record))))
+
+  (assertequal?
+    "We can get the salary of an employee from the record list"
+    54343.00
+    (get-salary (get-record "Wendy Barnacles" records-a)))
+
+  (newline)
+
+  (A: "We do not have to change the records at all for this operation to work,
+if we can dispatch the calls to access the record attributes using the
+division type, which we get from the division record at the top level.
+We do however have to register the `get-salary` function with our
+dispatch system.
+
+If we wish for the procedure to work with any record, the record will
+need its division as an initial value, so that we may dispatch accordingly.
+We can create a function that will add a division tag to all personnel
+records on access to circumvent the requirement. One way to do this is
+to add the division information as part of our own `get-record`
+procedure")
+
+  (Q: "2.74c) Implement for headquarters a find-employee-record procedure. This
+should search all the divisions' files for the record of a given
+employee and return the record.  Assume that this procedure takes as
+arguments an employee's name and a list of all the divisions' files.")
+
+  (define (find-employee-record name)
+    (define (inner divisions)
+      (if (empty? divisions) #f
+        (let* [
+            [division-tag (first divisions)]
+            [employee-record (get-record name division-tag)]]
+          (if employee-record
+            employee-record
+            (inner (rest divisions))))))
+    (inner all-divisions))
+
+  (assertequal? "We can find an employee record across all divisions"
+    '(division-a
+      ( (address "321 Seal St, 62532, Sealand")
+        (role "VP Carrot growing")
+        (salary 54343.00)
+        (age 12)))
+      (find-employee-record "Wendy Barnacles"))
+
+  (newline)
+
+  (Q: "2.74d) When Insatiable takes over a new company, what changes must be made
+in order to incorporate the new personnel information into the central
+system?")
+
+  (A: "When Insatiable takes over a new company, the only changes required
+are:
+
+- The addition of the divisions's records file to the `all-divisions` list
+- Adding division-specific record accessor to the dispatch table with the
+  division type tag
+- Adding record accessor to the division ")
 
 )
