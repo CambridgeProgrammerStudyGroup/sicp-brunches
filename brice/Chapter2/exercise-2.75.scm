@@ -1,8 +1,7 @@
 #lang racket
 (require "../utils.scm")
-(require "../meta.scm")
 
-(title "Exercise 2.75")
+
 
 ;   Exercise 2.75
 ;   =============
@@ -38,6 +37,8 @@
   dispatch)
 
 (module* main #f
+  (title "Exercise 2.75")
+
   (let* [
     [ang-1 (make-from-real-imag 1 1)]
     [ang-2 (make-from-mag-ang (sqrt 2) (* 0.25 π))]]
