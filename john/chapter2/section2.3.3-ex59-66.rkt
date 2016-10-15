@@ -202,7 +202,19 @@ are rare,")
 
 (-start- "2.63")
 
+(prn "So, I've got a horrible feeling I'm missing something here, but here are my
+pre-google guesses:
 
+  a. Yes, I think they do produce the same result. (It can't be that easy
+     can it?).  The  results would just be the order list, e.g.:
+         1  3 5  7 9
+
+  b. Yes and No.  Yes, I think the function takes the same number of steps
+     in terms of the number of recursive calls as they get called once on
+     each node.  However, the first one is much slower because the time
+     taken by append increases in proportion to the lenght of the list and
+     so the function will be O(n^2).
+")
 
 (--end-- "2.63")
 
