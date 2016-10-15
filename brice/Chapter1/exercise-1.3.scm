@@ -1,3 +1,4 @@
+#lang racket
 ; Exercise 1.3
 (define (square x)
   (* x x))
@@ -5,7 +6,7 @@
 (define (sum-square x y)
   (+ (square x) (square y)))
 
-(define (sum-square-max x y z) 
+(define (sum-square-max x y z)
   (cond ((> x y z) (sum-square x y))
         ((< x y z) (sum-square y z))
         (else (sum-square x z))))

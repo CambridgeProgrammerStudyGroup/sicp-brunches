@@ -3,11 +3,11 @@
 (require "../meta.scm")
 (require "exercise-2.7.scm")
 
-
+(title "Exercise 2.8")
 (provide (all-defined-out))
 
 (define (sub-interval a b)
-	(make-interval 
+	(make-interval
 		(- (lower-bound a) (upper-bound b))
 		(- (upper-bound a) (lower-bound b))))
 

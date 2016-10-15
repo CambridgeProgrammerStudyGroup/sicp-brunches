@@ -1,15 +1,15 @@
 #lang racket
 (require "../utils.scm")
 
-
-; Exercise 2.5: 
+(title "Exercise 2.5")
+; Exercise 2.5:
 ;
 ; Show that we can represent pairs of nonnegative
-; integers using only numbers and arithmetic 
-; operations if we represent the pair a and b as 
-; the integer that is the product (2^a)(3^b). 
+; integers using only numbers and arithmetic
+; operations if we represent the pair a and b as
+; the integer that is the product (2^a)(3^b).
 ;
-; Give the corresponding definitions of the 
+; Give the corresponding definitions of the
 ; procedures cons, car, and cdr.
 
 (define (cons a b)
