@@ -2,23 +2,25 @@
 (require "../utils.scm")
 (require "exercise-2.2.scm")
 
-; Exercise 2.3: 
+(title "Exercise 2.3")
+
+; Exercise 2.3:
 ;
-; Implement a representation for rectangles in a plane. 
-; (Hint: You may want to make use of Exercise 2.2.) In 
-; terms of your constructors and selectors, create 
-; procedures that compute the perimeter and the area of 
-; a given rectangle. 
-; 
-; Now implement a different representation for rectangles. 
+; Implement a representation for rectangles in a plane.
+; (Hint: You may want to make use of Exercise 2.2.) In
+; terms of your constructors and selectors, create
+; procedures that compute the perimeter and the area of
+; a given rectangle.
 ;
-; Can you design your system with suitable abstraction 
-; barriers, so that the same perimeter and area procedures 
+; Now implement a different representation for rectangles.
+;
+; Can you design your system with suitable abstraction
+; barriers, so that the same perimeter and area procedures
 ; will work using either representation?
 
 ;rectangle formed of origin thn width and height
 (define (mkrectangle origin width height)
-	(cons 
+	(cons
 		origin
 		(cons width height)))
 
@@ -53,11 +55,11 @@
 ; redefining an alternative representation...
 
 ; rectangle formed of two arbitrary points
-(set! mkrectangle 
+(set! mkrectangle
 	(lambda (p1 p2)
 		(cons p1 p2)))
 
-(set! width 
+(set! width
 	(lambda (rect)
 		(let (
 				(p1 (car rect))
@@ -71,7 +73,7 @@
 				(p2 (cdr rect)))
 		(abs (- (y-point p2) (y-point p1))))))
 
-(set! testrect 
+(set! testrect
 	(mkrectangle
 		(make-point 1 1)
 		(make-point 7 5)
@@ -88,7 +90,3 @@
 
 (asserteq "Can calculate area for rectangle 2"
 	(area testrect) 24)
-
-
-
-
