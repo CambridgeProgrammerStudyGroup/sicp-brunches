@@ -26,9 +26,7 @@
       (inner local-table))
     (define (insert! key-1 key-2 value)
       (if (lookup key-1 key-2) (error "Cannot overwrite existing key")
-        (begin
-          (set! local-table (cons (list (list key-1 key-2) value) local-table))
-          'ok)))
+          (set! local-table (cons (list (list key-1 key-2) value) local-table))))
     (define (show)
       (prn local-table))
     (define (dispatch m)
