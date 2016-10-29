@@ -264,7 +264,15 @@ pre-google guesses:
 
 (-start- "2.64")
 
+(prn "a.  It recursively constructs the left node at each point.  Having
+    completed the left tree at any level it then consturcts the right tree
+    using the same method and cons-es those trees with the central element
+    to return tree.
 
+b.  (My guess...) It's O(n), proportional to the number of elements. Because
+    each element requires a node and only one node is created per call to
+    the function
+"
 
 (--end-- "2.64")
 
