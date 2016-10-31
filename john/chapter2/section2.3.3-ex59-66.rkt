@@ -272,7 +272,7 @@ pre-google guesses:
 b.  (My guess...) It's O(n), proportional to the number of elements. Because
     each element requires a node and only one node is created per call to
     the function
-"
+")
 
 (--end-- "2.64")
 
@@ -295,7 +295,66 @@ b.  (My guess...) It's O(n), proportional to the number of elements. Because
 
 (-start- "2.65")
 
+(define (entry tree) (car tree))
+(define (left-branch tree) (cadr tree))
+(define (right-branch tree) (caddr tree))
+(define (make-tree entry left right)
+  (list entry left right))
 
+(define (tree->list tree)
+  (define (copy-to-list tree result-list)
+    (if (null? tree)
+        result-list
+        (copy-to-list (left-branch tree)
+                      (cons (entry tree)
+                            (copy-to-list (right-branch tree)
+                                          result-list)))))
+  (copy-to-list tree '()))
+
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let ((left-size (quotient (- n 1) 2)))
+        (let ((left-result (partial-tree elts left-size)))
+          (let ((left-tree (car left-result))
+                (non-left-elts (cdr left-result))
+                (right-size (- n (+ left-size 1))))
+            (let ((this-entry (car non-left-elts))
+                  (right-result (partial-tree (cdr non-left-elts)
+                                              right-size)))
+              (let ((right-tree (car right-result))
+                    (remaining-elts (cdr right-result)))
+                (cons (make-tree this-entry left-tree right-tree)
+                      remaining-elts))))))))
+
+; Ok I spent a while trying to do something that directly manuplated the
+; trees rather than converting to ordered lists.  But, I could only think
+; of processes that ultimately required to access the elements in order.
+
+(define (union-set-tree set1 set2)
+  (list->tree (union-set-ordered
+               (tree->list set1)
+               (tree->list set2))))
+
+(define (t list) (list->tree list))
+
+(present-compare union-set-tree
+                 (list (list (t '(1 2 3)) (t '(4 5 6))) (t '(1 2 3 4 5 6 )))
+                 (list (list (t '(1 2 3)) (t '(1 2 3))) (t '(1 2 3)))
+                 (list (list (t '(1 2 3)) (t '(2 3 4))) (t '(1 2 3 4))))
+
+(define (intersection-set-tree set1 set2)
+  (list->tree (intersection-set
+               (tree->list set1)
+               (tree->list set2))))
+
+(present-compare intersection-set-tree
+                 (list (list (t '(1 2 3)) (t '(4 5 6))) (t '()))
+                 (list (list (t '(1 2 3)) (t '(1 2 3))) (t '(1 2 3)))
+                 (list (list (t '(1 2 3)) (t '(2 3 4))) (t '(2 3))))
 
 (--end-- "2.65")
 
