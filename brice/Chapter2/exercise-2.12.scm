@@ -8,9 +8,10 @@
 
 (provide (all-defined-out))
 
+(title "Exercise 2.12")
 (define (make-center-percent c tol)
 	(let ((delta (* c (/ tol 100))))
-		(make-interval 
+		(make-interval
 			(- c delta)
 			(+ c delta))))
 

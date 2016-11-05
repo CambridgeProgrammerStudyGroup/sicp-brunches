@@ -2,50 +2,52 @@
 (require "../utils.scm")
 (require "../meta.scm")
 
-; Exercise 2.6: 
+(title "Exercise 2.6")
+
+; Exercise 2.6:
 ;
 ; In case representing pairs as procedures wasn’t
-; mind-boggling enough, consider that, in a language 
-; that can manipulate procedures, we can get by 
-; without numbers (at least insofar as nonnegative 
-; integers are concerned) by implementing 0 and the 
+; mind-boggling enough, consider that, in a language
+; that can manipulate procedures, we can get by
+; without numbers (at least insofar as nonnegative
+; integers are concerned) by implementing 0 and the
 ; operation of adding 1 as:
 
-(define zero 
-	(lambda (f) 
-		(lambda (x) x))) 
+(define zero
+	(lambda (f)
+		(lambda (x) x)))
 
 (define (add-1 n)
-	(lambda (f) 
-		(lambda (x) 
+	(lambda (f)
+		(lambda (x)
 			(f ((n f) x)))))
 
-; This representation is known as Church numerals, 
-; after its inventor, Alonzo Church, the logician who 
+; This representation is known as Church numerals,
+; after its inventor, Alonzo Church, the logician who
 ; invented the λ-calculus.
 ;
-; Define one and two directly (not in terms of zero 
-; and add-1). 
+; Define one and two directly (not in terms of zero
+; and add-1).
 ;
-; Hint: Use substitution to evaluate (add-1 zero). 
+; Hint: Use substitution to evaluate (add-1 zero).
 ;
-; Give a direct definition of the addition procedure + 
+; Give a direct definition of the addition procedure +
 ; (not in terms of repeated application of add-1).
 
 
 (define one
-	(lambda (f) 
-		(lambda (x) 
+	(lambda (f)
+		(lambda (x)
 			(f x))))
 
 (define two
-	(lambda (f) 
-		(lambda (x) 
+	(lambda (f)
+		(lambda (x)
 			(f (f x)))))
 
 (define three
-	(lambda (f) 
-		(lambda (x) 
+	(lambda (f)
+		(lambda (x)
 			(f (f (f x))))))
 
 ; turning church numerals into integers for testing
@@ -62,13 +64,13 @@
 		(lambda (x)
 			((repeated f i) x))))
 
-(asserteq "We can convert ints to church numerals" 
+(asserteq "We can convert ints to church numerals"
 	5 (cn-to-int (int-to-cn 5)))
 
 (define (add-cn a b)
 	"λa.λb.λf.λx.(a f) ((b f) x)"
 	(lambda (f)
-		(lambda (x) 
+		(lambda (x)
 			((a f) ((b f) x)))))
 
 (asserteq "Adding 1 to 1 in church numeral yields 2"
@@ -92,12 +94,12 @@
 	"λa.λb.b a"
 	(b a))
 
-(asserteq "Exponentiation works for even exponents" 
-	(expt 2 8) 
+(asserteq "Exponentiation works for even exponents"
+	(expt 2 8)
 	(cn-to-int (expt-cn two (int-to-cn 8))))
 
-(asserteq "Exponentiation works for odd exponents" 
-	(expt 4 5) 
+(asserteq "Exponentiation works for odd exponents"
+	(expt 4 5)
 	(cn-to-int (expt-cn (int-to-cn 4) (int-to-cn 5))))
 
 
@@ -120,6 +122,3 @@
 
 
 ; What about divide? Substract? Boolean logic?
-
-
-

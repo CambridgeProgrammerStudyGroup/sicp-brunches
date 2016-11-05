@@ -157,3 +157,5 @@
   (apply prn (append '("ANSWER:") txt '(""))))
 
 (define (log2 n) (/ (log n) (log 2)))
+
+(define π pi)
