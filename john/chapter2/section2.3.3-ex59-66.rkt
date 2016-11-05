@@ -374,7 +374,44 @@ b.  (My guess...) It's O(n), proportional to the number of elements. Because
 
 (-start- "2.66")
 
+(define (lookup key get-key tree)
+  (if (empty? tree)
+      #false
+      (let* ((record (entry tree))
+             (record-key (get-key record)))
+        (cond ((= key record-key) record)
+              ((> key record-key) (lookup key get-key (left-branch tree)))
+              ((< key record-key) (lookup key get-key (right-branch tree)))))))
 
+;; so let test... 
+(define (adjoin-set x set)
+  (cond ((null? set) (make-tree x '() '()))
+        ((= x (entry set)) set)
+        ((< x (entry set))
+         (make-tree (entry set) 
+                    (adjoin-set x (left-branch set))
+                    (right-branch set)))
+        ((> x (entry set))
+         (make-tree (entry set)
+                    (left-branch set)
+                    (adjoin-set x (right-branch set))))))
+
+(let ((pete '(1 "Peter Puds" 23 "Manchester"))
+      (jane '(2 "Jane Jigs" 45 "Brimingham"))
+      (anne '(3 "Anne Ack" 19 "Coventry"))
+      (mick '(4 "Mick Muck" 16 "Hastings"))
+      (fu   '(5 "Fu Manchu" 189 "Windsor")))
+  (define db (list pete
+                   (list mick
+                         '() (list anne '() '()))
+                   (list fu
+                         (list jane '()) '())))
+  
+  (define (get-key record) (car record))
+
+  (present-compare lookup
+                    (list (list 3 get-key db) '(3 "Anne Ack" 19 Coventry))))
+                   
 
 (--end-- "2.66")
 
