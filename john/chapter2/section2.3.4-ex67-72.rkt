@@ -134,7 +134,37 @@
 
 (-start- "2.68")
 
+;; Code from question
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+              (encode (cdr message) tree))))
 
+(define (contains tree symbol)
+  (define (list-contains list)
+    (cond ((empty? list) #false)
+          ((equal? symbol (car list)) #true)
+          (else list-contains (cdr list))))
+  (if (leaf? tree)
+      (equal? symbol (symbol-leaf tree))
+      (list-contains (caddr tree))))
+
+(define (encode-symbol symbol tree)
+  (define (encode-symbol-1 tree bits)
+    (prn tree)
+    (if (leaf? tree)        
+        (reverse bits)
+        (cond  ((contains (left-branch tree) symbol)
+                (encode-symbol-1 (left-branch tree) (cons '0 bits)))
+               ((contains (right-branch tree) symbol)
+                (encode-symbol-1 (right-branch tree) (cons 1 bits)))
+               (else (error "bad symbol -- ENCODE SYMBOL" symbol)))))
+  (encode-symbol-1 tree '()))
+                
+
+(present-compare encode
+                 (list (list '(A D A B B C A) sample-tree) sample-message))
 
 (--end-- "2.68")
 
