@@ -152,7 +152,7 @@
 
 (define (encode-symbol symbol tree)
   (define (encode-symbol-1 tree bits)
-    (prn tree)
+    ;;(prn tree)
     (if (leaf? tree)        
         (reverse bits)
         (cond  ((contains (left-branch tree) symbol)
@@ -161,7 +161,7 @@
                 (encode-symbol-1 (right-branch tree) (cons 1 bits)))
                (else (error "bad symbol -- ENCODE SYMBOL" symbol)))))
   (encode-symbol-1 tree '()))
-                
+;; Chapter 1 habits make me want to do a recursive version too!                
 
 (present-compare encode
                  (list (list '(A D A B B C A) sample-tree) sample-message))
@@ -197,6 +197,26 @@
 
 (-start- "2.69")
 
+(define (successive-merge node-set)
+  (cond ((empty? node-set) '())
+        ((= 1 (length node-set)) (car node-set))
+        (else
+         (let* ((fst (car node-set))
+                (snd (cadr node-set))
+                (new-tree (make-code-tree fst snd))) 
+           (successive-merge (adjoin-set new-tree (cddr node-set)))))))
+
+(define sample-pairs (list (list 'A 4) (list 'B 2) (list' C 1) (list 'D 1))) 
+
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+(define generated-tree (generate-huffman-tree sample-pairs))
+
+(prn "Seeing if generated tree matches the sample tree.  (Although equivalent
+trees need not be identical.")
+(present-compare generate-huffman-tree
+                 (list (list sample-pairs) sample-tree))
 
 
 (--end-- "2.69")
