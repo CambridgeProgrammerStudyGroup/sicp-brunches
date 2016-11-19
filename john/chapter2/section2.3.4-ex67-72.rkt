@@ -388,7 +388,33 @@ which seems pretty good.")
 
 (-start- "2.72")
 
+(prn "For the general case let's assume a very balanced tree, say with each
+symbol occuring with equal frequency.
 
+I think the depth of the tree is then aprox log n.  The top level 'contains'
+search would typically take n/2 steps and would half as we descend the tree
+giving aprox number of steps of:
+
+   n   n   n   
+   - + - + - + 
+   2   4   8
+
+Which looks to be O(n) steps at O(log n) levels.  I.e. O(n * log n).
+
+With 2.71 distribution performance will be improved if we always check the
+branch with one item first. (half of all searches will only require
+checking against one symbol).
+
+The most frequent item will have order O(1),
+
+The tree is much deeper, proportional to n. And the number of steps at each
+level will be O(n), (typical number of items to search is n/2). So for the
+least frequent item performance is O(n*n).
+
+However hecause of the heavy bias in frewquency the number is levels
+descended is typically only proportionate to log n.
+
+So we again get O(n) steps at O(log n) levels I.e.,  O(n * log n) ")
 
 (--end-- "2.72")
 
