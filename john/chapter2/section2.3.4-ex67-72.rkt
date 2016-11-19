@@ -145,21 +145,21 @@
   (define (list-contains list)
     (cond ((empty? list) #false)
           ((equal? symbol (car list)) #true)
-          (else list-contains (cdr list))))
+          (else (list-contains (cdr list)))))
   (if (leaf? tree)
       (equal? symbol (symbol-leaf tree))
       (list-contains (caddr tree))))
 
 (define (encode-symbol symbol tree)
   (define (encode-symbol-1 tree bits)
-    ;;(prn tree)
     (if (leaf? tree)        
         (reverse bits)
         (cond  ((contains (left-branch tree) symbol)
                 (encode-symbol-1 (left-branch tree) (cons '0 bits)))
                ((contains (right-branch tree) symbol)
-                (encode-symbol-1 (right-branch tree) (cons 1 bits)))
-               (else (error "bad symbol -- ENCODE SYMBOL" symbol)))))
+                (encode-symbol-1 (right-branch tree) (cons '1 bits)))
+               (else
+                (error "bad symbol -- ENCODE SYMBOL" symbol)))))
   (encode-symbol-1 tree '()))
 ;; Chapter 1 habits make me want to do a recursive version too!                
 
@@ -265,6 +265,33 @@ trees need not be identical.")
 
 (-start- "2.70")
 
+(define song-pairs
+  (list (list 'A 2)
+        (list 'NA 16)
+        (list 'BOOM 1)
+        (list 'SHA 3)
+        (list 'GET  2)
+        (list 'YIP 9)
+        (list 'JOB  2)
+        (list 'WAH 1) ))
+
+(define song-tree (generate-huffman-tree song-pairs))
+
+(define song '(GET A JOB
+                    SHA NA NA NA NA NA NA NA NA
+                    GET A JOB
+                    SHA NA NA NA NA NA NA NA NA
+                    WAH YIP YIP YIP YIP YIP YIP YIP YIP YIP
+                    SHA BOOM))
+  
+(define song-encoded (encode song song-tree))
+(prn "Encoded song is:"
+     "" song-encoded ""
+     (str "which has a total length of " (length song-encoded) ".")
+     "
+If we used fixed length encoding then 8 symbols would require 3 bits.
+There's a total of 36 words so the encoded message would have a total
+lenghth of 108 bits.")
 
 
 (--end-- "2.70")
