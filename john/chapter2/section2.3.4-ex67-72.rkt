@@ -315,6 +315,52 @@ lenghth of 108 bits.")
 (-start- "2.71")
 
 
+(prn "(2^5)
+|\\
+| \\
+16 |\\
+   | \\
+   8  |\\
+      | \\
+      4  |\\
+         | \\
+         2  1
+
+(2^10)
+ |\\
+ | \\
+512 |\\
+    | \\
+   256 |\\
+       | \\
+      126 |\\
+          | \\
+         64 |\\
+            | \\
+           32  |\\
+               | \\
+              16  |\\
+                  | \\
+                  8  |\\
+                     | \\
+                     4  |\\
+                        | \\
+                        2  1
+
+Generally 1 bit is needed to encode the most frequent symbol, while n-1
+bytes are required for the least frequent symbol.
+
+It might appear to be the worst case scenario for Huffman trees as it results
+a completely unbalanced tree.  However it would be very efficient as half
+the symbol instances are encoded with just one bit.  Average bits used is
+probalby:
+
+    1   2   3    4           n-1
+    - + - + - + -- + ... + -------
+    2   4   8   16         2^(n-1)
+
+which seems pretty good.")
+
 
 (--end-- "2.71")
 
