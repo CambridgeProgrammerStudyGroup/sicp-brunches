@@ -27,7 +27,81 @@
 
 (-start- "2.67")
 
+;; Code from book
 
+(define (make-leaf symbol weight)
+  (list 'leaf symbol weight))
+(define (leaf? object)
+  (eq? (car object) 'leaf))
+(define (symbol-leaf x) (cadr x))
+(define (weight-leaf x) (caddr x))
+
+(define (make-code-tree left right)
+  (list left
+        right
+        (append (symbols left) (symbols right))
+        (+ (weight left) (weight right))))
+
+(define (left-branch tree) (car tree))
+(define (right-branch tree) (cadr tree))
+
+(define (symbols tree)
+  (if (leaf? tree)
+      (list (symbol-leaf tree))
+      (caddr tree)))
+
+(define (weight tree)
+  (if (leaf? tree)
+      (weight-leaf tree)
+      (cadddr tree)))
+
+(define (adjoin-set x set)
+  (cond ((null? set) (list x))
+        ((< (weight x) (weight (car set))) (cons x set))
+        (else (cons (car set)
+                    (adjoin-set x (cdr set))))))
+
+(define (make-leaf-set pairs)
+  (if (null? pairs)
+      '()
+      (let ((pair (car pairs)))
+        (adjoin-set (make-leaf (car pair)    ; symbol
+                               (cadr pair))  ; frequency
+                    (make-leaf-set (cdr pairs))))))
+
+(define (decode bits tree)
+  (define (decode-1 bits current-branch)
+    (if (null? bits)
+        '()
+        (let ((next-branch
+               (choose-branch (car bits) current-branch)))
+          (if (leaf? next-branch)
+              (cons (symbol-leaf next-branch)
+                    (decode-1 (cdr bits) tree))
+              (decode-1 (cdr bits) next-branch)))))
+  (decode-1 bits tree))
+(define (choose-branch bit branch)
+  (cond ((= bit 0) (left-branch branch))
+        ((= bit 1) (right-branch branch))
+        (else (error "bad bit -- CHOOSE-BRANCH" bit))))
+
+
+;; Create the tree
+
+(define sample-tree
+  (make-code-tree (make-leaf 'A 4)
+                  (make-code-tree
+                   (make-leaf 'B 2)
+                   (make-code-tree (make-leaf 'D 1)
+                                   (make-leaf 'C 1)))))
+
+;; The message
+
+(define sample-message '(0 1 1 0 0 1 0 1 0 1 1 1 0))
+
+;; Decode the message
+
+(prn "Decoding " sample-message "gives: " (decode sample-message sample-tree))
 
 (--end-- "2.67")
 
@@ -60,7 +134,37 @@
 
 (-start- "2.68")
 
+;; Code from question
+(define (encode message tree)
+  (if (null? message)
+      '()
+      (append (encode-symbol (car message) tree)
+              (encode (cdr message) tree))))
 
+(define (contains tree symbol)
+  (define (list-contains list)
+    (cond ((empty? list) #false)
+          ((equal? symbol (car list)) #true)
+          (else (list-contains (cdr list)))))
+  (if (leaf? tree)
+      (equal? symbol (symbol-leaf tree))
+      (list-contains (caddr tree))))
+
+(define (encode-symbol symbol tree)
+  (define (encode-symbol-1 tree bits)
+    (if (leaf? tree)        
+        (reverse bits)
+        (cond  ((contains (left-branch tree) symbol)
+                (encode-symbol-1 (left-branch tree) (cons '0 bits)))
+               ((contains (right-branch tree) symbol)
+                (encode-symbol-1 (right-branch tree) (cons '1 bits)))
+               (else
+                (error "bad symbol -- ENCODE SYMBOL" symbol)))))
+  (encode-symbol-1 tree '()))
+;; Chapter 1 habits make me want to do a recursive version too!                
+
+(present-compare encode
+                 (list (list '(A D A B B C A) sample-tree) sample-message))
 
 (--end-- "2.68")
 
@@ -93,6 +197,26 @@
 
 (-start- "2.69")
 
+(define (successive-merge node-set)
+  (cond ((empty? node-set) '())
+        ((= 1 (length node-set)) (car node-set))
+        (else
+         (let* ((fst (car node-set))
+                (snd (cadr node-set))
+                (new-tree (make-code-tree fst snd))) 
+           (successive-merge (adjoin-set new-tree (cddr node-set)))))))
+
+(define sample-pairs (list (list 'A 4) (list 'B 2) (list' C 1) (list 'D 1))) 
+
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+(define generated-tree (generate-huffman-tree sample-pairs))
+
+(prn "Seeing if generated tree matches the sample tree.  (Although equivalent
+trees need not be identical.")
+(present-compare generate-huffman-tree
+                 (list (list sample-pairs) sample-tree))
 
 
 (--end-- "2.69")
@@ -141,6 +265,33 @@
 
 (-start- "2.70")
 
+(define song-pairs
+  (list (list 'A 2)
+        (list 'NA 16)
+        (list 'BOOM 1)
+        (list 'SHA 3)
+        (list 'GET  2)
+        (list 'YIP 9)
+        (list 'JOB  2)
+        (list 'WAH 1) ))
+
+(define song-tree (generate-huffman-tree song-pairs))
+
+(define song '(GET A JOB
+                    SHA NA NA NA NA NA NA NA NA
+                    GET A JOB
+                    SHA NA NA NA NA NA NA NA NA
+                    WAH YIP YIP YIP YIP YIP YIP YIP YIP YIP
+                    SHA BOOM))
+  
+(define song-encoded (encode song song-tree))
+(prn "Encoded song is:"
+     "" song-encoded ""
+     (str "which has a total length of " (length song-encoded) ".")
+     "
+If we used fixed length encoding then 8 symbols would require 3 bits.
+There's a total of 36 words so the encoded message would have a total
+lenghth of 108 bits.")
 
 
 (--end-- "2.70")
@@ -163,6 +314,52 @@
 
 (-start- "2.71")
 
+
+(prn "(2^5)
+|\\
+| \\
+16 |\\
+   | \\
+   8  |\\
+      | \\
+      4  |\\
+         | \\
+         2  1
+
+(2^10)
+ |\\
+ | \\
+512 |\\
+    | \\
+   256 |\\
+       | \\
+      126 |\\
+          | \\
+         64 |\\
+            | \\
+           32  |\\
+               | \\
+              16  |\\
+                  | \\
+                  8  |\\
+                     | \\
+                     4  |\\
+                        | \\
+                        2  1
+
+Generally 1 bit is needed to encode the most frequent symbol, while n-1
+bytes are required for the least frequent symbol.
+
+It might appear to be the worst case scenario for Huffman trees as it results
+a completely unbalanced tree.  However it would be very efficient as half
+the symbol instances are encoded with just one bit.  Average bits used is
+probalby:
+
+    1   2   3    4           n-1
+    - + - + - + -- + ... + -------
+    2   4   8   16         2^(n-1)
+
+which seems pretty good.")
 
 
 (--end-- "2.71")
@@ -191,7 +388,33 @@
 
 (-start- "2.72")
 
+(prn "For the general case let's assume a very balanced tree, say with each
+symbol occuring with equal frequency.
 
+I think the depth of the tree is then aprox log n.  The top level 'contains'
+search would typically take n/2 steps and would half as we descend the tree
+giving aprox number of steps of:
+
+   n   n   n   
+   - + - + - + 
+   2   4   8
+
+Which looks to be O(n) steps at O(log n) levels.  I.e. O(n * log n).
+
+With 2.71 distribution performance will be improved if we always check the
+branch with one item first. (half of all searches will only require
+checking against one symbol).
+
+The most frequent item will have order O(1),
+
+The tree is much deeper, proportional to n. And the number of steps at each
+level will be O(n), (typical number of items to search is n/2). So for the
+least frequent item performance is O(n*n).
+
+However hecause of the heavy bias in frewquency the number is levels
+descended is typically only proportionate to log n.
+
+So we again get O(n) steps at O(log n) levels I.e.,  O(n * log n) ")
 
 (--end-- "2.72")
 
