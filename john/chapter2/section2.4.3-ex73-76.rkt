@@ -68,7 +68,49 @@
 
 (-start- "2.73")
 
+(prn "a:  Well, it looks like we put the functions that symbolically differentiate
+various operators and put them in a table. (Struggling, the question kind of
+explains what we've done.)  It's not necessary to put number? or
+same-variable? in the table as there's only one implementation of each that
+is not dependent on any operator.  So perhaps it is 'impossible' because
+there is no operator to use ast the second key.
 
+b:
+==
+
+(define (deriv-sum operands)
+  (make-sum (deriv (car operands) var)
+            (deriv (cadr operands) var)))
+
+(define (deriv-prod operands)
+  (let ((multiplier (car operands))
+        (multiplicand (cadr operands)))   
+    (make-sum
+     (make-product multiplier
+                   (deriv multiplicand var))
+     (make-product (deriv multiplier var)
+                   multiplicand))))
+
+(put 'deriv '* deriv-prod)
+
+
+c:
+==
+
+(define (deriv-exp operands)
+  (let ((base (car operands))
+        (exponent (cadr operands)))
+    (make-product exponent (make-exponent base (make-sum exponent '-1)))))
+
+(put 'deriv '** deriv-exp)
+
+
+d:
+==
+
+There would be no differences except to the 'put' statements.
+
+")
 
 (--end-- "2.73")
 
