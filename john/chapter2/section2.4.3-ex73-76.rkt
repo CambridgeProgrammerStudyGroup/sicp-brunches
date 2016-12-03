@@ -68,7 +68,10 @@
 
 (-start- "2.73")
 
-(prn "a:  Well, it looks like we put the functions that symbolically differentiate
+(prn "a:
+==
+
+Well, it looks like we put the functions that symbolically differentiate
 various operators and put them in a table. (Struggling, the question kind of
 explains what we've done.)  It's not necessary to put number? or
 same-variable? in the table as there's only one implementation of each that
@@ -169,7 +172,65 @@ There would be no differences except to the 'put' statements.
 
 (-start- "2.74")
 
+(prn "Foreach different file we need to a number of file specificic
+functions: get-record, get-salary, get-address, ...
 
+We then want to make some generic (oops, I mean data-driven) functions that
+wrap the specific functions.  When getting complete records we need a key to
+find the right function.  We could use the filename, but that that's not
+cool.  So we need a format identifier.  Where do we get that from?  Well we
+could have a table of file-name -> format, or put it in the file.  I'll
+assume we can add this one piece of data to each company file.  When
+consuming records we need to have the record tagged with this key again, so
+we can lookup the appropriate function to extract the data.
+
+a:
+==
+(define (get-record file emp-name)
+  (define format (get-file-format file))
+  (define get-record (get 'get-record format))
+  (define record (get-record file emp-name))
+  (if record
+    (tag-format-type record format)
+    #f))
+
+I'll let George worry about the implementation.
+
+
+b:
+==
+(define (get-salary record)
+  (define format (get-format-type record))
+  (define local-get-salary (get 'get-salary format))
+  (define local-record (get-content record))
+  (local-get-salary local-record))
+
+I'll let George worry about the implementation.
+
+
+c:
+==
+(define (find-employee-record employee files)
+  (if (empty? files)
+    #f
+    (let ((record (get-record (car files) employee)))
+      (if record
+        record
+        (find-employee-record (cdr files))))))
+
+I'll let George worry about the implementation.
+
+d:
+==
+When a new company is acquired:
+  - The new company needs to add a unique format identifier to its file.
+  - Company specific functions need to be added to the database, get-record
+    to get the employee record, and a getter for each required datum, e.g.
+    salary, address.
+  - Once the new company's file is available on the network then it needs to
+    be added to the files collection.
+
+")
 
 (--end-- "2.74")
 
