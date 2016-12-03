@@ -250,7 +250,17 @@ When a new company is acquired:
 
 (-start- "2.75")
 
-
+(define (make-from-mag-ang r a)
+  (define (dispatch op)
+    (cond ((eq? op 'real-part)
+           (* r (cos r)))
+          ((eq? op 'imag-part)
+           (* r (sin a)))
+          ((eq? op 'magnitude) r)
+          ((eq? op 'angle) a)
+          (else
+           (error "Unknown op -- MAKE-FROM-MAG-ANG" op))))
+  dispatch)
 
 (--end-- "2.75")
 
