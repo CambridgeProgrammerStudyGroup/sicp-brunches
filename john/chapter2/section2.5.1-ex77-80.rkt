@@ -78,23 +78,23 @@ abstraction.
 ;   ------------------------------------------------------------------------
 
 (-start- "2.78")
-
-(define (attach-tag type-tag contents)
+(prn 
+"(define (attach-tag type-tag contents)
   (if (= 'scheme-number type-tag)
       contents
       (cons type-tag contents)))
 
 (define (type-tag datum)
   (cond
-    ((number? datum) 'number)
+    ((number? datum) 'scheme-number)
     ((pair? datum) (car datum))
-    (else error "Bad tagged datum -- TYPE-TAG" datum)))
+    (else error \"Bad tagged datum -- TYPE-TAG\" datum)))
 
 (define (contents datum)
   (cond
     ((number? datum) datum)
     ((pair? datum) (cdr datum))
-    (error "Bad tagged datum -- CONTENTS" datum)))
+    (error \"Bad tagged datum -- CONTENTS\" datum)))")
 
 (--end-- "2.78")
 
@@ -115,7 +115,19 @@ abstraction.
 
 (-start- "2.79")
 
-
+(prn 
+"(define (install-equality-predicate-package) 
+  (put 'equ '(scheme-number scheme-number)
+       (lambda (x y) (= x y)))
+  (put 'equ '(rational rational)
+       (lambda (x y)
+         (=
+          (* (numer x) (denom y))
+          (* (denom x) (numer y)))))
+  (put 'equ '(complex complex)
+       (and
+        (= (real-part x) (real-part y))
+        (= (imag-part x) (imag-part y)))))")
 
 (--end-- "2.79")
 
