@@ -34,8 +34,23 @@
 
 (-start- "2.77")
 
+(prn "First, why it didn't work originally...  We have two levels of abstraction
+First we use a generic apply to deal with the two ways of representing
+complex numbers.  This allows magnitude to be called on types 'rectangular
+and 'polar.  However we are now working at a higher level of abstraction,
+'complex, and we have not defined a operator to work on this.
 
+Alyssa's solution installs the magnitude operation for the 'complex type,
+the apply-generic function will then unpackage the 'rectanglar or 'poloar
+object from within the 'complex type so it can be used with the lower
+abstraction.
 
+(magnitude z)
+-> (apply-generic 'magnitude z)
+-> (magnitude r)  # where c is the (rectangular tagged) content of z.
+-> (apply-generic 'magnitude c)
+-> (magnitude r)  # where r is raw rectangular representation.
+")
 (--end-- "2.77")
 
 ;   ========================================================================
