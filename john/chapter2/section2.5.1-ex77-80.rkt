@@ -127,7 +127,9 @@ abstraction.
   (put 'equ '(complex complex)
        (and
         (= (real-part x) (real-part y))
-        (= (imag-part x) (imag-part y)))))")
+        (= (imag-part x) (imag-part y)))))
+
+(define (equ? x y) (apply-generic 'equ? x y))   ")
 
 (--end-- "2.79")
 
@@ -147,7 +149,18 @@ abstraction.
 
 (-start- "2.80")
 
+(prn
+"(define (install-zero-predicate-package) 
+  (put '=zero? '(scheme-number)
+       (lambda (x) (= 0 x)))
+  (put '=zero? '(rational)
+       (lambda (x)         
+         (= 0 (number x))))
+  (put '=zero? '(complex)
+       (lambda (x)
+         (= 0 (magnitude x)))))
 
+(define (=zero? x y) (apply-generic '=zero? x y))    ")
 
 (--end-- "2.80")
 
