@@ -50,7 +50,48 @@
 
 (-start- "2.81")
 
+(prn "a.
+==
+We would have an infinite recurssion so the procedure would never finish.
 
+As it is currently written apply-generic will fail with \"No method for
+these types.\".  If a coercian did exist it would call apply-generic with
+exactly the same values as the original call.
+
+b.
+==
+No, it isn't necessary to make a change.  We might want to because:
+ 1: it risks infinite recursion if an t->t coercian is added to the coercian
+    table.
+ 2: it results in two table lookups which could be expensive, although that
+    really doesn't matter as we're going to fail anyway.
+
+c.
+==
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args))
+        (no-method-error (lambda () (error \"No method for these types\"
+                                     (list op type-tags)))))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (equal? type1 type2)
+                    (no-method-error)
+                    (let ((t1->t2 (get-coercion type1 type2))
+                          (t2->t1 (get-coercion type2 type1)))
+                      (cond (t1->t2
+                             (apply-generic op (t1->t2 a1) a2))
+                            (t2->t1
+                         (apply-generic op a1 (t2->t1 a2)))
+                            (else
+                             (no-method-error)))))
+              (no-method-error)))))))
+")
 
 (--end-- "2.81")
 
