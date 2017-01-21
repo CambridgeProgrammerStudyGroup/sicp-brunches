@@ -61,7 +61,7 @@ exactly the same values as the original call.
 b.
 ==
 No, it isn't necessary to make a change.  We might want to because:
- 1: it risks infinite recursion if an t->t coercian is added to the coercian
+ 1: it risks infinite recursion if an t->t coercion is added to the coercion
     table.
  2: it results in two table lookups which could be expensive, although that
     really doesn't matter as we're going to fail anyway.
@@ -116,8 +116,24 @@ c.
 
 (-start- "2.82")
 
+(prn "Coercion could be done iteratively:
+    for n=2, as already defined.
+    for n>2, coerce n+1 elements = (coerce (coerce n_elements) n+1_element)
 
+However, this isn't as flexible as the one described in the question,
+because the question.  The question's approach will always work if there is
+an element of a type that all items can be coerced to (e.g. polygon).
+Conversely the iterative approach would fail if the first two items were
+square and triangle.
 
+However the general problem is that even the question's approach will fail
+to coerce a square and a triangle unless there is at least one polygon in
+the table.
+
+(Without actual table support (and all the coercian info in the table) I
+haven't writtent code because it would be fairly complex code and I doubt it
+would be correct (for almost any definition of correct) if I can't run/test
+it.) ")
 (--end-- "2.82")
 
 ;   ========================================================================
