@@ -155,7 +155,25 @@ it.) ")
 
 (-start- "2.83")
 
+(prn "(define (raise-int->rat int)
+  (make-rat (contents int) 1))
 
+(define (raise-rat->real rat)
+  (make-scheme-number (* 1.0 (/ (denom rat) (num rat)))))
+
+(define (raise-real->complex real)
+  (make-complex (contents real) 0))
+
+(define (raise n)
+  (let ((type (get-type n)))
+    (cond 
+      ((equal? type 'integer) (raise-int->rat n))
+      ((equal? type 'rational) (raise-rat->real n))
+      ((equal? type 'real) (raise-real->complex n))
+      ((equal? type 'complex) n)
+      (else (error \"Don't know how to raise type:\" type)))))
+
+; Doh! of course these functions should be put into a table not a cond!")
 
 (--end-- "2.83")
 
