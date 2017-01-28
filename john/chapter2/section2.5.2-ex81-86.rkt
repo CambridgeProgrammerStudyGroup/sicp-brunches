@@ -293,7 +293,54 @@ it.) ")
 
 (-start- "2.85")
 
+(prn "
+(define (project-complex->real c)
+  (make-real (real-part (content c))))
 
+(define (project-real->rat r)
+  (make-rat (truncate (content r)) 1))
+
+(define (project-rat->int r)
+  (let* ((cont (content r))
+         (n (numer cont))
+         (d (denom cont)))
+    (make-int (quotient n d))))
+
+(define (drop n)
+  (define (try-drop-one n)
+    (let ((project (get 'project (get-tag n))))
+      (if project
+          (let ((projected (project n)))
+          (if (equ? n (raise projected))
+              projected
+              n)
+          n))))
+  (let ((dropped (try-drop-one n)))
+    (if (equal? (type-tag n) (type-tag dropped))
+        n
+        (drop dropped))))
+
+
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args))
+        (no-method-error (lambda () (error \"No method for these types\"
+                                     (list op type-tags)))))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (drop (apply proc (map contents args)))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (equal? type1 type2)
+                    (no-method-error)
+                    (if (= -1 (type-compare type1 type2))
+                        (apply-generic op (raise a1) a2)
+                        (apply-generic op a1 (raise a2))))
+              (no-method-error)))))))
+")
+  
 
 (--end-- "2.85")
 
