@@ -177,6 +177,7 @@ it.) ")
 
 (--end-- "2.83")
 
+
 ;   ========================================================================
 ;   
 ;   Exercise 2.84
@@ -198,6 +199,60 @@ it.) ")
 (-start- "2.84")
 
 
+(define (get-compare ordered-list)
+  (define (compare a b pending-result list)
+    (prn  a b pending-result list)
+    (cond
+      ((empty? list) (error "Failed to find both items in list"))      
+      ((equal? a (car list))
+       (cond
+         ((= 1 pending-result) 1)
+         ((= 0 pending-result)
+          (compare a b -1 (cdr list)))
+         ((= -1 pending-result) (error "bad magic"))))
+      
+      ((equal? b (car list))
+       (cond
+         ((= 1 pending-result) (error "bad magic"))
+         ((= 0 pending-result) (compare a b 1 (cdr list)))
+         ((= -1 pending-result) -1)
+         (else (str pending-result " <<"))
+         ))
+      (else
+       (compare a b pending-result (cdr list)))))
+  (lambda (a b)
+    (if (equal? a b)
+        (error "Sorry expect a and b to be different types")
+        (compare a b 0 ordered-list))))
+
+(define type-compare (get-compare (list 'int 'rat 'real 'complex)))
+
+(present-compare type-compare
+                  (list (list 'rat 'real) -1)
+                  (list (list 'rat 'complex) -1)
+                  (list (list 'complex 'int) 1)
+                  (list (list 'rat 'int) 1))
+    
+(prn "
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args))
+        (no-method-error (lambda () (error \"No method for these types\"
+                                     (list op type-tags)))))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (equal? type1 type2)
+                    (no-method-error)
+                    (if (= -1 (type-compare type1 type2))
+                        (apply-generic op (raise a1) a2)
+                        (apply-generic op a1 (raise a2))))
+              (no-method-error)))))))
+")
 
 (--end-- "2.84")
 
