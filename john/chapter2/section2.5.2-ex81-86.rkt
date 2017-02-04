@@ -363,7 +363,95 @@ it.) ")
 
 (-start- "2.86")
 
+(prn "We already have generic procedures to handle complex numbers, but the
+implementation of those procedures use 'normal', non-generic procedures. So
+we need to make their implementation generic with respect to oridinary &
+rational numbers.
 
+So:
+
+;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (+ (real-part z1) (real-part z2))
+                         (+ (imag-part z1) (imag-part z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (- (real-part z1) (real-part z2))
+                         (- (imag-part z1) (imag-part z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (* (magnitude z1) (magnitude z2))
+                       (+ (angle z1) (angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
+                       (- (angle z1) (angle z2))))
+
+becomes:
+
+;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (add (real-part z1) (real-part z2))
+                         (add (imag-part z1) (imag-part z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (sub (real-part z1) (real-part z2))
+                         (sub (imag-part z1) (imag-part z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (mul (magnitude z1) (magnitude z2))
+                       (add (angle z1) (angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (div (magnitude z1) (magnitude z2))
+                       (sub (angle z1) (angle z2))))
+  
+Similarly:
+
+;; to be included in the complex package
+(define (add-complex-to-schemenum z x)
+  (make-from-real-imag (+ (real-part z) x)
+                       (imag-part z)))
+
+becomes:
+
+;; to be included in the complex package
+(define (add-complex-to-schemenum z x)
+  (make-from-real-imag (add (real-part z) x)
+                       (imag-part z)))
+
+Generally we need to make sure that anyting that consumes the result of
+real-part, imag-part, magnitude or angle is a generic opertion:
+
+We can de a generic square:
+
+(define (generic-square x) (mul x x))
+
+to replace the use of square.
+
+Functions such as sine, cosine and sqrt are not closed over integers and
+rationals so it seems reasonable to simply raise their arguments to reals
+before consuming them with the regular procedures, but I'm the question is
+right in implying that a generic sine, etc... would be neater.
+
+(define (raise->real n)
+  (let ((type (type-tag n)))
+    (cond ((equal? type 'integer)
+           (make-real (content n)))
+          ((equal? type 'rational)
+           (make-real (/ (numer n) (denom n))))
+          ((equal? type 'real)
+           n))))
+
+(define (make-generic f)
+    (make-scheme-number
+     (f
+      (raise->real a)
+      (raise->real b))))
+
+(define generic-sqrt (make-generic sqrt))
+
+(define generic-sine (make-generic sine))
+
+(define generic-cosine (make-generic cosine))
+
+(define generic-atan (make-generic atan))
+
+")
 
 (--end-- "2.86")
 
