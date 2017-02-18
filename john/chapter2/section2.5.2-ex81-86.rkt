@@ -50,7 +50,48 @@
 
 (-start- "2.81")
 
+(prn "a.
+==
+We would have an infinite recurssion so the procedure would never finish.
 
+As it is currently written apply-generic will fail with \"No method for
+these types.\".  If a coercian did exist it would call apply-generic with
+exactly the same values as the original call.
+
+b.
+==
+No, it isn't necessary to make a change.  We might want to because:
+ 1: it risks infinite recursion if an t->t coercion is added to the coercion
+    table.
+ 2: it results in two table lookups which could be expensive, although that
+    really doesn't matter as we're going to fail anyway.
+
+c.
+==
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args))
+        (no-method-error (lambda () (error \"No method for these types\"
+                                     (list op type-tags)))))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (equal? type1 type2)
+                    (no-method-error)
+                    (let ((t1->t2 (get-coercion type1 type2))
+                          (t2->t1 (get-coercion type2 type1)))
+                      (cond (t1->t2
+                             (apply-generic op (t1->t2 a1) a2))
+                            (t2->t1
+                         (apply-generic op a1 (t2->t1 a2)))
+                            (else
+                             (no-method-error)))))
+              (no-method-error)))))))
+")
 
 (--end-- "2.81")
 
@@ -75,8 +116,24 @@
 
 (-start- "2.82")
 
+(prn "Coercion could be done iteratively:
+    for n=2, as already defined.
+    for n>2, coerce n+1 elements = (coerce (coerce n_elements) n+1_element)
 
+However, this isn't as flexible as the one described in the question,
+because the question.  The question's approach will always work if there is
+an element of a type that all items can be coerced to (e.g. polygon).
+Conversely the iterative approach would fail if the first two items were
+square and triangle.
 
+However the general problem is that even the question's approach will fail
+to coerce a square and a triangle unless there is at least one polygon in
+the table.
+
+(Without actual table support (and all the coercian info in the table) I
+haven't writtent code because it would be fairly complex code and I doubt it
+would be correct (for almost any definition of correct) if I can't run/test
+it.) ")
 (--end-- "2.82")
 
 ;   ========================================================================
@@ -98,9 +155,28 @@
 
 (-start- "2.83")
 
+(prn "(define (raise-int->rat int)
+  (make-rat (contents int) 1))
 
+(define (raise-rat->real rat)
+  (make-scheme-number (* 1.0 (/ (denom rat) (num rat)))))
+
+(define (raise-real->complex real)
+  (make-complex (contents real) 0))
+
+(define (raise n)
+  (let ((type (get-type n)))
+    (cond 
+      ((equal? type 'integer) (raise-int->rat n))
+      ((equal? type 'rational) (raise-rat->real n))
+      ((equal? type 'real) (raise-real->complex n))
+      ((equal? type 'complex) n)
+      (else (error \"Don't know how to raise type:\" type)))))
+
+; Doh! of course these functions should be put into a table not a cond!")
 
 (--end-- "2.83")
+
 
 ;   ========================================================================
 ;   
@@ -123,6 +199,60 @@
 (-start- "2.84")
 
 
+(define (get-compare ordered-list)
+  (define (compare a b pending-result list)
+    (prn  a b pending-result list)
+    (cond
+      ((empty? list) (error "Failed to find both items in list"))      
+      ((equal? a (car list))
+       (cond
+         ((= 1 pending-result) 1)
+         ((= 0 pending-result)
+          (compare a b -1 (cdr list)))
+         ((= -1 pending-result) (error "bad magic"))))
+      
+      ((equal? b (car list))
+       (cond
+         ((= 1 pending-result) (error "bad magic"))
+         ((= 0 pending-result) (compare a b 1 (cdr list)))
+         ((= -1 pending-result) -1)
+         (else (str pending-result " <<"))
+         ))
+      (else
+       (compare a b pending-result (cdr list)))))
+  (lambda (a b)
+    (if (equal? a b)
+        (error "Sorry expect a and b to be different types")
+        (compare a b 0 ordered-list))))
+
+(define type-compare (get-compare (list 'int 'rat 'real 'complex)))
+
+(present-compare type-compare
+                  (list (list 'rat 'real) -1)
+                  (list (list 'rat 'complex) -1)
+                  (list (list 'complex 'int) 1)
+                  (list (list 'rat 'int) 1))
+    
+(prn "
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args))
+        (no-method-error (lambda () (error \"No method for these types\"
+                                     (list op type-tags)))))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (equal? type1 type2)
+                    (no-method-error)
+                    (if (= -1 (type-compare type1 type2))
+                        (apply-generic op (raise a1) a2)
+                        (apply-generic op a1 (raise a2))))
+              (no-method-error)))))))
+")
 
 (--end-- "2.84")
 
@@ -163,7 +293,54 @@
 
 (-start- "2.85")
 
+(prn "
+(define (project-complex->real c)
+  (make-real (real-part (content c))))
 
+(define (project-real->rat r)
+  (make-rat (truncate (content r)) 1))
+
+(define (project-rat->int r)
+  (let* ((cont (content r))
+         (n (numer cont))
+         (d (denom cont)))
+    (make-int (quotient n d))))
+
+(define (drop n)
+  (define (try-drop-one n)
+    (let ((project (get 'project (get-tag n))))
+      (if project
+          (let ((projected (project n)))
+          (if (equ? n (raise projected))
+              projected
+              n)
+          n))))
+  (let ((dropped (try-drop-one n)))
+    (if (equal? (type-tag n) (type-tag dropped))
+        n
+        (drop dropped))))
+
+
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args))
+        (no-method-error (lambda () (error \"No method for these types\"
+                                     (list op type-tags)))))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (drop (apply proc (map contents args)))
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (if (equal? type1 type2)
+                    (no-method-error)
+                    (if (= -1 (type-compare type1 type2))
+                        (apply-generic op (raise a1) a2)
+                        (apply-generic op a1 (raise a2))))
+              (no-method-error)))))))
+")
+  
 
 (--end-- "2.85")
 
@@ -186,7 +363,95 @@
 
 (-start- "2.86")
 
+(prn "We already have generic procedures to handle complex numbers, but the
+implementation of those procedures use 'normal', non-generic procedures. So
+we need to make their implementation generic with respect to oridinary &
+rational numbers.
 
+So:
+
+;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (+ (real-part z1) (real-part z2))
+                         (+ (imag-part z1) (imag-part z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (- (real-part z1) (real-part z2))
+                         (- (imag-part z1) (imag-part z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (* (magnitude z1) (magnitude z2))
+                       (+ (angle z1) (angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
+                       (- (angle z1) (angle z2))))
+
+becomes:
+
+;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (add (real-part z1) (real-part z2))
+                         (add (imag-part z1) (imag-part z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (sub (real-part z1) (real-part z2))
+                         (sub (imag-part z1) (imag-part z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (mul (magnitude z1) (magnitude z2))
+                       (add (angle z1) (angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (div (magnitude z1) (magnitude z2))
+                       (sub (angle z1) (angle z2))))
+  
+Similarly:
+
+;; to be included in the complex package
+(define (add-complex-to-schemenum z x)
+  (make-from-real-imag (+ (real-part z) x)
+                       (imag-part z)))
+
+becomes:
+
+;; to be included in the complex package
+(define (add-complex-to-schemenum z x)
+  (make-from-real-imag (add (real-part z) x)
+                       (imag-part z)))
+
+Generally we need to make sure that anyting that consumes the result of
+real-part, imag-part, magnitude or angle is a generic opertion:
+
+We can de a generic square:
+
+(define (generic-square x) (mul x x))
+
+to replace the use of square.
+
+Functions such as sine, cosine and sqrt are not closed over integers and
+rationals so it seems reasonable to simply raise their arguments to reals
+before consuming them with the regular procedures, but I'm the question is
+right in implying that a generic sine, etc... would be neater.
+
+(define (raise->real n)
+  (let ((type (type-tag n)))
+    (cond ((equal? type 'integer)
+           (make-real (content n)))
+          ((equal? type 'rational)
+           (make-real (/ (numer n) (denom n))))
+          ((equal? type 'real)
+           n))))
+
+(define (make-generic f)
+    (make-scheme-number
+     (f
+      (raise->real a)
+      (raise->real b))))
+
+(define generic-sqrt (make-generic sqrt))
+
+(define generic-sine (make-generic sine))
+
+(define generic-cosine (make-generic cosine))
+
+(define generic-atan (make-generic atan))
+
+")
 
 (--end-- "2.86")
 
