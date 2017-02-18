@@ -18,7 +18,16 @@
 
 (-start- "2.87")
 
-
+(prn
+"(define (=zero-poly? p)
+  (define (=zero-termlist? L)
+    (if (empty-termlist L)
+        #true
+        (if (=zero? (coeff (first-term L)))
+            (=zero-termlist? (rest-term L))
+            #false)))
+  (=zero-termlist? (content p)))
+")
 
 (--end-- "2.87")
 
@@ -36,7 +45,6 @@
 ;   ------------------------------------------------------------------------
 
 (-start- "2.88")
-
 
 
 (--end-- "2.88")
