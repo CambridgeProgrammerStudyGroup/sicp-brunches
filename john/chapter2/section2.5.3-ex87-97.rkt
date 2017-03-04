@@ -4,6 +4,22 @@
 
 (require "common.rkt")
 
+(prn "Sorry, but my answers to this section are going to be a little superficial
+because:
+
+ 1) I while back I didn’t implement the table functions to do this properly
+    and have gone down a path of having code that doesn’t run.
+
+ 2) I’m not finding these exercises super engaging.  Perhaps because of 1).
+ 
+So if I persist with SICP I hope I’ll revisit this section and redo it with
+proper running code, but until then I’m unconvinced about the value and fun
+of these execises.
+
+(No bell for 2.88ff)(
+")
+
+
 ;   Exercise 2.87
 ;   =============
 ;   
@@ -46,6 +62,23 @@
 
 (-start- "2.88")
 
+(prn "Fluffy Answer:
+
+Could probably have generic sub that used the other generic operators,
+something like:
+
+(define (SUB a b) (ADD a (MUL -1 b)))
+
+but even if this did work it could result in a lot of expensive coercion.
+
+So would want specific negators for each type:
+  - scheme numbers: can use the '-' function.
+  - rationals: change negate numerator.
+  - complex with real/imaginary: negate both the real and imaginary part.
+  - complex with angle/mag: add (180 degrees) to the the angle.
+  - polynomial sparse:  negate the members of the term list.
+  - polynomial dense: negate the ceefficents of the term list.
+")
 
 (--end-- "2.88")
 
@@ -64,7 +97,7 @@
 
 (-start- "2.89")
 
-
+(prn "Frankly, don't think there's a lot of point in doing this without running code.")
 
 (--end-- "2.89")
 
@@ -90,7 +123,7 @@
 
 (-start- "2.90")
 
-
+(prn "Even less point without running code.")
 
 (--end-- "2.90")
 
@@ -151,7 +184,19 @@
 
 (-start- "2.91")
 
+(prn "Still Fluffy:
 
+(let* ((new-term (make-term new-o new-c))
+       (rest-of-result
+       (div-terms
+        (sub-poly L1 (mul-poly L2 (cons new-term)))
+        L2)))
+  (cons
+   (adjoin-term new-term (car rest-of-result))
+   (cdr rest-of-result)))
+")
+  
+      
 
 (--end-- "2.91")
 
