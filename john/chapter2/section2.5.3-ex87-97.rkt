@@ -216,7 +216,35 @@ So would want specific negators for each type:
 
 (-start- "2.92")
 
+(prn "I've almost certainly got this very wrong because it doesn't seme that hard.
 
+It's a shame the question doesn't offer an example of the sort of operation
+that we want to carry out, because it's not clear to me.  My best guess is
+
+  poly('x) + poly('y)
+  poly('x) * poly('y)
+
+Can y be a coefficient in poly('x)?  After a lot of circling I don't think I
+care.  We're not being asked to simplify and generally caring would suggest
+we had a poor abstraction.
+
+But now things seem too simple, poly('x) + poly('y) just requires adding
+poly('y) to the constant coefficinet of poly('x).  Multiplication appears to
+just multiplying each coefficient of poly('x) by poly('y).
+
+==============
+
+Ok, looked at some online answers and I guess the requirement is to express
+the result as a poly('x) without any x in the coeficients (x may have been a
+coefficient in poly('y)).  And that is indeed 'not easy'.  However the 
+solutions I've seen don't deal with the situation where the coefficints are
+rational or complex with parts that are poly('y).  To be fair I don't think
+we've explicitly talked about those yet but it's clear that's a natural next
+step.  I.e. I was imagining something even harder than 'not easy' as the
+alternative to my naive answer above.
+
+Quite an interesting question, but I'm going park it until I've got running
+code. ")
 
 (--end-- "2.92")
 
@@ -244,7 +272,7 @@ So would want specific negators for each type:
 
 (-start- "2.93")
 
-
+(prn "look. Fluff!")
 
 (--end-- "2.93")
 
@@ -273,7 +301,8 @@ So would want specific negators for each type:
 
 (-start- "2.94")
 
-
+(prn "Well the answer should be:
+  -FLUFF^2 + FLUFF")
 
 (--end-- "2.94")
 
@@ -307,7 +336,18 @@ So would want specific negators for each type:
 
 (-start- "2.95")
 
+(prn "Give or take my errors in arithmatic we end up with a division where
+\"11x^4 + ...\" is divided by \"13x^3 + ...\".  If we use x as the factor
+then the remainder is has an x^4 term. oops. So factor must(?) be 11x/13 in
+order to remove the highest order term.  We therefore end up with a bunch of
+rational coefficients.
 
+(Ok, just guessing here, but also if GCD is based on the order of the
+polynomial then we're done when we can't decrease the order any further,
+however there could be multilple factors of the same order.  With integers
+'magnitude' is identical to the value, i.e. having got the greatest
+magnitude the value is unique.)
+")
 
 (--end-- "2.95")
 
@@ -357,6 +397,8 @@ So would want specific negators for each type:
 
 (-start- "2.96")
 
+(prn "a. yea, I did that but I left it on the bus.
+b. that damned bus.")
 
 
 (--end-- "2.96")
@@ -419,7 +461,7 @@ So would want specific negators for each type:
 
 (-start- "2.97")
 
-
+(prn "And to think I used be good at maths")
 
 (--end-- "2.97")
 
