@@ -25,7 +25,16 @@
 
 (-start- "3.1")
 
+(define (make-accumulator start)
+  (let ((sum start))
+    (lambda (a)
+      (begin
+        (set! sum (+ sum a))
+        sum))))
 
+(define A (make-accumulator 5))
+(A 10)
+(A 10)
 
 (--end-- "3.1")
 
