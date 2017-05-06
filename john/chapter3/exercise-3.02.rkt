@@ -33,7 +33,20 @@
 
 (-start- "3.2")
 
+(define (sqrt x) (expt x 1/2))
 
+(define (make-monitored f)
+  (let ((count 0))
+    (lambda (a)
+      (cond
+       ((eq? a 'how-many-calls?) count)
+       ((eq? a 'reset-count) (set! count 0))
+       (else (set! count (+ count 1))
+             (f a))))))
+
+(define s (make-monitored sqrt))
+(s 100)
+(s 'how-many-calls?)
 
 (--end-- "3.2")
 
