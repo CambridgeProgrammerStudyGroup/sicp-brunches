@@ -1,6 +1,6 @@
 #lang sicp
 
-(#%require "common.sicp")
+(#%require "common.scm")
 
 ;   Exercise 3.5
 ;   ============
@@ -49,7 +49,80 @@
 
 (-start- "3.5")
 
+(define random-init (runtime))
 
+(define rand-size (expt 2 32))
+(define rand-size-real (* 1.0 rand-size))
+
+(define rand-update
+  (lambda (x)
+    (let ((a 1664525)
+          (b 1013904223)
+          (m rand-size))
+      (modulo
+       (+ (* x a) b)
+       m))))
+
+(define rand
+  (let ((x random-init))
+    (lambda ()
+      (set! x (rand-update x))
+      x)))
+
+(define (random range)
+  (/ (* (rand) range) rand-size-real))
+
+(define (random-in-range low high)
+  (let ((range (- high low)))
+    (+ low (random range))))
+
+(define (monte-carlo trials experiment)
+  (define (iter trials-remaining trials-passed)
+    (cond ((= trials-remaining 0)
+           (/ trials-passed trials))
+          ((experiment)
+           (iter (- trials-remaining 1) (+ trials-passed 1)))
+          (else
+           (iter (- trials-remaining 1) trials-passed))))
+  (iter trials 0))
+
+(define (test-below low high cut-off)
+  (> cut-off (random-in-range low high)))
+
+
+(prn "Checking how many randoms bertween 0 and 1 are less than 0.1:")
+(+ 0.0 (monte-carlo 100000 (lambda () (test-below 0 1 0.1))))
+
+(prn "Checking how many randoms bertween 0 and 1 are less than 0.5:")
+(+ 0.0 (monte-carlo 100000 (lambda () (test-below 0 1 0.5))))
+
+(prn "Checking how many randoms bertween 0 and 1 are less than 0.9:")
+(+ 0.0 (monte-carlo 100000 (lambda () (test-below 0 1 0.9))))
+
+(prn "Checking how many randoms bertween -1 and 1 are less than 0:")
+(+ 0.0 (monte-carlo 100000 (lambda () (test-below -1 1 0))))
+
+
+  
+(define (estimate-integral P x1 x2 y1 y2 trials)
+  (define (experiment)
+    (let ((x (random-in-range x1 x2))
+          (y (random-in-range y1 y2)))
+      (P x y)))
+  (let ((area (* (- x2 x1) (- y2 y1)))
+        (integral-proportion (monte-carlo trials experiment))
+        )
+        (* 1.0 area integral-proportion)))
+
+(define (estimate-pi trials)
+  ;; working with a circle of radious 1 centered on the origin.
+  (define (is-in-circle x y) 
+    (> 1 (+ (* x x) (* y y))))
+  (estimate-integral is-in-circle -1 1 -1 1 trials))
+
+(prn "Estimating pi...")
+(estimate-pi 1000000)
+  
 
 (--end-- "3.5")
 
