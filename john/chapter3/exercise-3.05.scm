@@ -109,13 +109,12 @@
     (let ((x (random-in-range x1 x2))
           (y (random-in-range y1 y2)))
       (P x y)))
-  (let ((area (* (- x2 x1) (- y2 y1)))
-        (integral-proportion (monte-carlo trials experiment))
-        )
-        (* 1.0 area integral-proportion)))
+  (let ((area-of-rectangle (* (- x2 x1) (- y2 y1)))
+        (proportion-thats-integral (monte-carlo trials experiment)))
+        (* 1.0 area-of-rectangle proportion-thats-integral)))
 
 (define (estimate-pi trials)
-  ;; working with a circle of radious 1 centered on the origin.
+  ;; working with a circle of radius 1 centered on the origin.
   (define (is-in-circle x y) 
     (> 1 (+ (* x x) (* y y))))
   (estimate-integral is-in-circle -1 1 -1 1 trials))
