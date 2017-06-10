@@ -31,7 +31,63 @@
 
 (-start- "3.7")
 
+(define (make-account initial-password balance)
+  (define (withdraw amount)
+    (if (>= balance amount)
+        (begin (set! balance (- balance amount))
+               balance)
+        "Insufficient funds"))
+  (define (deposit amount)
+    (set! balance (+ balance amount))
+    balance)
+  (define (dispatch given-password m)
+    (if (eq? initial-password given-password)
+        (cond ((eq? m 'withdraw) withdraw)
+              ((eq? m 'deposit) deposit)
+              (else (error "Unknown request -- MAKE-ACCOUNT"
+                           m)))
+        (lambda (_) "Incorrect Password")))
+  dispatch)
+
+(define (make-joint base-account base-password initial-password)
+  (define (dispatch given-password m)
+    (if (eq? initial-password given-password)
+        (base-account base-password m)
+        (lambda (_) "Incorrect Password")))
+  dispatch)
+
+(prn "Create Peter's account with 200")
+(define peter-acc (make-account 'open-seseme 200))
+(prn "
+And withdraw 10")
+((peter-acc 'open-seseme 'withdraw) 10)
+
+(prn "
+Create Paul's account as joint account")
+(define paul-acc (make-joint peter-acc 'open-seseme 'rosebud))
+(prn "
+And withdraw 3")
+((paul-acc 'rosebud 'withdraw) 3)
+
+(prn "
+Use wrong password on Paul's account")
+((paul-acc 'open-seseme 'withdraw) 3)
 
 
+(prn "
+Use wrong password on Peter's account")
+((peter-acc 'rosebud 'withdraw) 3)
+
+(prn "
+And withdraw 10 from Peter (and demonstrate shared state).")
+((peter-acc 'open-seseme 'withdraw) 10)
+
+(prn "
+Seems to work.  A weakness of this is that Paul's acount depends on
+Peter's.  I.e. Paul can close his account without affecting Peter but
+Peter cannot close his without affecting Paul.  A neater solution would
+allow the account functions to exist independenlty of the identity
+functions.  E.g. symmetric Peter & Paul wrapper could point to the same
+shared (but anonymous) account instance.")
 (--end-- "3.7")
 
