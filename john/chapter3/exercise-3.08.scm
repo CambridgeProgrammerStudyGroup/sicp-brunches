@@ -23,6 +23,24 @@
 
 (-start- "3.8")
 
+;; A function that returns 0 on first call and the argument from the
+;; previous call for all subsequent call i.e. answer_(n) = argument_(n-1)
+(define (get-f)
+  (define previous-n 0)
+  (lambda (n)
+    (define answer previous-n)
+    (set! previous-n n)
+    answer))
+
+;; Need different 'f's because they maintain state.
+(define f1 (get-f))
+(+ (f1 0) (f1 1))
+
+;; Rather than reimplementing Scheme to evaluate from right to left
+;; will just pass argument in the reverse order.
+(define f2 (get-f))
+(+ (f2 1) (f2 0))
+
 
 
 (--end-- "3.8")
