@@ -48,7 +48,50 @@
 
 (-start- "3.10")
 
+(prn"
+  global env                                                               
+  ==========                                                               
+       │                                                                   
+       v                                                                   
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │make-withdrawl:                                                         │
+ │     │                                    W1:                           │
+ └────────────────────────────────────────────────────────────────────────┘
+       │ ^               ^                    │
+       v │               │                    │
+      @ @┘               │                    │ 
+  para: intitial-amount  │                    │
+  (let ...               │                    │
+                         │                    │
+                         │                    │
+                   ┌───────────────────┐      │
+               E'1 │initial-amount: 100│      │
+                   └───────────────────┘      │
+                         ^                    │
+                         │                    │
+                         │                    │
+                   ┌───────────────────┐      │
+               E'2 │balance: 100       │      │
+                   └───────────────────┘      │
+                         │       ^            v
+                         │       └─────────────┐
+                         │                   @ @
+                         │               para: amount
+                         │               (lambda (amount)...
+                         │                    
+                   ┌───────────────────┐      
+               E'3 │amount: 50         │      
+                   └───────────────────┘      
+                   (if (>= balance...
 
+The models are similar, E'3 and E'2 are similar to E2 and E1 in the prevous
+model.  The major diference is that this model's E'1 with 'initial-amount'
+did not exist in the previous model.  However intial-amount is not
+referenced in any of the code used by W1 so if presence of the frame and
+the value it contains does not affect the execution.  I.e. the
+""(if (>= balance ..."" code is the same in both models and is running in an
+environment that is essentially identical in both models.
+")
 
 (--end-- "3.10")
 
