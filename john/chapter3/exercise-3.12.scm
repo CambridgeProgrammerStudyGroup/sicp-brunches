@@ -57,7 +57,56 @@
 
 (-start- "3.12")
 
+(prn
+ "At first I thought  both would be ('b 'c 'd) but of course, but of course
+it is not that simple.  (However, (cdr w) and (cdr z) are both ('b 'c 'd).)
 
+With append:  (cdr x) -> ('b)
+With append!: (cdr x) -> ('b 'c 'd)
+
+
+Using 'append':
+===============
+
+Before:
+
+x-> [.|.] - [.|/]
+     |       |
+    'a      'b
+
+y-> [.|.] - [.|/]
+     |       |
+    'c      'd
+
+After:
+
+x-> [.|.] - [.|/]
+     |       |
+    'a      'b
+
+                      y
+                      |  
+                      v
+z-> [.|.] - [.|.] - [.|.] - [.|/]
+     |       |       |       |
+    'a      'b      'c      'd
+
+x and y are unchanged by the operations. The result 
+
+
+Using 'append!':
+================
+
+Initially x and y are as above. After append!:
+
+      x               y
+      |               |  
+      v               v
+
+z-> [.|.] - [.|.] - [.|.] - [.|/]
+     |       |       |       |
+    'a      'b      'c      'd
+")
 
 (--end-- "3.12")
 
