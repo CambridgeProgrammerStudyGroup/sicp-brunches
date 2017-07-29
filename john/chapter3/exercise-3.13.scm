@@ -26,7 +26,16 @@
 
 (-start- "3.13")
 
+(prn"
+┌──────────────────────────┐
+│                          │
+└──> [.|.] - [.|.] - [.|.] │
+      |       |       | └──┘     
+     'a      'b      'c
 
-
+(last-pair z) will not terminate.  Logically there is no last pair.
+Practiaclly, the function can only terminate when (cdr x) returns null,
+but there is no pair with a null cdr.
+")
 (--end-- "3.13")
 
