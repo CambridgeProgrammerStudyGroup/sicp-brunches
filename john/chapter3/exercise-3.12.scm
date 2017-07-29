@@ -84,9 +84,9 @@ x-> [.|.] - [.|/]
      |       |
     'a      'b
 
-                      y
-                      |  
-                      v
+                     y
+                     |  
+                     v
 z-> [.|.] - [.|.] - [.|.] - [.|/]
      |       |       |       |
     'a      'b      'c      'd
@@ -99,9 +99,9 @@ Using 'append!':
 
 Initially x and y are as above. After append!:
 
-      x               y
-      |               |  
-      v               v
+     x               y
+     |               |  
+     v               v
 
 z-> [.|.] - [.|.] - [.|.] - [.|/]
      |       |       |       |
