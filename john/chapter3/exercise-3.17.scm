@@ -18,6 +18,7 @@
 
 (-start- "3.17")
 
+;; count-pairs from previous question
 (define (original-count-pairs x)
   (if (not (pair? x))
       0
@@ -25,7 +26,7 @@
          (original-count-pairs (cdr x))
          1)))
 
-
+;helper
 (define (contains? list item)
   (if (null? list)
       #f
@@ -33,6 +34,7 @@
           #t
           (contains? (cdr list) item))))
 
+;helper
 (define (get-have-seen)
   (define seen-items '())
   (lambda (item)
@@ -42,7 +44,7 @@
           (set! seen-items (cons item seen-items))
           #f))))
                        
-
+; our new count-pairs
 (define (count-pairs item)
   (define have-seen? (get-have-seen))
   (define (iter item)
@@ -52,23 +54,25 @@
         (+ 1 (iter (car item)) (iter (cdr item)))))
   (iter item))
         
-
+; test data
 (define simple
   (cons 'a
         (cons 'a
               (cons 'a '()))))
 
+;test data
 (define four
   (let ((last (cons 'a '())))
     (cons 'a
           (cons last
                 last))))
-
+;test data
 (define seven
   (let ((last (cons 'a '())))
     (let ((middle (cons last last)))
       (cons middle middle))))
 
+;test data
 (define infinite
   (let ((last (cons 'a '())))
     (let ((first (cons 'a
@@ -77,18 +81,18 @@
       (set-cdr! last first)
       first)))
       
-(prn "Using 'original' count-pairs from previous question:")
-(display (original-count-pairs simple)) (display "\n")
-(display (original-count-pairs four))   (display "\n")
-(display (original-count-pairs seven))  (display "\n")
-(prn "<does not finish>")
+(prn "Using 'original' count-pairs from previous question:"
+ (str "simple list:  " (original-count-pairs simple))
+ (str "'four' list:  " (original-count-pairs four))
+ (str "'seven' list: " (original-count-pairs seven))
+ (str "looped list:  " "<does not finish>"))
 
-(prn "
-Using new count-pairs:")
-(display (count-pairs simple)) (display "\n")
-(display (count-pairs four))   (display "\n")
-(display (count-pairs seven))  (display "\n")
-(display (count-pairs infinite))  (display "\n")
+(prn ""
+ "Using new count-pairs:"
+ (str "simple list:  " (count-pairs simple))
+ (str "'four' list:  " (count-pairs four))
+ (str "'seven' list: " (count-pairs seven))
+ (str "looped list:  " (count-pairs infinite)))
 
 (--end-- "3.17")
 

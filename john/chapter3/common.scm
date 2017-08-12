@@ -1,4 +1,5 @@
 #lang sicp
+
 (#%require (only racket/base error))
 (#%provide error)
 #|
@@ -11,9 +12,15 @@ doesn't like.  If/when that causes a problem I'll have to go figure...
 
 (define nl "\n")
 
+; Crude replacement for ~a function in Racket
+(define (~a o)
+  (cond
+    ((string? o) o)
+    ((number? o) (number->string o))
+    (else (error "Don't know how to get string for:" o))))
+
 (define (str . parts)
-  (apply string-append  parts))
-;;racket:  (apply string-append  (map ~a parts)))
+  (apply string-append  (map ~a parts)))
 
 
 (define (display-line line)
