@@ -68,7 +68,52 @@
 
 (-start- "2.73")
 
+(prn "a:
+==
 
+Well, it looks like we put the functions that symbolically differentiate
+various operators and put them in a table. (Struggling, the question kind of
+explains what we've done.)  It's not necessary to put number? or
+same-variable? in the table as there's only one implementation of each that
+is not dependent on any operator.  So perhaps it is 'impossible' because
+there is no operator to use ast the second key.
+
+b:
+==
+
+(define (deriv-sum operands)
+  (make-sum (deriv (car operands) var)
+            (deriv (cadr operands) var)))
+
+(define (deriv-prod operands)
+  (let ((multiplier (car operands))
+        (multiplicand (cadr operands)))   
+    (make-sum
+     (make-product multiplier
+                   (deriv multiplicand var))
+     (make-product (deriv multiplier var)
+                   multiplicand))))
+
+(put 'deriv '* deriv-prod)
+
+
+c:
+==
+
+(define (deriv-exp operands)
+  (let ((base (car operands))
+        (exponent (cadr operands)))
+    (make-product exponent (make-exponent base (make-sum exponent '-1)))))
+
+(put 'deriv '** deriv-exp)
+
+
+d:
+==
+
+There would be no differences except to the 'put' statements.
+
+")
 
 (--end-- "2.73")
 
@@ -127,7 +172,65 @@
 
 (-start- "2.74")
 
+(prn "Foreach different file we need to a number of file specificic
+functions: get-record, get-salary, get-address, ...
 
+We then want to make some generic (oops, I mean data-directed) functions that
+wrap the specific functions.  When getting complete records we need a key to
+find the right function.  We could use the filename, but that that's not
+cool.  So we need a format identifier.  Where do we get that from?  Well we
+could have a table of file-name -> format, or put it in the file.  I'll
+assume we can add this one piece of data to each company file.  When
+consuming records we need to have the record tagged with this key again, so
+we can lookup the appropriate function to extract the data.
+
+a:
+==
+(define (get-record file emp-name)
+  (define format (get-file-format file))
+  (define get-record (get 'get-record format))
+  (define record (get-record file emp-name))
+  (if record
+    (tag-format-type record format)
+    #f))
+
+I'll let George worry about the implementation.
+
+
+b:
+==
+(define (get-salary record)
+  (define format (get-format-type record))
+  (define local-get-salary (get 'get-salary format))
+  (define local-record (get-content record))
+  (local-get-salary local-record))
+
+I'll let George worry about the implementation.
+
+
+c:
+==
+(define (find-employee-record employee files)
+  (if (empty? files)
+    #f
+    (let ((record (get-record (car files) employee)))
+      (if record
+        record
+        (find-employee-record (cdr files))))))
+
+I'll let George worry about the implementation.
+
+d:
+==
+When a new company is acquired:
+  - The new company needs to add a unique format identifier to its file.
+  - Company specific functions need to be added to the database, get-record
+    to get the employee record, and a getter for each required datum, e.g.
+    salary, address.
+  - Once the new company's file is available on the network then it needs to
+    be added to the files collection.
+
+")
 
 (--end-- "2.74")
 
@@ -147,7 +250,25 @@
 
 (-start- "2.75")
 
+(define (make-from-mag-ang r a)
+  (define (dispatch op)
+    (cond ((eq? op 'real-part)
+           (* r (cos a)))
+          ((eq? op 'imag-part)
+           (* r (sin a)))
+          ((eq? op 'magnitude) r)
+          ((eq? op 'angle) a)
+          (else
+           (error "Unknown op -- MAKE-FROM-MAG-ANG" op))))
+  dispatch)
 
+(let* ((z (make-from-mag-ang 10 1))
+       (x (z 'real-part))
+       (y (z 'imag-part)))
+  (prn "With r=10, a=1"
+       (str "Expect x = 5.403023058, got: " x)
+       (str "Expect y = 8.414709848, got: " y)))
+       
 
 (--end-- "2.75")
 
@@ -172,7 +293,32 @@
 
 (-start- "2.76")
 
+(prn "With explicit dispatch every function that consumes the generic items must
+be updated to check for and correctly handle the new type or the new
+operation.  This would be in addition to adding the new type or updating the
+existing types with a new operation. So this is likely to be appropriate
+only when we know a system is closed and that we won't be adding new types
+or operations.
 
+With data-directed dispatch the only the database needs to be updated when
+adding either a new type or new operation.
+
+With messsage dispatch no existing items need to be updated when adding a
+type.  If adding a new operation all exiting types need to be updated but
+the consuming code does not.
+
+Assuming a goal is to:
+  1) reduce the amount of new code,
+  2) reduce the number of different places that we make changes,
+
+then, if we have frequent type additions we want to use message parsing as
+we will not need to make any modifications to existing code when adding
+additional types.
+
+If we have frequent operation additions we want to use data-directed dispatch
+because all the changes needed to support the operation can be made in the
+one place - where we build database.
+")
 
 (--end-- "2.76")
 
