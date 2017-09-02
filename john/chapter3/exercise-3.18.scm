@@ -34,13 +34,14 @@
   (set-cdr! (last-pair x) x)
   x)
 
-(define long (make-list '() 1000))
 
-(define loop (make-cycle (make-list '() 1000)))
+; Construct subjects:
+(define straight (make-list '() 1000))
 
-(define long&loop (make-list '() 1000))
+(define looped (make-cycle (make-list '() 1000)))
 
-(set-cdr! (last-pair long&loop) loop)
+(define straight->looped (make-list '() 1000))
+(set-cdr! (last-pair straight->looped) looped)
 
 
 ; helpers for checking if we've seen a pair before
@@ -62,6 +63,8 @@
           (set! seen-items (cons item seen-items))
           #f))))
 
+
+; Cycle check:
 (define (contains-cycle list)
   (define have-seen? (get-have-seen))
   (define (iter item)
@@ -72,11 +75,18 @@
          (iter (cdr item)))))
   (iter list))
 
-(prn (str "long: " (contains-cycle long)))
-(prn "")
-(prn (str "loop: " (contains-cycle loop)))
-(prn "")
-(prn (str "long&loop " (contains-cycle long&loop)))
+
+; Test against subjects:
+
+(prn (str "Straight: " (contains-cycle straight))
+     ""
+     (str "Looped: " (contains-cycle looped))
+     ""
+     (str "Straight then Looped:  " (contains-cycle straight->looped))
+     "
+Cycles are correctly detected but space required is equal to the size of the
+subject.")
+
 
 (--end-- "3.18")
 
