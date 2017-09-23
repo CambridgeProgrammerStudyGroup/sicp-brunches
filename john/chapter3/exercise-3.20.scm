@@ -25,7 +25,95 @@
 
 (-start- "3.20")
 
+(prn"
+
+It's tempting to use different symbols in question's code so that
+    (define x (cons 1 2))
+becomes:
+    (define a (cons 1 2))
+to avoid potential (human) ambiguity between the x, y and z used in the
+question and the x, y and z used in the definition of cons.  But I suspect
+the re-use of symbols is intentional to emphasise they are different
+identifiers because they exist in different contexts/environments.
+
+Global Env ──┐
+             v
+ ┌────────────────────────────────────────────────────────────────────────┐
+ │x:──┐                                                                   │
+ │    │                                                                   │
+ └────────────────────────────────────────────────────────────────────────┘
+      │ 
+      │       ┌────────────┐
+      │  E1 ->│ x: 1       │
+      │       │ y: 2       │
+      │       │ set-x:     │
+      │       │ set-y:     │
+      │       └────────────┘
+      v          ^
+     @ @ ────────┘
+  cond ((eq?...
+  
+   
+########################################
+########################################
 
 
+It's tempting to use different symbols in question's code so that
+    (define x (cons 1 2))
+becomes:
+    (define a (cons 1 2))
+to avoid potential (human) ambiguity between the x, y and z used in the
+question and the x, y and z used in the definition of cons.  But I suspect
+the re-use of symbols is intentional to emphasise they are different
+identifiers because they exist in different contexts/environments.
+
+
+Global:
+    cons:
+    car:
+    cdr
+    set-car:
+
+    x:
+    w:
+
+
+call cdr:  --> global
+    z: w   
+    (z 'cdr)
+
+call z: (arg-a) --> w's
+    m: 'cdr  
+   (cond ...
+
+call set-car!:  --> global
+    z: arg-a
+    new-value: 17
+    ((z 'set-car!) new-value)
+
+    call z:  -->  w's
+        z: arg-a (= y)
+        m: 'set-car
+        (y 'set-car)
+
+call set-x! --> x's --> new x
+    v: new-value
+    set! x new-value
+
+=========
+
+call car  --> global
+    z: x
+    (z 'car)
+
+call z  --> x's
+   m:
+
+
+call y:
+
+
+
+")
 (--end-- "3.20")
 
