@@ -36,99 +36,57 @@ question and the x, y and z used in the definition of cons.  But I suspect
 the re-use of symbols is intentional to emphasise they are different
 identifiers because they exist in different contexts/environments.
 
-            para: x
-            para: y              para: z      para: z
-          (define (set-x!...    (z 'car)     (z 'cdr)
-                @ @ ─┐             @ @ ─┐       @ @ ─┐
-                 ^   │              ^   │        ^   │
-Global Env ──┐   │   │              │   │        │   │
-             v   │   v              │   v        │   v
- ┌────────────────────────────────────────────────────────────────────────┐
- │cons: ─────────┘                   │           │                        │
- │car: ──────────────────────────────┘           │                        │
- │cdr: ──────────────────────────────────────────┘                        │
- │x: ───────┐                                                             │
- │y: ─┐     │                                                             │
- │    │     │                                                             │
- └────────────────────────────────────────────────────────────────────────┘
-      │     │
-      │     │      ┌────────────┐            ┌────────────┐
-      │     │ E1 ->│ x: 1       │        E2->│ x: 1       │
-      │     │      │ y: 2       │            │ x: 1       │
-      │     │      │ set-x!: ───│────────┐   │ x: 1       │
-      │     │      │ set-y!: ┐  │        │   │ x: 1       │
-      │     │      └────────────┘        │   └────────────┘
-      │     v          ^     │ ^^        │
-      │    @ @ ────────┘     │ │└────────│───┐
-      │ cond ((eq?...        │ └─┐       │   │
-                             v   │       v   │
-                            @ @ ─┘      @ @ ─┘
-                        (set! y v)  (set! x v)
 
-      │
-     @ @ ────────────────────────────
-  cond ((eq?...
-   
-########################################
-########################################
-
-
-It's tempting to use different symbols in question's code so that
-    (define x (cons 1 2))
-becomes:
-    (define a (cons 1 2))
-to avoid potential (human) ambiguity between the x, y and z used in the
-question and the x, y and z used in the definition of cons.  But I suspect
-the re-use of symbols is intentional to emphasise they are different
-identifiers because they exist in different contexts/environments.
-
-
-Global:
-    cons:
-    car:
-    cdr
-    set-car:
-
-    x:
-    w:
-
-
-call cdr:  --> global
-    z: w   
-    (z 'cdr)
-
-call z: (arg-a) --> w's
-    m: 'cdr  
-   (cond ...
-
-call set-car!:  --> global
-    z: arg-a
-    new-value: 17
-    ((z 'set-car!) new-value)
-
-    call z:  -->  w's
-        z: arg-a (= y)
-        m: 'set-car
-        (y 'set-car)
-
-call set-x! --> x's --> new x
-    v: new-value
-    set! x new-value
-
-=========
-
-call car  --> global
-    z: x
-    (z 'car)
-
-call z  --> x's
-   m:
-
-
-call y:
-
-
-
+                                                          
+            para: x                                        para: z          
+            para: y              para: z      para: z      para: new-value  
+          (define (set-x!...    (z 'car)     (z 'car)     ((z 'set-car!) ...
+                @ @ ─┐             @ @ ─┐       @ @ ─┐          @ @ ─┐
+                 ^   │              ^   │        ^   │           ^   │
+Global Env ──┐   │   │              │   │        │   │           │   │
+             v   │   v              │   v        │   v           │   v
+┌──────────────────────────────────────────────────────────────────────────┐
+│cons: ──────────┘                  │            │               │         │
+│car: ──────────────────────────────┘            │               │         │
+│cdr: ───────────────────────────────────────────┘               │         │
+│set-car!: ──────────────────────────────────────────────────────┘         │
+│                                                                          │
+│(after calls to cons)                                                     │
+│x:┐                                   z:┐                                 │
+└──────────────────────────────────────────────────────────────────────────┘
+   │           ^                         │          ^                      
+   │           │  call to cons           │          │   call to cons     
+   │     ┌───────────────────────────┐   │     ┌───────────────────────────┐
+   │E1 ->│x: 1                       │   │E2 ->│x: x                       │
+   │     │y: 2                       │   │     │y: x                       │
+   │     │set-x!;────────────────┐   │   │     │set-x!;────────────────┐   │
+   │     │set-y!:─────────┐      │   │   │     │set-y!:─────────┐      │   │
+   │     │dispatch:┐      │      │   │   │     │dispatch:┐      │      │   │
+   │     └───────────────────────────┘   │     └───────────────────────────┘
+   │               │  ^   │  ^   │  ^    │               │  ^   │  ^   │  ^
+   └───────────────│  │   │  │   │  │    └───────────────│  │   │  │   │  │
+                   v  │   v  │   v  │                    v  │   v  │   v  │
+                  @ @ │  @ @ │  @ @ │                   @ @ │  @ @ │  @ @ │
+                  │ └─┘  │ └─┘  │ └─┘                   │ └─┘  │ └─┘  │ └─┘
+                  │      │      │                       │      │      │
+                  │─────────────────────────────────────┘      │      │
+                  │      │      │                              │      │
+                  │      └────────────────────────┐────────────┘      │
+                  │             │                 │                   │
+                  │             └──────────────────────────────────┐──┘ 
+                  │                               │                │
+                  │                               │                │
+                  │                               │                │
+                  v                               v                v
+         parameter: m                        parameter: v     parameter: v
+      (define (dispatch m)                    (set! x v)       (set! y v) 
+     	    (cond ((eq? m 'car) x)                                
+                ((eq? m 'cdr) y)                                
+                ((eq? m 'set-car!) set-x!)                         
+                ((eq? m 'set-cdr!) set-y!)                         
+                (else ... )))   
+    
+    
 ")
 (--end-- "3.20")
 
