@@ -63,7 +63,7 @@
 (prn
  (str "Check we get the right result for the empty list (as we're using the empty
 list as the 'remembered item':
-    Empty list:" (contains-cycle '()) "  (" step-count " steps)")
+    Empty list: " (contains-cycle '()) "  (" step-count " steps)")
  ""
  (str "    Straight: " (contains-cycle straight) "  (" step-count " steps)")
  ""
