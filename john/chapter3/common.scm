@@ -13,9 +13,12 @@ doesn't like.  If/when that causes a problem I'll have to go figure...
 (define nl "\n")
 
 ; Crude replacement for ~a function in Racket
+(define (boolean->string val) (if val "#t" "#f"))
+
 (define (~a o)
   (cond
     ((string? o) o)
+    ((boolean? o) (boolean->string o))
     ((number? o) (number->string o))
     (else (error "Don't know how to get string for:" o))))
 
