@@ -20,6 +20,7 @@ doesn't like.  If/when that causes a problem I'll have to go figure...
     ((string? o) o)
     ((boolean? o) (boolean->string o))
     ((number? o) (number->string o))
+    ((symbol? o) (symbol->string o))
     (else (error "Don't know how to get string for:" o))))
 
 (define (str . parts)

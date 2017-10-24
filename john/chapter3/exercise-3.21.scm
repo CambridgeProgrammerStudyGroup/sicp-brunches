@@ -39,7 +39,87 @@
 
 (-start- "3.21")
 
+(define (front-ptr queue) (car queue))
+(define (rear-ptr queue) (cdr queue))
+(define (set-front-ptr! queue item) (set-car! queue item))
+(define (set-rear-ptr! queue item) (set-cdr! queue item))
 
+(define (empty-queue? queue) (null? (front-ptr queue)))
+
+(define (make-queue) (cons '() '()))
+
+(define (front-queue queue)
+  (if (empty-queue? queue)
+      (error "FRONT called with an empty queue" queue)
+      (car (front-ptr queue))))
+
+(define (insert-queue! queue item)
+  (let ((new-pair (cons item '())))
+    (cond ((empty-queue? queue)
+           (set-front-ptr! queue new-pair)
+           (set-rear-ptr! queue new-pair)
+           queue)
+          (else
+           (set-cdr! (rear-ptr queue) new-pair)
+           (set-rear-ptr! queue new-pair)
+           queue))))
+
+(define (delete-queue! queue)
+  (cond ((empty-queue? queue)
+         (error "DELETE! called with an empty queue" queue))
+        (else
+         (set-front-ptr! queue (cdr (front-ptr queue)))
+         queue)))
+
+
+(prn "Recreating Ben's experience:")
+(define q1 (make-queue))
+(insert-queue! q1 'a)
+(insert-queue! q1 'b)
+(delete-queue! q1)
+(delete-queue! q1)
+
+(prn "
+
+Our queue is a pair.  The car points to a list that can be thought of as the
+contents of the queue.  The cdr can be thought of as a convenience or
+optimisation to quickly get to the end of the list for adding new items.
+
+If Ben were to simply look at the car and ignore the cdr then he would see
+what he expects to see - the contents of the queue.
+
+")
+
+
+(define (simple-print-queue queue) (car queue))
+
+(prn "Ben's experience with a simple print:")
+(define q2 (make-queue))
+(simple-print-queue (insert-queue! q2 'a))
+(simple-print-queue (insert-queue! q2 'b))
+(simple-print-queue (delete-queue! q2))
+(simple-print-queue (delete-queue! q2))
+
+
+(define (pretty-print-queue queue)
+  (define (iter list text)
+    (if (null? list) text
+        (begin
+          (if (eq? text "")
+              (iter (cdr list) (str text (car list)))
+              (iter (cdr list) (str text ", " (car list)))))))
+  (iter (car queue) ""))
+        
+(prn "
+
+Ben's experience with a pretty print (with an extra item):")
+(define q3 (make-queue))
+(pretty-print-queue (insert-queue! q3 'a))
+(pretty-print-queue (insert-queue! q3 'b))
+(pretty-print-queue (insert-queue! q3 'c))
+(pretty-print-queue (delete-queue! q3))
+(pretty-print-queue (delete-queue! q3))
+(pretty-print-queue (delete-queue! q3))
 
 (--end-- "3.21")
 
