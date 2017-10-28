@@ -82,8 +82,8 @@
 (prn "
 
 Our queue is a pair.  The car points to a list that can be thought of as the
-contents of the queue.  The cdr can be thought of as a convenience or
-optimisation to quickly get to the end of the list for adding new items.
+contents of the queue.  The cdr can be thought of as a convenience or,
+optimisation, to quickly get to the end of the list for adding new items.
 
 If Ben were to simply look at the car and ignore the cdr then he would see
 what he expects to see - the contents of the queue.
@@ -91,7 +91,9 @@ what he expects to see - the contents of the queue.
 ")
 
 
-(define (simple-print-queue queue) (car queue))
+(define (simple-print-queue queue)
+  (display (car queue))
+  (display "\n"))
 
 (prn "Ben's experience with a simple print:")
 (define q2 (make-queue))
@@ -103,7 +105,7 @@ what he expects to see - the contents of the queue.
 
 (define (pretty-print-queue queue)
   (define (iter list text)
-    (if (null? list) text
+    (if (null? list) (prn text)
         (begin
           (if (eq? text "")
               (iter (cdr list) (str text (car list)))
