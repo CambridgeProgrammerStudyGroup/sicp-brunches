@@ -27,7 +27,65 @@
 
 (-start- "3.22")
 
+(define (make-queue)
+  (let ((front-ptr nil)
+        (rear-ptr nil))
+    (define (empty-queue?) (null? front-ptr))      
+    (define (insert new-value)
+      (cond
+        ((empty-queue?)
+         (set! front-ptr (list new-value))
+         (set! rear-ptr front-ptr))
+        (else
+         (set-cdr! front-ptr (cons new-value '())))))          
+    (define (front)
+      (cond
+        ((empty-queue?) error "FRONT called on an empty queue")
+        (else (car front-ptr))))
+    (define (delete)
+      (cond
+        ((empty-queue?)
+         error "DELETE called on an empty queue")
+        (else
+         (set! front-ptr (cdr front-ptr)))))          
+    (define (dispatch m)
+      (cond
+        ((eq? m 'insert) insert)
+        ((eq? m 'front) front)
+        ((eq? m 'delete) delete)
+        ))
 
+    dispatch))
+
+(define (front-queue queue)
+  ((queue 'front)))
+
+(define (insert-queue! queue item)
+  ((queue 'insert) item))
+
+(define (delete-queue! queue)
+  ((queue 'delete)))
+
+;;;;;;;;;
+
+(define queue (make-queue))
+(front-queue queue) 
+(delete-queue! queue) 
+(insert-queue! queue "first")
+(front-queue queue)
+(insert-queue! queue "second")
+(front-queue queue)
+(delete-queue! queue)
+(insert-queue! queue "third")
+(front-queue queue)
+(delete-queue! queue) 
+(front-queue queue)
+(delete-queue! queue) 
+(front-queue queue)
+(insert-queue! queue "fourth")
+(front-queue queue)
+(delete-queue! queue) 
+(front-queue queue)
 
 (--end-- "3.22")
 
