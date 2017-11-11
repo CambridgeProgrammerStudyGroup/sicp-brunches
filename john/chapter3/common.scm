@@ -14,6 +14,8 @@ doesn't like.  If/when that causes a problem I'll have to go figure...
 
 ; Crude replacement for ~a function in Racket
 (define (boolean->string val) (if val "#t" "#f"))
+(define (void)
+  (if #f "never!"))
 
 (define (~a o)
   (cond
@@ -21,6 +23,7 @@ doesn't like.  If/when that causes a problem I'll have to go figure...
     ((boolean? o) (boolean->string o))
     ((number? o) (number->string o))
     ((symbol? o) (symbol->string o))
+    ((equal? o (void)) (identity ""))
     (else (error "Don't know how to get string for:" o))))
 
 (define (str . parts)
